@@ -1,6 +1,6 @@
 #include "clock.h"
-#include "logging.h"
 #include "hardware/i2c.h"
+#include <stdio.h>
 
 // GP4 - Pin6 is the default
 #define SDA_PIN PICO_DEFAULT_I2C_SDA_PIN
@@ -52,9 +52,9 @@ void clock_set_time(uint16_t time_hhmm) {
   buf[3] = (hours_tens << 4) | hours_ones;  // hours, in 24h format
   int err = i2c_write_blocking(i2c0, DS3231_I2C_ADDRESS, buf, 4, false);
   if (err >= 0) {
-    logf("Clock set to %02d:%02d.\n", time_hhmm / 100, time_hhmm % 100);
+    printf("Clock set to %02d:%02d.\n", time_hhmm / 100, time_hhmm % 100);
   } else {
-    logf("Clock set error %d\n", err);
+    printf("Clock set error %d\n", err);
   }
 }
 

@@ -23,7 +23,7 @@ add_compile_options(-Wall
         )
 
 
-add_executable(dotstar_matrix_clock
+add_executable(matrix_clock
         buttons.c
         clock.c
         clock_render.c
@@ -36,15 +36,18 @@ add_executable(dotstar_matrix_clock
         )
 
 # pull in common dependencies
-target_link_libraries(dotstar_matrix_clock
+target_link_libraries(matrix_clock
     pico_stdlib
+    UART_CONSOLE
     hardware_spi
     hardware_i2c
 )
 
 # enable usb output, disable uart output
-pico_enable_stdio_usb(dotstar_matrix_clock 1)
-pico_enable_stdio_uart(dotstar_matrix_clock 0)
+pico_enable_stdio_usb(matrix_clock 1)
+pico_enable_stdio_uart(matrix_clock 0)
 
 # create map/bin/hex file etc.
-pico_add_extra_outputs(dotstar_matrix_clock)
+pico_add_extra_outputs(matrix_clock)
+
+add_subdirectory(pico_uart_console)

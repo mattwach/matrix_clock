@@ -1,0 +1,3 @@
+[submodule "src/pico_uart_console"]
+	path = src/pico_uart_console
+	url = https://github.com/mattwach/pico_uart_console.git

@@ -1,6 +1,6 @@
-/**
- * Dotstar simple example
- */
+// Matrix clock
+//
+// By: Matt Wachowski
 
 #include "pico/stdlib.h"
 #include <string.h>
@@ -78,6 +78,17 @@ static void init(void) {
   sleep_ms(50);
 }
 
+// Updates the console prompt with the current time
+static void update_prompt(void) {
+  sprintf(prompt, "%02d:%02d (%s,%s,%s)\n> ",
+       time_hhmm / 100,
+       time_hhmm % 100,
+       color_names[(time_hhmm / 100) % 10],
+       color_names[(time_hhmm / 10) % 10],
+       color_names[time_hhmm % 10]
+  );
+}
+
 // A function that is used for debug and "learning" what the colors mean.
 static void maybe_update_time(uint32_t frame_idx) {
   if ((frame_idx % TIME_UPDATE_FRAMES) == 0) {
@@ -85,13 +96,7 @@ static void maybe_update_time(uint32_t frame_idx) {
     const uint16_t old_time = time_hhmm;
     time_hhmm = clock_get_time();
     if (time_hhmm != old_time) {
-      sprintf(prompt, "T=%02d:%02d (%s,%s,%s)\n> ",
-           time_hhmm / 100,
-           time_hhmm % 100,
-           color_names[(time_hhmm / 100) % 10],
-           color_names[(time_hhmm / 10) % 10],
-           color_names[time_hhmm % 10]
-      );
+      update_prompt();
     }
   }
 }

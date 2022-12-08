@@ -71,7 +71,7 @@ static inline uint32_t uptime_ms() {
 // Initialization function
 static void init(void) {
   time_hhmm = 0;
-  uart_console_init(&console, callbacks, NUM_CALLBACKS, CONSOLE_DEBUG_VT102);
+  uart_console_init(&console, callbacks, NUM_CALLBACKS, CONSOLE_VT102);
   led_matrix_init();
   clock_init();
   buttons_init();
@@ -80,7 +80,7 @@ static void init(void) {
 
 // Updates the console prompt with the current time
 static void update_prompt(void) {
-  sprintf(prompt, "%02d:%02d (%s,%s,%s)\n> ",
+  sprintf(prompt, "%02d:%02d (%s,%s,%s)> ",
        time_hhmm / 100,
        time_hhmm % 100,
        color_names[(time_hhmm / 100) % 10],

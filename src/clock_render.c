@@ -32,6 +32,14 @@ struct Particle {
   uint8_t blue;
 };
 
+// Display modes
+#define DISPLAY_NORMAL 0
+#define DISPLAY_GUIDE 1
+#define DISPLAY_NUMBERS 2
+#define DISPLAY_OFF 3
+#define NUM_DISPLAY_MODES 4
+uint8_t display_mode = 0;
+
 // Holds state of all particles
 struct Particle particle[PARTICLE_COUNT];
 
@@ -65,6 +73,23 @@ static void init_particle(struct Particle* p, uint16_t time_hhmm) {
   p->blue = color & 0xFF; 
 }
 
+static inline void get_pixel_idx(uint8_t x, uint8_t y) {
+  return (y * LED_MATRIX_WIDTH) + x;
+}
+
+static inline void set_pixel(
+  uint32_t* led,
+  uint8_t x,
+  int8_t y,
+  uint8_t br,
+  uint8_t r,
+  uint8_t g,
+  uint8_t b) {
+  const uint32_t pixel = (br << 24) | (r << 16) | (g << 8) | b;
+  const uint8_t idx = get_pixel_idx(x, y);
+  led[idx] = pixel;
+}
+
 // If to particles render to the same LED, the resolution is to take
 // the maximum RGB and brightness, each maximum tracked independently. 
 static void merge_pixel(
@@ -76,7 +101,7 @@ static void merge_pixel(
   uint8_t g,
   uint8_t b) {
   const uint32_t pixel = (br << 24) | (r << 16) | (g << 8) | b;
-  const uint8_t idx = (y * LED_MATRIX_WIDTH) + x;
+  const uint8_t idx = get_pixel_idx(x, y);
   const uint32_t old_pixel = led[idx];
   uint32_t new_pixel = 0x00000000;
   // Finds the maximum for each independent channel
@@ -97,6 +122,12 @@ inline static uint8_t calc_brightness(uint8_t br, uint8_t color) {
   return (br < color) ? br : color;
 }
 
+
+// calculates a brightness value (8-bit, intended for merge_pixel(), or set_pixel())
+static uint16_t calc_brightness_step(uint16_t brightness_step) {
+  return MIN_BRIGHTNESS + (BRIGHTNESS_STEP_SIZE * brightness_step);
+}
+
 // renders a particle to the led matrix (in memory only at this point).
 static void render_particle(
   uint32_t* led,
@@ -108,7 +139,7 @@ static void render_particle(
   }
   const uint8_t x = p->x;
   uint16_t cbr = 255;
-  uint16_t ubr = MIN_BRIGHTNESS + (BRIGHTNESS_STEP_SIZE * brightness_step);
+  uint16_t ubr = calc_brightness_step(brightness_step);
   uint8_t something_rendered = 0;
   for (int8_t y = p->y; y < LED_MATRIX_HEIGHT; ++y) {
     if ((cbr >= 0) && (ubr > 0)) {
@@ -146,10 +177,37 @@ static void update_particle(struct Particle* p) {
 }
 
 static uint8_t check_buttons(uint8_t button_pressed) {
+  if (button_pressed & INCREMENT_BUTTON) {
+    ++display_mode;
+    if (display_mode >= NUM_DISPLAY_MODES) {
+      display_mode = 0;
+    }
+  }
   if (button_pressed & SELECT_BUTTON) {
     return 1;
   }
   return 0;
+}
+
+void all_pixels_off(uint32_t* led) {
+  memset(led, 0, LED_MATRIX_WIDTH * LED_MATRIX_HEIGHT * sizeof(uint32_t));
+}
+
+void overlay_guide(uint32_t *led) {
+  // init two black strips
+  for (uint8_t x = 0; x < 2; ++x) {
+    for (uint8_t y = 0; y < LED_MATRIX_HEIGHT; ++y) {
+      led[get_pixel_idx(x, y)] = 0;
+    }
+  }
+
+  for (uint8_t i=0; i<10; ++i) {
+    const uint32_t color = get_color(i);
+    const uint8_t red = (color >> 16) & 0xFF;
+    const uint8_t green = (color >> 8) & 0xFF; 
+    const uint8_t blue  = color & 0xFF; 
+    I AM HERE
+  }
 }
 
 // public interface.  Called to render all particles and update their state.
@@ -170,9 +228,19 @@ uint8_t clock_render(
     brightness_step = BRIGHTNESS_STEPS;
   } 
 
-  for (uint8_t i=0; i < PARTICLE_COUNT; ++i) {
-    render_particle(led, particle + i, time_hhmm, brightness_step);
-    update_particle(particle + i);
+  if (display_mode == DISPLAY_OFF) {
+    all_pixels_off(led);
+  } else {
+    for (uint8_t i=0; i < PARTICLE_COUNT; ++i) {
+      render_particle(led, particle + i, time_hhmm, brightness_step);
+      update_particle(particle + i);
+    }
+  }
+
+  if (display_mode == DISPLAY_GUIDE) {
+    overlay_guide(led); 
+  } else if (display_mode == DISPLAY_NUMBERS) {
+    overlay_numers(led, frame_idxi, brightness_step);
   }
 
   return check_buttons(button_pressed);

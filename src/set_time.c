@@ -4,7 +4,6 @@
 #include "clock.h"
 #include "led_matrix.h"
 #include "number_draw.h"
-#include "colors.h"
 #include <stdlib.h>
 
 // hold the time when the state was first entered.  This
@@ -17,15 +16,6 @@ uint16_t orig_time;
 uint8_t hours;
 uint8_t minutes;
 uint8_t showing_minutes;
-
-// Draws val to led memory.  val must be 0-99.
-static void draw_numbers(uint32_t* led, uint8_t val) {
-  const uint32_t brightness = 0x10000000;
-  const uint8_t tens = val / 10;
-  number_draw(led, tens, 0, 0, brightness | get_color(tens));
-  const uint8_t ones = val % 10; 
-  number_draw(led, ones, 4, 0, brightness | get_color(ones));
-}
 
 // Increments minutes
 static void increment_minutes(void) {
@@ -67,7 +57,9 @@ uint8_t set_time_render(
   }
   draw_numbers(
     led,
-    showing_minutes ? minutes : hours);
+    showing_minutes ? minutes : hours,
+    0x10
+  );
   if (button_pressed & INCREMENT_BUTTON) {
     increment_current();
   }

@@ -2,16 +2,19 @@
 #include "buttons.h"
 #include "colors.h"
 #include "led_matrix.h"
+#include "number_draw.h"
 #include <stdlib.h>
+#include <string.h>
 
 #define PARTICLE_COUNT 15
 // Color decay is 0-255 how much to decay color intensity per frame
 #define COLOR_DECAY_PERCENT 80
 #define BRIGHTNESS_DECAY_PERCENT 80
 
-#define MIN_BRIGHTNESS 40   // 0-255
-#define BRIGHTNESS_STEP_SIZE 20   // 0-255
-#define BRIGHTNESS_STEPS 10   // 0-255
+// brightness is 0-31
+#define MIN_BRIGHTNESS 5   // 0-31
+#define BRIGHTNESS_STEP_SIZE 2
+#define BRIGHTNESS_STEPS 12
 
 // maximum frames to wait before recycling a particle
 #define START_DELAY_MAX 60
@@ -73,7 +76,7 @@ static void init_particle(struct Particle* p, uint16_t time_hhmm) {
   p->blue = color & 0xFF; 
 }
 
-static inline void get_pixel_idx(uint8_t x, uint8_t y) {
+static inline uint8_t get_pixel_idx(uint8_t x, uint8_t y) {
   return (y * LED_MATRIX_WIDTH) + x;
 }
 
@@ -118,13 +121,13 @@ static void merge_pixel(
 }
 
 // decays a cell according to it's current brightness
-inline static uint8_t calc_brightness(uint8_t br, uint8_t color) {
+inline static uint8_t color_brightness(uint8_t br, uint8_t color) {
   return (br < color) ? br : color;
 }
 
 
 // calculates a brightness value (8-bit, intended for merge_pixel(), or set_pixel())
-static uint16_t calc_brightness_step(uint16_t brightness_step) {
+static uint8_t calc_brightness(uint16_t brightness_step) {
   return MIN_BRIGHTNESS + (BRIGHTNESS_STEP_SIZE * brightness_step);
 }
 
@@ -133,27 +136,26 @@ static void render_particle(
   uint32_t* led,
   struct Particle* p,
   uint16_t time_hhmm,
-  uint8_t brightness_step) {
+  uint8_t ubr) {
   if (p->start_delay > 0) {
     return;
   }
   const uint8_t x = p->x;
-  uint16_t cbr = 255;
-  uint16_t ubr = calc_brightness_step(brightness_step);
+  uint8_t cbr = 255;
   uint8_t something_rendered = 0;
   for (int8_t y = p->y; y < LED_MATRIX_HEIGHT; ++y) {
     if ((cbr >= 0) && (ubr > 0)) {
-      const uint8_t r = calc_brightness(cbr, p->red); 
-      const uint8_t g = calc_brightness(cbr, p->green); 
-      const uint8_t b = calc_brightness(cbr, p->blue); 
+      const uint8_t r = color_brightness(cbr, p->red); 
+      const uint8_t g = color_brightness(cbr, p->green); 
+      const uint8_t b = color_brightness(cbr, p->blue); 
       if (y >= 0) {
-        merge_pixel(led, x, y, (uint8_t)ubr, r, g, b);
+        merge_pixel(led, x, y, ubr, r, g, b);
         something_rendered = 1;
       }
       // Apply the degregations more times depending on delay
       for (uint8_t j=0; j < p->delay; ++j) {
-        cbr = cbr * COLOR_DECAY_PERCENT / 100;
-        ubr = ubr * BRIGHTNESS_DECAY_PERCENT / 100;
+        cbr = (uint8_t)((uint16_t)cbr * COLOR_DECAY_PERCENT / 100);
+        ubr = (uint8_t)((uint16_t)ubr * BRIGHTNESS_DECAY_PERCENT / 100);
       }
     }
   }
@@ -193,7 +195,7 @@ void all_pixels_off(uint32_t* led) {
   memset(led, 0, LED_MATRIX_WIDTH * LED_MATRIX_HEIGHT * sizeof(uint32_t));
 }
 
-void overlay_guide(uint32_t *led) {
+static void overlay_guide(uint32_t *led, uint8_t br) {
   // init two black strips
   for (uint8_t x = 0; x < 2; ++x) {
     for (uint8_t y = 0; y < LED_MATRIX_HEIGHT; ++y) {
@@ -203,10 +205,32 @@ void overlay_guide(uint32_t *led) {
 
   for (uint8_t i=0; i<10; ++i) {
     const uint32_t color = get_color(i);
-    const uint8_t red = (color >> 16) & 0xFF;
-    const uint8_t green = (color >> 8) & 0xFF; 
-    const uint8_t blue  = color & 0xFF; 
-    I AM HERE
+    const uint8_t r = (color >> 16) & 0xFF;
+    const uint8_t g = (color >> 8) & 0xFF; 
+    const uint8_t b  = color & 0xFF; 
+    const uint8_t y = i / 5;
+    const uint8_t x = LED_MATRIX_HEIGHT - 3 - (x % 5);
+    set_pixel(led, x, y, br, r, g, b);
+  }
+}
+
+// assume 30 FPS
+// show hour for 1 second
+#define OVERLAY_HOUR_FRAME 30
+// show minute for 1 second
+#define OVERLAY_MINUTE_FRAME (OVERLAY_HOUR_FRAME + 30)
+// nothing for 2 seconds
+#define OVERLAP_NOTHING_FRAME (OVERLAY_MINUTE_FRAME + 60)
+static void overlay_numbers(
+    uint32_t* led,
+    uint16_t time_hhmm,
+    uint32_t frame_index,
+    uint8_t br) {
+  frame_index = frame_index % OVERLAP_NOTHING_FRAME;
+  if (frame_index < OVERLAY_HOUR_FRAME) {
+    draw_numbers(led, time_hhmm / 100, br);
+  } else if (frame_index < OVERLAY_MINUTE_FRAME) {
+    draw_numbers(led, time_hhmm % 100, br);
   }
 }
 
@@ -227,20 +251,21 @@ uint8_t clock_render(
   if (brightness_step > BRIGHTNESS_STEPS) {
     brightness_step = BRIGHTNESS_STEPS;
   } 
+  uint8_t br = calc_brightness(brightness_step);
 
   if (display_mode == DISPLAY_OFF) {
     all_pixels_off(led);
   } else {
     for (uint8_t i=0; i < PARTICLE_COUNT; ++i) {
-      render_particle(led, particle + i, time_hhmm, brightness_step);
+      render_particle(led, particle + i, time_hhmm, br);
       update_particle(particle + i);
     }
   }
 
   if (display_mode == DISPLAY_GUIDE) {
-    overlay_guide(led); 
+    overlay_guide(led, br); 
   } else if (display_mode == DISPLAY_NUMBERS) {
-    overlay_numers(led, frame_idxi, brightness_step);
+    overlay_numbers(led, time_hhmm, frame_index, br);
   }
 
   return check_buttons(button_pressed);

@@ -1,4 +1,5 @@
 #include "number_draw.h"
+#include "colors.h"
 #include "led_matrix.h"
 
 static void pixel(
@@ -129,4 +130,12 @@ void number_draw(uint32_t* led, uint8_t digit, uint8_t x, uint8_t y, uint32_t co
     return;
   }
   drawfn[digit](led, x, y, color);
+}
+
+// Draws val to led memory.  val must be 0-99.
+void draw_numbers(uint32_t* led, uint8_t val, int8_t brightness) {
+  const uint8_t tens = val / 10;
+  number_draw(led, tens, 0, 0, ((uint32_t)brightness << 24) | get_color(tens));
+  const uint8_t ones = val % 10; 
+  number_draw(led, ones, 4, 0, ((uint32_t)brightness << 24) | get_color(ones));
 }

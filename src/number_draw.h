@@ -10,4 +10,7 @@
 // draws a digit
 void number_draw(uint32_t* led, uint8_t digit, uint8_t x, uint8_t y, uint32_t color);
 
+// draws two digits in predetermined locations
+void draw_numbers(uint32_t* led, uint8_t val, int8_t brightness);
+
 #endif

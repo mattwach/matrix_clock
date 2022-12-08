@@ -12,6 +12,7 @@
 #include "set_time.h"
 #include "uart_console/console.h"
 #include <stdio.h>
+#include <stdlib.h>
 
 #define FRAME_DELAY_MS 32
 #define TIME_UPDATE_FRAMES (1000/FRAME_DELAY_MS)
@@ -78,7 +79,7 @@ static void brightness_cmd(uint8_t argc, char* argv[]) {
 }
 
 struct ConsoleCallback callbacks[] = {
-  {"brightness", "Change brightness from 0-10", 0, brightness_cmd},
+  {"brightness", "Change brightness from 0-10", 1, brightness_cmd},
   {"get", "Get current settings", 0, get_cmd},
 };
 #define NUM_CALLBACKS (sizeof(callbacks) / sizeof(callbacks[0]))

@@ -38,7 +38,7 @@ static void init_default_settings(struct ClockSettings* cs) {
 
 void clock_settings_init(struct ClockSettings* cs) {
   struct ClockSettings flash_settings;
-  memcpy(cs, FLASH_ADDRESS, sizeof(struct ClockSettings));
+  memcpy(&flash_settings, FLASH_ADDRESS, sizeof(struct ClockSettings));
   if (!validate_settings(&flash_settings)) {
     init_default_settings(cs);
   } else {

@@ -57,7 +57,8 @@ uint8_t set_time_render(
     uint32_t* led,
     uint8_t button_pressed,
     uint32_t frame_index,
-    uint16_t time_hhmm) {
+    uint16_t time_hhmm,
+    const struct ClockSettings* settings) {
   if (frame_index == 0) {
     orig_time = time_hhmm;
     hours = time_hhmm / 100;

@@ -27,6 +27,7 @@ add_executable(matrix_clock
         buttons.c
         clock.c
         clock_render.c
+        clock_settings.c
         colors.c
         debounce.c
         led_matrix_dotstar.c

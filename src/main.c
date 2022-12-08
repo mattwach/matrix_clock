@@ -6,6 +6,7 @@
 #include <string.h>
 #include "clock.h"
 #include "clock_render.h"
+#include "clock_settings.h"
 #include "led_matrix.h"
 #include "buttons.h"
 #include "set_time.h"
@@ -42,7 +43,8 @@ uint8_t (*render_functions[])(
   uint32_t* led,
   uint8_t button_pressed,
   uint32_t frame_index,
-  uint16_t time_hhmm) = {
+  uint16_t time_hhmm,
+  const struct ClockSettings* settings) = {
   clock_render,
   set_time_render,
 };
@@ -54,13 +56,30 @@ uint32_t led[LED_MATRIX_COUNT];
 uint16_t time_hhmm;  // a cache of the time to avoid calling for it as much
 char prompt[80];  // prompt for console
 struct ConsoleConfig console;
+struct ClockSettings settings;
 
-static void hello(uint8_t argc, char* argv[]) {
-  printf("Hello world!\n");
+static void get_cmd(uint8_t argc, char* argv[]) {
+  printf("brightness = %d\n", settings.brightness);
+}
+
+static void brightness_cmd(uint8_t argc, char* argv[]) {
+  int brightness = 0;
+  if (strcmp(argv[0], "0")) {
+    brightness = atoi(argv[0]);
+    if ((brightness < 0) || (brightness > 10)) {
+      printf("Please choose a brightness value between 0 and 10\n");
+      return;
+    }
+  }
+  if (brightness != settings.brightness) {
+    settings.brightness = brightness;
+    clock_settings_save(&settings);
+  }
 }
 
 struct ConsoleCallback callbacks[] = {
-  {"hello", "placeholder hello world", 0, hello},
+  {"brightness", "Change brightness from 0-10", 0, brightness_cmd},
+  {"get", "Get current settings", 0, get_cmd},
 };
 #define NUM_CALLBACKS (sizeof(callbacks) / sizeof(callbacks[0]))
 
@@ -71,6 +90,7 @@ static inline uint32_t uptime_ms() {
 // Initialization function
 static void init(void) {
   time_hhmm = 0;
+  clock_settings_init(&settings);
   uart_console_init(&console, callbacks, NUM_CALLBACKS, CONSOLE_VT102);
   led_matrix_init();
   clock_init();
@@ -107,7 +127,7 @@ static uint8_t render(uint32_t frame_idx, uint8_t render_fn_idx) {
   maybe_update_time(frame_idx);
   memset(led, 0, sizeof(led));
   const uint8_t next_render_fn = render_functions[render_fn_idx](
-    led, buttons_get(), frame_idx, time_hhmm);
+    led, buttons_get(), frame_idx, time_hhmm, &settings);
   led_matrix_render(led);
   uart_console_poll(&console, prompt);
   uint32_t tdelta = uptime_ms() - t1;

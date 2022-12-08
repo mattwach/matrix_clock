@@ -10,8 +10,8 @@
 #define BRIGHTNESS_DECAY_PERCENT 80
 
 #define MIN_BRIGHTNESS 40   // 0-255
-#define BRIGHTNESS_STEP_SIZE 30   // 0-255
-#define BRIGHTNESS_STEPS 5   // 0-255
+#define BRIGHTNESS_STEP_SIZE 20   // 0-255
+#define BRIGHTNESS_STEPS 10   // 0-255
 
 // maximum frames to wait before recycling a particle
 #define START_DELAY_MAX 60
@@ -34,8 +34,6 @@ struct Particle {
 
 // Holds state of all particles
 struct Particle particle[PARTICLE_COUNT];
-// holds the current brightness step
-uint8_t brightness_step = 2;
 
 // inisializes a particle
 static void init_particle(struct Particle* p, uint16_t time_hhmm) {
@@ -103,7 +101,8 @@ inline static uint8_t calc_brightness(uint8_t br, uint8_t color) {
 static void render_particle(
   uint32_t* led,
   struct Particle* p,
-  uint16_t time_hhmm) {
+  uint16_t time_hhmm,
+  uint8_t brightness_step) {
   if (p->start_delay > 0) {
     return;
   }
@@ -147,12 +146,6 @@ static void update_particle(struct Particle* p) {
 }
 
 static uint8_t check_buttons(uint8_t button_pressed) {
-  if (button_pressed & INCREMENT_BUTTON) {
-    ++brightness_step;
-    if (brightness_step >= BRIGHTNESS_STEPS) {
-      brightness_step = 0;
-    }
-  }
   if (button_pressed & SELECT_BUTTON) {
     return 1;
   }
@@ -164,15 +157,21 @@ uint8_t clock_render(
     uint32_t* led,
     uint8_t button_pressed,
     uint32_t frame_index,
-    uint16_t time_hhmm) {
+    uint16_t time_hhmm,
+    const struct ClockSettings* settings) {
   if (frame_index == 0) {
     for (uint8_t i = 0; i < PARTICLE_COUNT; ++i) {
       init_particle(particle + i, time_hhmm);
     }
   }
 
+  uint8_t brightness_step = settings->brightness;
+  if (brightness_step > BRIGHTNESS_STEPS) {
+    brightness_step = BRIGHTNESS_STEPS;
+  } 
+
   for (uint8_t i=0; i < PARTICLE_COUNT; ++i) {
-    render_particle(led, particle + i, time_hhmm);
+    render_particle(led, particle + i, time_hhmm, brightness_step);
     update_particle(particle + i);
   }
 

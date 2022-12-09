@@ -42,11 +42,19 @@ static void clock_settings_save(const struct ClockSettings* cs) {
   restore_interrupts (ints);
 }
 
+static void output_sleep_data(void) {
+  const char* sleep_enabled =
+      (settings.sleep_time == settings.wake_time) ? "disabled" : "enabled";
+  printf("sleep_time = %d (%s)\n", settings.sleep_time, sleep_enabled);
+  printf("wake_time = %d (%s)\n", settings.wake_time, sleep_enabled);
+}
+
 static void get_cmd(uint8_t argc, char* argv[]) {
   printf("brightness = %d\n", settings.brightness);
   printf(
       "startup_display_mode = %s\n",
       clock_render_display_mode_name(settings.startup_display_mode));
+  output_sleep_data();
 }
 
 static void brightness_cmd(uint8_t argc, char* argv[]) {
@@ -64,31 +72,53 @@ static void brightness_cmd(uint8_t argc, char* argv[]) {
   }
 }
 
-static void set_time_cmd(uint8_t argc, char* argv[]) {
-  const char* t = argv[0];
+static int16_t parse_hhmm(const char* t) {
   if (strlen(t) != 4) {
     printf("Expected HHMM format (e.g. 1205), got %s\n", t);
-    return;
+    return -1;
   }
   for (uint8_t i=0; i<4; ++i) {
     if ((t[i] < '0') || (t[i] > '9')) {
       printf("Illegal character in HHMM, expected 0-9, got %c\n", t[i]);
-      return;
+      return -1;
     }
   }
   const uint8_t hour = (t[0] - '0') * 10 + (t[1] - '0');
   if (hour > 23) {
     printf("Expected HHMM hour to be 00-23, got %d\n", hour);
-    return;
+    return -1;
   }
 
   const uint8_t minute = (t[2] - '0') * 10 + (t[3] - '0');
   if (hour > 59) {
     printf("Expected HHMM minute to be 00-59, got %d\n", minute);
-    return;
+    return -1;
   }
-  clock_set_time(hour * 100 + minute);
-  printf("Time updated\n");
+  return hour * 100 + minute;
+}
+
+static void set_time_cmd(uint8_t argc, char* argv[]) {
+  int16_t t = parse_hhmm(argv[0]);
+  if (t >= 0) {
+    clock_set_time(t);
+    printf("Time updated\n");
+  }
+}
+
+static void sleep_time_cmd(uint8_t argc, char* argv[]) {
+  int16_t t = parse_hhmm(argv[0]);
+  if (t >= 0) {
+    settings.sleep_time = t;
+    output_sleep_data();
+  }
+}
+
+static void wake_time_cmd(uint8_t argc, char* argv[]) {
+  int16_t t = parse_hhmm(argv[0]);
+  if (t >= 0) {
+    settings.wake_time = t;
+    output_sleep_data();
+  }
 }
 
 static void list_display_modes_cmd(uint8_t argc, char* argv[]) {
@@ -116,7 +146,11 @@ struct ConsoleCallback callbacks[] = {
   {"get", "Get current settings", 0, get_cmd},
   {"list_display_modes", "List display modes", 0, list_display_modes_cmd},
   {"set_time", "Sets the time as HHMM.  example: set_time 1307.", 1, set_time_cmd},
+  {"sleep_time", "Sets the sleep (screen off) time as HHMM.  "
+   "Disabled if sleep_time == wake_time.", 1, sleep_time_cmd},
   {"startup_display_mode", "Sets the startup display mode.", 1, startup_display_mode_cmd},
+  {"wake_time", "Sets the wake (screen on) time as HHMM.  "
+   "Disabled if sleep_time == wake_time.", 1, wake_time_cmd},
 };
 #define NUM_CALLBACKS (sizeof(callbacks) / sizeof(callbacks[0]))
 

@@ -41,7 +41,9 @@ struct Particle {
 #define DISPLAY_NUMBERS 2
 #define DISPLAY_OFF 3
 #define NUM_DISPLAY_MODES 4
+uint16_t last_sleep_or_wake_hhmm;  // used to create an edge trigger
 uint8_t display_mode;
+uint8_t wake_display_mode; // what mode to wake up to
 uint8_t display_mode_intitialized = 0;
 // this is so the numbes always show right away in DISPLAY_NUMBERS
 uint32_t frame_index_delta = 0;
@@ -149,11 +151,6 @@ inline static uint8_t color_brightness(uint8_t br, uint8_t color) {
 }
 
 
-// calculates a brightness value (8-bit, intended for merge_pixel(), or set_pixel())
-static uint8_t calc_brightness(uint16_t brightness_step) {
-  return MIN_BRIGHTNESS + (BRIGHTNESS_STEP_SIZE * brightness_step);
-}
-
 // renders a particle to the led matrix (in memory only at this point).
 static void render_particle(
   uint32_t* led,
@@ -207,6 +204,8 @@ static uint8_t check_buttons(uint8_t button_pressed, uint32_t frame_index) {
     if (display_mode >= NUM_DISPLAY_MODES) {
       display_mode = 0;
     }
+    // the mode to return to when waking up
+    wake_display_mode = display_mode;
     // This is done to show numbers right away in DISPLAY_NUMBERS mode
     frame_index_delta = frame_index;
   }
@@ -259,15 +258,14 @@ static void overlay_numbers(
   }
 }
 
-// public interface.  Called to render all particles and update their state.
-uint8_t clock_render(
-    uint32_t* led,
-    uint8_t button_pressed,
-    uint32_t frame_index,
-    uint16_t time_hhmm,
-    const struct ClockSettings* settings) {
+static void maybe_clock_init(
+  uint32_t frame_index,
+  uint8_t time_hhmm,
+  const struct ClockSettings* settings) {
   if (!display_mode_intitialized) {
+    last_sleep_or_wake_hhmm = 0xFFFF;
     display_mode = settings->startup_display_mode;
+    wake_display_mode = display_mode;
     display_mode_intitialized = 1;
   }
   if (frame_index == 0) {
@@ -276,12 +274,46 @@ uint8_t clock_render(
       init_particle(particle + i, time_hhmm);
     }
   }
+}
 
+static void check_for_sleep_and_wake(
+  uint8_t time_hhmm,
+  const struct ClockSettings* settings) {
+  if (settings->sleep_time == settings->wake_time) {
+    return;
+  }
+  if (last_sleep_or_wake_hhmm == time_hhmm) {
+    return;
+  }
+  if (time_hhmm == settings->sleep_time) {
+    display_mode = DISPLAY_OFF;
+    last_sleep_or_wake_hhmm = time_hhmm;
+  } else if (time_hhmm == settings->wake_time) {
+    display_mode = wake_display_mode;
+    last_sleep_or_wake_hhmm = time_hhmm;
+  }
+}
+  
+static uint8_t brightness_step_to_brightness(
+  const struct ClockSettings* settings) {
   uint8_t brightness_step = settings->brightness;
   if (brightness_step > BRIGHTNESS_STEPS) {
     brightness_step = BRIGHTNESS_STEPS;
   } 
-  uint8_t br = calc_brightness(brightness_step);
+  return MIN_BRIGHTNESS + (BRIGHTNESS_STEP_SIZE * brightness_step);
+}
+
+
+// public interface.  Called to render all particles and update their state.
+uint8_t clock_render(
+    uint32_t* led,
+    uint8_t button_pressed,
+    uint32_t frame_index,
+    uint16_t time_hhmm,
+    const struct ClockSettings* settings) {
+  maybe_clock_init(frame_index, time_hhmm, settings);
+  check_for_sleep_and_wake(time_hhmm, settings);
+  const uint8_t br = brightness_step_to_brightness(settings);
 
   if (display_mode == DISPLAY_OFF) {
     all_pixels_off(led);

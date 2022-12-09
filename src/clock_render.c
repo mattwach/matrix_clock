@@ -42,6 +42,8 @@ struct Particle {
 #define DISPLAY_OFF 3
 #define NUM_DISPLAY_MODES 4
 uint8_t display_mode = 0;
+// this is so the numbes always show right away in DISPLAY_NUMBERS
+uint32_t frame_index_delta = 0;
 
 // Holds state of all particles
 struct Particle particle[PARTICLE_COUNT];
@@ -178,12 +180,14 @@ static void update_particle(struct Particle* p) {
   }
 }
 
-static uint8_t check_buttons(uint8_t button_pressed) {
+static uint8_t check_buttons(uint8_t button_pressed, uint32_t frame_index) {
   if (button_pressed & INCREMENT_BUTTON) {
     ++display_mode;
     if (display_mode >= NUM_DISPLAY_MODES) {
       display_mode = 0;
     }
+    // This is done to show numbers right away in DISPLAY_NUMBERS mode
+    frame_index_delta = frame_index;
   }
   if (button_pressed & SELECT_BUTTON) {
     return 1;
@@ -226,7 +230,7 @@ static void overlay_numbers(
     uint16_t time_hhmm,
     uint32_t frame_index,
     uint8_t br) {
-  frame_index = frame_index % OVERLAP_NOTHING_FRAME;
+  frame_index = (frame_index - frame_index_delta) % OVERLAP_NOTHING_FRAME;
   if (frame_index < OVERLAY_HOUR_FRAME) {
     draw_numbers(led, time_hhmm / 100, br);
   } else if (frame_index < OVERLAY_MINUTE_FRAME) {
@@ -242,6 +246,7 @@ uint8_t clock_render(
     uint16_t time_hhmm,
     const struct ClockSettings* settings) {
   if (frame_index == 0) {
+    frame_index_delta = 0;
     for (uint8_t i = 0; i < PARTICLE_COUNT; ++i) {
       init_particle(particle + i, time_hhmm);
     }
@@ -268,5 +273,5 @@ uint8_t clock_render(
     overlay_numbers(led, time_hhmm, frame_index, br);
   }
 
-  return check_buttons(button_pressed);
+  return check_buttons(button_pressed, frame_index);
 }

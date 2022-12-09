@@ -4,6 +4,9 @@
 
 #include <inttypes.h>
 
+//Change this when adding fields.  It will cause all settings to reset
+#define CLOCK_SETTINGS_VERSION 2
+
 struct ClockSettings {
   uint32_t checksum;  // the sum of all byte in this structure except for this one
   uint8_t eyecatcher[4];  // 'MCLK'

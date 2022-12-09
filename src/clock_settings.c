@@ -10,7 +10,7 @@
 uint32_t calc_checksum(const struct ClockSettings* cs) {
   uint8_t* start = ((uint8_t*)cs) + sizeof(uint32_t);
   size_t len = sizeof(struct ClockSettings) - sizeof(uint32_t);
-  uint32_t sum = 0;
+  uint32_t sum = CLOCK_SETTINGS_VERSION * 1000000;
   for (size_t i=0; i<len; ++i) {
     sum += start[i];
   }

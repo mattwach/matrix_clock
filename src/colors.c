@@ -10,7 +10,7 @@ static uint32_t colors[10] = {
   0x0000FF, // 5 - blue
   0x3B0062, // 6 - indigo
   0x8F20FF, // 7 - violet
-  0x080810, // 8 - dark blue
+  0x080860, // 8 - dark blue
   0xFFFFFF, // 9 - white
 };
 

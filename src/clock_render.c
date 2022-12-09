@@ -11,10 +11,10 @@
 #define COLOR_DECAY_PERCENT 80
 #define BRIGHTNESS_DECAY_PERCENT 80
 
-// brightness is 0-31
-#define MIN_BRIGHTNESS 5   // 0-31
-#define BRIGHTNESS_STEP_SIZE 2
-#define BRIGHTNESS_STEPS 12
+// brightness is 0-255 and changed to 0-31 in led_matrix_dotstar.c
+#define MIN_BRIGHTNESS 40   // 0-255
+#define BRIGHTNESS_STEP_SIZE 20   // 0-255
+#define BRIGHTNESS_STEPS 10   // 0-255
 
 // maximum frames to wait before recycling a particle
 #define START_DELAY_MAX 60
@@ -208,8 +208,8 @@ static void overlay_guide(uint32_t *led, uint8_t br) {
     const uint8_t r = (color >> 16) & 0xFF;
     const uint8_t g = (color >> 8) & 0xFF; 
     const uint8_t b  = color & 0xFF; 
-    const uint8_t y = i / 5;
-    const uint8_t x = LED_MATRIX_HEIGHT - 3 - (x % 5);
+    const uint8_t x = i % 2;
+    const uint8_t y = LED_MATRIX_HEIGHT - 3 - i / 2;
     set_pixel(led, x, y, br, r, g, b);
   }
 }
@@ -219,8 +219,8 @@ static void overlay_guide(uint32_t *led, uint8_t br) {
 #define OVERLAY_HOUR_FRAME 30
 // show minute for 1 second
 #define OVERLAY_MINUTE_FRAME (OVERLAY_HOUR_FRAME + 30)
-// nothing for 2 seconds
-#define OVERLAP_NOTHING_FRAME (OVERLAY_MINUTE_FRAME + 60)
+// nothing for 6 seconds
+#define OVERLAP_NOTHING_FRAME (OVERLAY_MINUTE_FRAME + 300)
 static void overlay_numbers(
     uint32_t* led,
     uint16_t time_hhmm,

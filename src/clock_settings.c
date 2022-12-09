@@ -4,6 +4,7 @@
 #include "uart_console/console.h"
 #include "colors.h"
 #include "clock.h"
+#include "clock_render.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -43,6 +44,9 @@ static void clock_settings_save(const struct ClockSettings* cs) {
 
 static void get_cmd(uint8_t argc, char* argv[]) {
   printf("brightness = %d\n", settings.brightness);
+  printf(
+      "startup_display_mode = %s\n",
+      clock_render_display_mode_name(settings.startup_display_mode));
 }
 
 static void brightness_cmd(uint8_t argc, char* argv[]) {
@@ -87,10 +91,32 @@ static void set_time_cmd(uint8_t argc, char* argv[]) {
   printf("Time updated\n");
 }
 
+static void list_display_modes_cmd(uint8_t argc, char* argv[]) {
+  const uint8_t num_modes = clock_render_num_display_modes();
+  for (uint8_t i=0; i < num_modes; ++i) {
+    printf("%s\n", clock_render_display_mode_name(i));
+  }
+}
+
+static void startup_display_mode_cmd(uint8_t argc, char* argv[]) {
+  const char* mode = argv[0];
+  const uint8_t num_modes = clock_render_num_display_modes();
+  for (uint8_t i=0; i < num_modes; ++i) {
+    if (!strcmp(clock_render_display_mode_name(i), mode)) {
+      settings.startup_display_mode = i;
+      printf("Startup display mode set\n");
+      return;
+    }
+  }
+  printf("Unknown display mode: %s.  Try list_display_modes\n", mode);
+}
+
 struct ConsoleCallback callbacks[] = {
   {"brightness", "Change brightness from 0-10", 1, brightness_cmd},
   {"get", "Get current settings", 0, get_cmd},
+  {"list_display_modes", "List display modes", 0, list_display_modes_cmd},
   {"set_time", "Sets the time as HHMM.  example: set_time 1307.", 1, set_time_cmd},
+  {"startup_display_mode", "Sets the startup display mode.", 1, startup_display_mode_cmd},
 };
 #define NUM_CALLBACKS (sizeof(callbacks) / sizeof(callbacks[0]))
 

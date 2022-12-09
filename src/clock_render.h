@@ -13,4 +13,7 @@ uint8_t clock_render(
   uint16_t time_hhmm,
   const struct ClockSettings* settings);
 
+uint8_t clock_render_num_display_modes(void);
+const char* clock_render_display_mode_name(uint8_t mode);
+
 #endif

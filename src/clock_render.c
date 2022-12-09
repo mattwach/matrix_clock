@@ -41,12 +41,33 @@ struct Particle {
 #define DISPLAY_NUMBERS 2
 #define DISPLAY_OFF 3
 #define NUM_DISPLAY_MODES 4
-uint8_t display_mode = 0;
+uint8_t display_mode;
+uint8_t display_mode_intitialized = 0;
 // this is so the numbes always show right away in DISPLAY_NUMBERS
 uint32_t frame_index_delta = 0;
 
 // Holds state of all particles
 struct Particle particle[PARTICLE_COUNT];
+
+// interface for display modes
+uint8_t clock_render_num_display_modes(void) {
+  return NUM_DISPLAY_MODES;
+}
+
+const char* clock_render_display_mode_name(uint8_t mode) {
+  switch (mode) {
+    case DISPLAY_NORMAL:
+      return "normal";
+    case DISPLAY_GUIDE:
+      return "guide";
+    case DISPLAY_NUMBERS:
+      return "numbers";
+    case DISPLAY_OFF:
+      return "off";
+  }
+
+  return "unknown";
+}
 
 // inisializes a particle
 static void init_particle(struct Particle* p, uint16_t time_hhmm) {
@@ -245,6 +266,10 @@ uint8_t clock_render(
     uint32_t frame_index,
     uint16_t time_hhmm,
     const struct ClockSettings* settings) {
+  if (!display_mode_intitialized) {
+    display_mode = settings->startup_display_mode;
+    display_mode_intitialized = 1;
+  }
   if (frame_index == 0) {
     frame_index_delta = 0;
     for (uint8_t i = 0; i < PARTICLE_COUNT; ++i) {

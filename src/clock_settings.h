@@ -13,7 +13,7 @@ struct ClockSettings {
   uint32_t version;  // bump this when structure changes
 
   uint8_t brightness;  // brightness value
-  uint8_t startup_page;  // startup page.  Can be used to automatically show helpers
+  uint8_t startup_display_mode;
   
   // sleep settings in hhmm format.  If they are equal, then sleep is OFF
   uint16_t sleep_time;

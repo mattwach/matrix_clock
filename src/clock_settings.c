@@ -1,13 +1,20 @@
 #include "clock_settings.h"
 #include "hardware/flash.h"
 #include "hardware/sync.h"
+#include "uart_console/console.h"
+#include "colors.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 #define FLASH_OFFSET (PICO_FLASH_SIZE_BYTES - FLASH_SECTOR_SIZE)
 #define FLASH_ADDRESS ((uint8_t*)(XIP_BASE + FLASH_OFFSET))
 
-uint32_t calc_checksum(const struct ClockSettings* cs) {
+struct ConsoleConfig console;
+struct ClockSettings settings;
+uint8_t* time_was_changed;  // toggle flag for the callback
+
+static uint32_t calc_checksum(const struct ClockSettings* cs) {
   uint8_t* start = ((uint8_t*)cs) + sizeof(uint32_t);
   size_t len = sizeof(struct ClockSettings) - sizeof(uint32_t);
   uint32_t sum = CLOCK_SETTINGS_VERSION * 1000000;
@@ -16,6 +23,48 @@ uint32_t calc_checksum(const struct ClockSettings* cs) {
   }
   return sum;
 }
+
+static void clock_settings_save(const struct ClockSettings* cs) {
+  uint8_t buff[FLASH_PAGE_SIZE];
+  memset(buff, 0, sizeof(buff));
+  memcpy(buff, cs, sizeof(struct ClockSettings));
+  struct ClockSettings* settings = (struct ClockSettings*)buff;
+  settings->eyecatcher[0] = 'M';
+  settings->eyecatcher[1] = 'C';
+  settings->eyecatcher[2] = 'L';
+  settings->eyecatcher[3] = 'K';
+  settings->checksum = calc_checksum(settings);
+  uint32_t ints = save_and_disable_interrupts();
+  flash_range_erase(FLASH_OFFSET, FLASH_SECTOR_SIZE);
+  flash_range_program(FLASH_OFFSET, buff, FLASH_PAGE_SIZE);
+  printf("Settings Saved\n");
+  restore_interrupts (ints);
+}
+
+static void get_cmd(uint8_t argc, char* argv[]) {
+  printf("brightness = %d\n", settings.brightness);
+}
+
+static void brightness_cmd(uint8_t argc, char* argv[]) {
+  int brightness = 0;
+  if (strcmp(argv[0], "0")) {
+    brightness = atoi(argv[0]);
+    if ((brightness < 0) || (brightness > 10)) {
+      printf("Please choose a brightness value between 0 and 10\n");
+      return;
+    }
+  }
+  if (brightness != settings.brightness) {
+    settings.brightness = brightness;
+    clock_settings_save(&settings);
+  }
+}
+
+struct ConsoleCallback callbacks[] = {
+  {"brightness", "Change brightness from 0-10", 1, brightness_cmd},
+  {"get", "Get current settings", 0, get_cmd},
+};
+#define NUM_CALLBACKS (sizeof(callbacks) / sizeof(callbacks[0]))
 
 static uint8_t validate_settings(const struct ClockSettings* cs) {
   if ((cs->eyecatcher[0] != 'M') ||
@@ -31,34 +80,38 @@ static uint8_t validate_settings(const struct ClockSettings* cs) {
   return 1;
 }
 
-static void init_default_settings(struct ClockSettings* cs) {
-  memset(cs, 0, sizeof(struct ClockSettings));
-  cs->brightness = 3;
+static void init_default_settings(void) {
+  memset(&settings, 0, sizeof(struct ClockSettings));
+  settings.brightness = 3;
 }
 
-void clock_settings_init(struct ClockSettings* cs) {
+void clock_settings_init() {
+  uart_console_init(&console, callbacks, NUM_CALLBACKS, CONSOLE_VT102);
+  *time_was_changed = 0;
   struct ClockSettings flash_settings;
   memcpy(&flash_settings, FLASH_ADDRESS, sizeof(struct ClockSettings));
   if (!validate_settings(&flash_settings)) {
-    init_default_settings(cs);
+    init_default_settings();
   } else {
-    memcpy(cs, &flash_settings, sizeof(struct ClockSettings));
+    memcpy(&settings, &flash_settings, sizeof(struct ClockSettings));
   }
 }
 
-void clock_settings_save(const struct ClockSettings* cs) {
-  uint8_t buff[FLASH_PAGE_SIZE];
-  memset(buff, 0, sizeof(buff));
-  memcpy(buff, cs, sizeof(struct ClockSettings));
-  struct ClockSettings* settings = (struct ClockSettings*)buff;
-  settings->eyecatcher[0] = 'M';
-  settings->eyecatcher[1] = 'C';
-  settings->eyecatcher[2] = 'L';
-  settings->eyecatcher[3] = 'K';
-  settings->checksum = calc_checksum(settings);
-  uint32_t ints = save_and_disable_interrupts();
-  flash_range_erase(FLASH_OFFSET, FLASH_SECTOR_SIZE);
-  flash_range_program(FLASH_OFFSET, buff, FLASH_PAGE_SIZE);
-  printf("Settings Saved\n");
-  restore_interrupts (ints);
+uint8_t clock_settings_poll(uint16_t time_hhmm) {
+  char prompt[80];
+  sprintf(prompt, "%02d:%02d (%s,%s,%s)> ",
+       time_hhmm / 100,
+       time_hhmm % 100,
+       get_color_name((time_hhmm / 100) % 10),
+       get_color_name((time_hhmm / 10) % 10),
+       get_color_name(time_hhmm % 10)
+  );
+  uart_console_poll(&console, prompt);
+  uint8_t changed = *time_was_changed;
+  *time_was_changed = 0;
+  return changed;
+}
+
+const struct ClockSettings* clock_settings(void) {
+  return &settings;
 }

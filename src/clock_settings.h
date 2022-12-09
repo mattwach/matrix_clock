@@ -20,7 +20,10 @@ struct ClockSettings {
   uint16_t wake_time;
 };
 
-void clock_settings_init(struct ClockSettings* cs);
-void clock_settings_save(const struct ClockSettings* cs);
+void clock_settings_init(void);
+// Call this regularly.  Returns a 1 if the time needs to be updated
+uint8_t clock_settings_poll(uint16_t time_hhmm);
+
+const struct ClockSettings* clock_settings(void);
 
 #endif

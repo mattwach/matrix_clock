@@ -10,26 +10,10 @@
 #include "led_matrix.h"
 #include "buttons.h"
 #include "set_time.h"
-#include "uart_console/console.h"
 #include <stdio.h>
-#include <stdlib.h>
 
 #define FRAME_DELAY_MS 32
 #define TIME_UPDATE_FRAMES (1000/FRAME_DELAY_MS)
-
-// For logging
-static char* color_names[] = {
-  "black",
-  "red",
-  "orange",
-  "yellow",
-  "green",
-  "blue",
-  "indigo",
-  "violet",
-  "navy",
-  "white",
-};
 
 // Rendering modules. Called by the main loop depending on which
 // state the clock is in.  Updates led[].
@@ -55,34 +39,6 @@ uint8_t (*render_functions[])(
 // format is 0xIIRRGGBB  See led_matrix.h for mor details.
 uint32_t led[LED_MATRIX_COUNT];
 uint16_t time_hhmm;  // a cache of the time to avoid calling for it as much
-char prompt[80];  // prompt for console
-struct ConsoleConfig console;
-struct ClockSettings settings;
-
-static void get_cmd(uint8_t argc, char* argv[]) {
-  printf("brightness = %d\n", settings.brightness);
-}
-
-static void brightness_cmd(uint8_t argc, char* argv[]) {
-  int brightness = 0;
-  if (strcmp(argv[0], "0")) {
-    brightness = atoi(argv[0]);
-    if ((brightness < 0) || (brightness > 10)) {
-      printf("Please choose a brightness value between 0 and 10\n");
-      return;
-    }
-  }
-  if (brightness != settings.brightness) {
-    settings.brightness = brightness;
-    clock_settings_save(&settings);
-  }
-}
-
-struct ConsoleCallback callbacks[] = {
-  {"brightness", "Change brightness from 0-10", 1, brightness_cmd},
-  {"get", "Get current settings", 0, get_cmd},
-};
-#define NUM_CALLBACKS (sizeof(callbacks) / sizeof(callbacks[0]))
 
 static inline uint32_t uptime_ms() {
   return to_ms_since_boot(get_absolute_time());
@@ -91,34 +47,17 @@ static inline uint32_t uptime_ms() {
 // Initialization function
 static void init(void) {
   time_hhmm = 0;
-  clock_settings_init(&settings);
-  uart_console_init(&console, callbacks, NUM_CALLBACKS, CONSOLE_VT102);
+  clock_settings_init();
   led_matrix_init();
   clock_init();
   buttons_init();
   sleep_ms(50);
 }
 
-// Updates the console prompt with the current time
-static void update_prompt(void) {
-  sprintf(prompt, "%02d:%02d (%s,%s,%s)> ",
-       time_hhmm / 100,
-       time_hhmm % 100,
-       color_names[(time_hhmm / 100) % 10],
-       color_names[(time_hhmm / 10) % 10],
-       color_names[time_hhmm % 10]
-  );
-}
-
 // A function that is used for debug and "learning" what the colors mean.
 static void maybe_update_time(uint32_t frame_idx) {
   if ((frame_idx % TIME_UPDATE_FRAMES) == 0) {
-    // This will happen  roughly once a second with a 16ms frame delay
-    const uint16_t old_time = time_hhmm;
     time_hhmm = clock_get_time();
-    if (time_hhmm != old_time) {
-      update_prompt();
-    }
   }
 }
 
@@ -128,9 +67,13 @@ static uint8_t render(uint32_t frame_idx, uint8_t render_fn_idx) {
   maybe_update_time(frame_idx);
   memset(led, 0, sizeof(led));
   const uint8_t next_render_fn = render_functions[render_fn_idx](
-    led, buttons_get(), frame_idx, time_hhmm, &settings);
+    led, buttons_get(), frame_idx, time_hhmm, clock_settings());
   led_matrix_render(led);
-  uart_console_poll(&console, prompt);
+  if (clock_settings_poll(time_hhmm)) {
+    // time was changed
+    printf("Time Updated\n");
+    time_hhmm = clock_get_time();
+  }
   uint32_t tdelta = uptime_ms() - t1;
   if (tdelta < FRAME_DELAY_MS) {
     sleep_ms(FRAME_DELAY_MS - tdelta);

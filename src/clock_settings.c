@@ -97,7 +97,7 @@ static int16_t parse_hhmm(const char* t) {
   return hour * 100 + minute;
 }
 
-static void set_time_cmd(uint8_t argc, char* argv[]) {
+static void time_cmd(uint8_t argc, char* argv[]) {
   int16_t t = parse_hhmm(argv[0]);
   if (t >= 0) {
     clock_set_time(t);
@@ -110,6 +110,7 @@ static void sleep_time_cmd(uint8_t argc, char* argv[]) {
   if (t >= 0) {
     settings.sleep_time = t;
     output_sleep_data();
+    clock_settings_save(&settings);
   }
 }
 
@@ -118,6 +119,7 @@ static void wake_time_cmd(uint8_t argc, char* argv[]) {
   if (t >= 0) {
     settings.wake_time = t;
     output_sleep_data();
+    clock_settings_save(&settings);
   }
 }
 
@@ -135,6 +137,7 @@ static void startup_display_mode_cmd(uint8_t argc, char* argv[]) {
     if (!strcmp(clock_render_display_mode_name(i), mode)) {
       settings.startup_display_mode = i;
       printf("Startup display mode set\n");
+      clock_settings_save(&settings);
       return;
     }
   }
@@ -145,7 +148,7 @@ struct ConsoleCallback callbacks[] = {
   {"brightness", "Change brightness from 0-10", 1, brightness_cmd},
   {"get", "Get current settings", 0, get_cmd},
   {"list_display_modes", "List display modes", 0, list_display_modes_cmd},
-  {"set_time", "Sets the time as HHMM.  example: set_time 1307.", 1, set_time_cmd},
+  {"time", "Sets the time as HHMM.  example: time 1307.", 1, time_cmd},
   {"sleep_time", "Sets the sleep (screen off) time as HHMM.  "
    "Disabled if sleep_time == wake_time.", 1, sleep_time_cmd},
   {"startup_display_mode", "Sets the startup display mode.", 1, startup_display_mode_cmd},

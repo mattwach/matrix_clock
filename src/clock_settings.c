@@ -3,6 +3,7 @@
 #include "hardware/sync.h"
 #include "uart_console/console.h"
 #include "colors.h"
+#include "clock.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -12,7 +13,6 @@
 
 struct ConsoleConfig console;
 struct ClockSettings settings;
-uint8_t* time_was_changed;  // toggle flag for the callback
 
 static uint32_t calc_checksum(const struct ClockSettings* cs) {
   uint8_t* start = ((uint8_t*)cs) + sizeof(uint32_t);
@@ -60,9 +60,37 @@ static void brightness_cmd(uint8_t argc, char* argv[]) {
   }
 }
 
+static void set_time_cmd(uint8_t argc, char* argv[]) {
+  const char* t = argv[0];
+  if (strlen(t) != 4) {
+    printf("Expected HHMM format (e.g. 1205), got %s\n", t);
+    return;
+  }
+  for (uint8_t i=0; i<4; ++i) {
+    if ((t[i] < '0') || (t[i] > '9')) {
+      printf("Illegal character in HHMM, expected 0-9, got %c\n", t[i]);
+      return;
+    }
+  }
+  const uint8_t hour = (t[0] - '0') * 10 + (t[1] - '0');
+  if (hour > 23) {
+    printf("Expected HHMM hour to be 00-23, got %d\n", hour);
+    return;
+  }
+
+  const uint8_t minute = (t[2] - '0') * 10 + (t[3] - '0');
+  if (hour > 59) {
+    printf("Expected HHMM minute to be 00-59, got %d\n", minute);
+    return;
+  }
+  clock_set_time(hour * 100 + minute);
+  printf("Time updated\n");
+}
+
 struct ConsoleCallback callbacks[] = {
   {"brightness", "Change brightness from 0-10", 1, brightness_cmd},
   {"get", "Get current settings", 0, get_cmd},
+  {"set_time", "Sets the time as HHMM.  example: set_time 1307.", 1, set_time_cmd},
 };
 #define NUM_CALLBACKS (sizeof(callbacks) / sizeof(callbacks[0]))
 
@@ -87,7 +115,6 @@ static void init_default_settings(void) {
 
 void clock_settings_init() {
   uart_console_init(&console, callbacks, NUM_CALLBACKS, CONSOLE_VT102);
-  *time_was_changed = 0;
   struct ClockSettings flash_settings;
   memcpy(&flash_settings, FLASH_ADDRESS, sizeof(struct ClockSettings));
   if (!validate_settings(&flash_settings)) {
@@ -97,7 +124,7 @@ void clock_settings_init() {
   }
 }
 
-uint8_t clock_settings_poll(uint16_t time_hhmm) {
+void clock_settings_poll(uint16_t time_hhmm) {
   char prompt[80];
   sprintf(prompt, "%02d:%02d (%s,%s,%s)> ",
        time_hhmm / 100,
@@ -107,9 +134,6 @@ uint8_t clock_settings_poll(uint16_t time_hhmm) {
        get_color_name(time_hhmm % 10)
   );
   uart_console_poll(&console, prompt);
-  uint8_t changed = *time_was_changed;
-  *time_was_changed = 0;
-  return changed;
 }
 
 const struct ClockSettings* clock_settings(void) {

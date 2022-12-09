@@ -69,11 +69,7 @@ static uint8_t render(uint32_t frame_idx, uint8_t render_fn_idx) {
   const uint8_t next_render_fn = render_functions[render_fn_idx](
     led, buttons_get(), frame_idx, time_hhmm, clock_settings());
   led_matrix_render(led);
-  if (clock_settings_poll(time_hhmm)) {
-    // time was changed
-    printf("Time Updated\n");
-    time_hhmm = clock_get_time();
-  }
+  clock_settings_poll(time_hhmm);
   uint32_t tdelta = uptime_ms() - t1;
   if (tdelta < FRAME_DELAY_MS) {
     sleep_ms(FRAME_DELAY_MS - tdelta);

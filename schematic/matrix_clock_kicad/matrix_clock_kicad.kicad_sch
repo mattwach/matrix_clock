@@ -862,7 +862,7 @@
     (uuid 588e08bc-80dd-4d59-ac18-24f0d8657078)
     (property "Reference" "U1" (id 0) (at 110.49 69.85 0))
     (property "Value" "Pico" (id 1) (at 110.49 72.39 0))
-    (property "Footprint" "PI Pico:RPi_Pico_SMD_TH" (id 2) (at 110.49 101.6 90)
+    (property "Footprint" "Raspberry_Pi_Pico:RPi_Pico_SMD_TH" (id 2) (at 110.49 101.6 90)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "" (id 3) (at 110.49 101.6 0)
@@ -1219,7 +1219,7 @@
       (reference "SW3") (unit 1) (value "RESET") (footprint "Matt:SMD_Button_6mm_3_5mm")
     )
     (path "/588e08bc-80dd-4d59-ac18-24f0d8657078"
-      (reference "U1") (unit 1) (value "Pico") (footprint "PI Pico:RPi_Pico_SMD_TH")
+      (reference "U1") (unit 1) (value "Pico") (footprint "Raspberry_Pi_Pico:RPi_Pico_SMD_TH")
     )
   )
 )

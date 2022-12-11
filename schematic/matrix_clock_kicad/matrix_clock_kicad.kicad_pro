@@ -55,7 +55,24 @@
           "width": 0.0
         }
       ],
-      "drc_exclusions": [],
+      "drc_exclusions": [
+        "silk_over_copper|148545000|105115000|15d5b2ff-5c34-40ea-823f-e66e05b869ce|cde78da3-1b17-40fd-b0d5-fab33fc5c06d",
+        "silk_over_copper|148545000|106975000|4daa07fd-8ca1-4930-8054-d6e4b94f3be0|cde78da3-1b17-40fd-b0d5-fab33fc5c06d",
+        "silk_over_copper|148545000|110115000|4daa07fd-8ca1-4930-8054-d6e4b94f3be0|0c652ed8-4bbd-4f6d-a137-82920539bf40",
+        "silk_over_copper|148545000|111975000|3d17bb44-804e-41c4-8b63-af8f51c150b1|0c652ed8-4bbd-4f6d-a137-82920539bf40",
+        "silk_over_copper|148690000|119720000|40064448-a945-4f21-be3f-80494e5d19d3|91424de5-233b-4239-830c-cdf0bf6efac5",
+        "silk_over_copper|148690000|121580000|4d39700f-1d16-4f15-8cb7-0c36c61936a3|91424de5-233b-4239-830c-cdf0bf6efac5",
+        "silk_over_copper|148690000|124720000|4d39700f-1d16-4f15-8cb7-0c36c61936a3|9918af49-e83d-44f0-8af1-00df530d4370",
+        "silk_over_copper|148690000|126580000|2125821f-49ea-4fa4-9524-b0e4f46afd00|9918af49-e83d-44f0-8af1-00df530d4370",
+        "silk_over_copper|160845000|105115000|0102de35-d534-45dd-8ed2-594f395a438a|280fca84-714a-4038-a4de-eee4a78405dc",
+        "silk_over_copper|160845000|106975000|86d6627b-19f0-4ee1-a75f-8c0673b071a6|280fca84-714a-4038-a4de-eee4a78405dc",
+        "silk_over_copper|160845000|110115000|86d6627b-19f0-4ee1-a75f-8c0673b071a6|fe3a5a1f-be7b-4d2b-971f-4543b266634a",
+        "silk_over_copper|160845000|111975000|612bf6d8-e663-49cb-92a8-11b978093d22|fe3a5a1f-be7b-4d2b-971f-4543b266634a",
+        "silk_over_copper|160990000|119720000|8970b98a-aa99-4c20-96c9-8245f35cd52a|b1a162d9-a69e-46a5-aa31-4c0853eb5ea9",
+        "silk_over_copper|160990000|121580000|70380cc7-4004-4774-9008-f424ef340df4|b1a162d9-a69e-46a5-aa31-4c0853eb5ea9",
+        "silk_over_copper|160990000|124720000|70380cc7-4004-4774-9008-f424ef340df4|0bfb7e60-b684-4ff8-8bc7-7ee0a9b0885a",
+        "silk_over_copper|160990000|126580000|5009147d-cd01-464d-a281-f65a8cc3d838|0bfb7e60-b684-4ff8-8bc7-7ee0a9b0885a"
+      ],
       "meta": {
         "version": 2
       },

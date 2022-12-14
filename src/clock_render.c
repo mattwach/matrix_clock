@@ -5,20 +5,11 @@
 #include "render/matrix.h"
 #include "render/numbers.h"
 
-// Display modes
-#define DISPLAY_NORMAL 0
-#define DISPLAY_GUIDE 1
-#define DISPLAY_NUMBERS 2
-#define DISPLAY_OFF 3
-#define NUM_DISPLAY_MODES 4
 uint16_t last_sleep_or_wake_hhmm;  // used to create an edge trigger
-uint8_t display_mode;
-uint8_t wake_display_mode; // what mode to wake up to
-uint8_t display_mode_intitialized = 0;
 // this is so initilization can happen when switching modes
 uint32_t frame_index_delta = 0;
 
-struct RenderModes {
+struct DisplayModes {
   const char* name;
   void (*render)(
       uint32_t* led,
@@ -27,23 +18,27 @@ struct RenderModes {
       const struct ClockSettings* settings);
 };
 
+struct DisplayModes display_modes[] = {
+  {"normal", matrix_render},
+  {"guide", guide_render},
+  {"numbers", numbers_render},
+  {"off", blank_render},
+};
+#define OFF_DISPLAY_MODE_INDEX 2
+#define NUM_DISPLAY_MODES (sizeof(display_modes) / sizeof(display_modes[0]))
+uint8_t display_mode; // currently active index
+uint8_t wake_display_mode; // what mode to wake up to
+uint8_t display_mode_intitialized = 0;
+
 // interface for display modes
 uint8_t clock_render_num_display_modes(void) {
   return NUM_DISPLAY_MODES;
 }
 
 const char* clock_render_display_mode_name(uint8_t mode) {
-  switch (mode) {
-    case DISPLAY_NORMAL:
-      return "normal";
-    case DISPLAY_GUIDE:
-      return "guide";
-    case DISPLAY_NUMBERS:
-      return "numbers";
-    case DISPLAY_OFF:
-      return "off";
+  if (mode < NUM_DISPLAY_MODES) {
+    return display_modes[mode].name;
   }
-
   return "unknown";
 }
 
@@ -89,7 +84,7 @@ static void check_for_sleep_and_wake(
     return;
   }
   if (time_hhmm == settings->sleep_time) {
-    display_mode = DISPLAY_OFF;
+    display_mode = OFF_DISPLAY_MODE_INDEX;
     last_sleep_or_wake_hhmm = time_hhmm;
   } else if (time_hhmm == settings->wake_time) {
     display_mode = wake_display_mode;
@@ -106,22 +101,10 @@ uint8_t clock_render(
     const struct ClockSettings* settings) {
   maybe_clock_init(frame_index, time_hhmm, settings);
   check_for_sleep_and_wake(time_hhmm, settings);
-  frame_index -= frame_index_delta;
-
-  switch (display_mode) {
-    case DISPLAY_OFF:
-      blank_render(led, frame_index, time_hhmm, settings);
-      break;
-    case DISPLAY_NORMAL:
-      matrix_render(led, frame_index, time_hhmm, settings);
-      break;
-    case DISPLAY_GUIDE:
-      guide_render(led, frame_index, time_hhmm, settings);
-      break;
-    case DISPLAY_NUMBERS:
-      numbers_render(led, frame_index, time_hhmm, settings);
-      break;
-  }
-
+  display_modes[display_mode].render(
+      led,
+      frame_index - frame_index_delta,
+      time_hhmm,
+      settings);
   return check_buttons(button_pressed, frame_index);
 }

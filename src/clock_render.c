@@ -4,6 +4,7 @@
 #include "led_matrix.h"
 #include "number_draw.h"
 #include "render/blank.h"
+#include "render/guide.h"
 #include "render/matrix.h"
 #include <string.h>
 
@@ -64,25 +65,6 @@ static uint8_t check_buttons(uint8_t button_pressed, uint32_t frame_index) {
     return 1;
   }
   return 0;
-}
-
-static void overlay_guide(uint32_t *led, uint8_t br) {
-  // init two black strips
-  for (uint8_t x = 0; x < 2; ++x) {
-    for (uint8_t y = 0; y < LED_MATRIX_HEIGHT; ++y) {
-      led[get_pixel_idx(x, y)] = 0;
-    }
-  }
-
-  for (uint8_t i=0; i<10; ++i) {
-    const uint32_t color = get_color(i);
-    const uint8_t r = (color >> 16) & 0xFF;
-    const uint8_t g = (color >> 8) & 0xFF; 
-    const uint8_t b  = color & 0xFF; 
-    const uint8_t x = i % 2;
-    const uint8_t y = LED_MATRIX_HEIGHT - 3 - i / 2;
-    set_pixel(led, x, y, br, r, g, b);
-  }
 }
 
 // assume 30 FPS
@@ -149,16 +131,20 @@ uint8_t clock_render(
   check_for_sleep_and_wake(time_hhmm, settings);
   const uint8_t br = brightness_step_to_brightness(settings);
 
-  if (display_mode == DISPLAY_OFF) {
-    blank_render(led, frame_index, time_hhmm, settings);
-  } else {
-    matrix_render(led, frame_index, time_hhmm, settings);
-  }
-
-  if (display_mode == DISPLAY_GUIDE) {
-    overlay_guide(led, br); 
-  } else if (display_mode == DISPLAY_NUMBERS) {
-    overlay_numbers(led, time_hhmm, frame_index, br);
+  switch (display_mode) {
+    case DISPLAY_OFF:
+      blank_render(led, frame_index, time_hhmm, settings);
+      break;
+    case DISPLAY_NORMAL:
+      matrix_render(led, frame_index, time_hhmm, settings);
+      break;
+    case DISPLAY_GUIDE:
+      guide_render(led, frame_index, time_hhmm, settings);
+      break;
+    case DISPLAY_NUMBERS:
+      matrix_render(led, frame_index, time_hhmm, settings);
+      overlay_numbers(led, time_hhmm, frame_index, br);
+      break;
   }
 
   return check_buttons(button_pressed, frame_index);

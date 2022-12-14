@@ -401,7 +401,7 @@
       "idf": "",
       "netlist": "matrix_clock_kicad.net",
       "specctra_dsn": "",
-      "step": "",
+      "step": "../../case/matrix_clock_kicad_pcb.step",
       "vrml": ""
     },
     "page_layout_descr_file": ""

@@ -3,6 +3,7 @@
 #include "colors.h"
 #include "led_matrix.h"
 #include "number_draw.h"
+#include "render/blank.h"
 #include "render/matrix.h"
 #include <string.h>
 
@@ -63,10 +64,6 @@ static uint8_t check_buttons(uint8_t button_pressed, uint32_t frame_index) {
     return 1;
   }
   return 0;
-}
-
-void all_pixels_off(uint32_t* led) {
-  memset(led, 0, LED_MATRIX_WIDTH * LED_MATRIX_HEIGHT * sizeof(uint32_t));
 }
 
 static void overlay_guide(uint32_t *led, uint8_t br) {
@@ -153,7 +150,7 @@ uint8_t clock_render(
   const uint8_t br = brightness_step_to_brightness(settings);
 
   if (display_mode == DISPLAY_OFF) {
-    all_pixels_off(led);
+    blank_render(led, frame_index, time_hhmm, settings);
   } else {
     matrix_render(led, frame_index, time_hhmm, settings);
   }

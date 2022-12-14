@@ -1,12 +1,9 @@
 #include "clock_render.h"
 #include "buttons.h"
-#include "colors.h"
-#include "led_matrix.h"
-#include "number_draw.h"
 #include "render/blank.h"
 #include "render/guide.h"
 #include "render/matrix.h"
-#include <string.h>
+#include "render/numbers.h"
 
 // Display modes
 #define DISPLAY_NORMAL 0
@@ -18,7 +15,7 @@ uint16_t last_sleep_or_wake_hhmm;  // used to create an edge trigger
 uint8_t display_mode;
 uint8_t wake_display_mode; // what mode to wake up to
 uint8_t display_mode_intitialized = 0;
-// this is so the numbes always show right away in DISPLAY_NUMBERS
+// this is so initilization can happen when switching modes
 uint32_t frame_index_delta = 0;
 
 struct RenderModes {
@@ -67,26 +64,6 @@ static uint8_t check_buttons(uint8_t button_pressed, uint32_t frame_index) {
   return 0;
 }
 
-// assume 30 FPS
-// show hour for 1 second
-#define OVERLAY_HOUR_FRAME 30
-// show minute for 1 second
-#define OVERLAY_MINUTE_FRAME (OVERLAY_HOUR_FRAME + 30)
-// nothing for 6 seconds
-#define OVERLAP_NOTHING_FRAME (OVERLAY_MINUTE_FRAME + 300)
-static void overlay_numbers(
-    uint32_t* led,
-    uint16_t time_hhmm,
-    uint32_t frame_index,
-    uint8_t br) {
-  frame_index = (frame_index - frame_index_delta) % OVERLAP_NOTHING_FRAME;
-  if (frame_index < OVERLAY_HOUR_FRAME) {
-    draw_numbers(led, time_hhmm / 100, br);
-  } else if (frame_index < OVERLAY_MINUTE_FRAME) {
-    draw_numbers(led, time_hhmm % 100, br);
-  }
-}
-
 static void maybe_clock_init(
   uint32_t frame_index,
   uint8_t time_hhmm,
@@ -129,7 +106,7 @@ uint8_t clock_render(
     const struct ClockSettings* settings) {
   maybe_clock_init(frame_index, time_hhmm, settings);
   check_for_sleep_and_wake(time_hhmm, settings);
-  const uint8_t br = brightness_step_to_brightness(settings);
+  frame_index -= frame_index_delta;
 
   switch (display_mode) {
     case DISPLAY_OFF:
@@ -142,8 +119,7 @@ uint8_t clock_render(
       guide_render(led, frame_index, time_hhmm, settings);
       break;
     case DISPLAY_NUMBERS:
-      matrix_render(led, frame_index, time_hhmm, settings);
-      overlay_numbers(led, time_hhmm, frame_index, br);
+      numbers_render(led, frame_index, time_hhmm, settings);
       break;
   }
 

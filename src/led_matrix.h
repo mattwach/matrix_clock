@@ -30,4 +30,20 @@ void led_matrix_init();
 // sent is the southwest corner of the matrix.
 void led_matrix_render(uint32_t* data);
 
+static inline uint8_t get_pixel_idx(uint8_t x, uint8_t y) {
+  return (y * LED_MATRIX_WIDTH) + x;
+}
+
+static inline void set_pixel(
+  uint32_t* led,
+  uint8_t x,
+  int8_t y,
+  uint8_t br,
+  uint8_t r,
+  uint8_t g,
+  uint8_t b) {
+  const uint32_t pixel = (br << 24) | (r << 16) | (g << 8) | b;
+  const uint8_t idx = get_pixel_idx(x, y);
+  led[idx] = pixel;
+}
 #endif

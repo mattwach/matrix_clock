@@ -9,6 +9,11 @@
 #include <string.h>
 #include <stdlib.h>
 
+// brightness is 0-255 and changed to 0-31 in led_matrix_dotstar.c
+#define MIN_BRIGHTNESS 40   // 0-255
+#define BRIGHTNESS_STEP_SIZE 20   // 0-255
+#define BRIGHTNESS_STEPS 10   // 0-255
+
 #define FLASH_OFFSET (PICO_FLASH_SIZE_BYTES - FLASH_SECTOR_SIZE)
 #define FLASH_ADDRESS ((uint8_t*)(XIP_BASE + FLASH_OFFSET))
 
@@ -202,3 +207,13 @@ void clock_settings_poll(uint16_t time_hhmm) {
 const struct ClockSettings* clock_settings(void) {
   return &settings;
 }
+
+uint8_t brightness_step_to_brightness(const struct ClockSettings* settings) {
+  uint8_t brightness_step = settings->brightness;
+  if (brightness_step > BRIGHTNESS_STEPS) {
+    brightness_step = BRIGHTNESS_STEPS;
+  } 
+  return MIN_BRIGHTNESS + (BRIGHTNESS_STEP_SIZE * brightness_step);
+}
+
+

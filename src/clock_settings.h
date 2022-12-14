@@ -26,4 +26,7 @@ void clock_settings_poll(uint16_t time_hhmm);
 
 const struct ClockSettings* clock_settings(void);
 
+// Converts a ClockSettings->brightness to 0-255 brightness
+uint8_t brightness_step_to_brightness(const struct ClockSettings* settings);
+
 #endif

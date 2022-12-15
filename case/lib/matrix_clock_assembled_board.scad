@@ -16,7 +16,7 @@ module matrix_clock_assembled_board() {
     color("#760") translate([
         MATRIX_CLOCK_PCB_LENGTH,
         MATRIX_CLOCK_PCB_WIDTH,
-        0]) rz(-90) import("matrix_clock_kicad_pcb.stl");
+        0]) rz(-90) import("lib/matrix_clock_kicad_pcb.stl");
   }
 
   module pico() {
@@ -89,6 +89,8 @@ module matrix_clock_assembled_board() {
   reset_button();
 }
 
+/*
 $fa=2;
 $fs=0.2;
 matrix_clock_assembled_board();
+*/

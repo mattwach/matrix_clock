@@ -75,11 +75,25 @@ module matrix_clock_assembled_board() {
           button_z_offset]) push_switch_12x12(button_color="#aaa");
   }
 
+  module reset_button() {
+    reset_button_length = 6.3;
+    reset_button_width = 2.4;
+    reset_button_height = 3;
+    translate([
+        26,
+        50,
+        -reset_button_height]) cube([
+          reset_button_length,
+          reset_button_width,
+          reset_button_height]);
+  }
+
   pcb();
   pico();
   rtc();
   led_matrix_interface();
   interface_buttons();
+  reset_button();
 }
 
 $fa=2;

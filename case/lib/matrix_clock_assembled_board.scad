@@ -61,11 +61,11 @@ module matrix_clock_assembled_board() {
       translate([
           10.2,
           button_y_offset,
-          button_z_offset]) push_switch_12x12(button_color="#aaa");
+          button_z_offset]) push_switch_12x12(include_button=false);
       translate([
           24.8,
           button_y_offset,
-          button_z_offset]) push_switch_12x12(button_color="#aaa");
+          button_z_offset]) push_switch_12x12(include_button=false);
   }
 
   module reset_button() {

@@ -15,26 +15,8 @@
 #define FRAME_DELAY_MS 32
 #define TIME_UPDATE_FRAMES (1000/FRAME_DELAY_MS)
 
-// Rendering modules. Called by the main loop depending on which
-// state the clock is in.  Updates led[].
-// Returns a 1 if the next renderer should be selected
-//
-// Parameters include:
-//   led: array of leds, see led_matrix.h for more details
-//   button_pressed: bit array of buttons that were pressed.  Edge-triggered
-//   frame_index: The number of frame this renderer has been in use.  If a different
-//     renderer is chosen, the frame_index is reset to zero.
-uint8_t (*render_functions[])(
-  uint32_t* led,
-  uint8_t button_pressed,
-  uint32_t frame_index,
-  uint16_t time_hhmm,
-  const struct ClockSettings* settings) = {
-  clock_render,
-  set_time_render,
-};
-
-#define RENDER_FN_COUNT (sizeof(render_functions) / sizeof(render_functions[0]))
+// set to 1 if the user is setting the time
+uint8_t setting_time;
 
 // format is 0xIIRRGGBB  See led_matrix.h for mor details.
 uint32_t led[LED_MATRIX_COUNT];
@@ -47,6 +29,7 @@ static inline uint32_t uptime_ms() {
 // Initialization function
 static void init(void) {
   time_hhmm = 0;
+  setting_time = 0;
   clock_settings_init();
   led_matrix_init();
   clock_init();
@@ -54,7 +37,7 @@ static void init(void) {
   sleep_ms(50);
 }
 
-// A function that is used for debug and "learning" what the colors mean.
+// Updates time_hhmm periocially (based on TIME_UPDATE_FRAMES)
 static void maybe_update_time(uint32_t frame_idx) {
   if ((frame_idx % TIME_UPDATE_FRAMES) == 0) {
     time_hhmm = clock_get_time();
@@ -62,35 +45,40 @@ static void maybe_update_time(uint32_t frame_idx) {
 }
 
 // called repeatedly by main to render a frame
-static uint8_t render(uint32_t frame_idx, uint8_t render_fn_idx) {
+static uint32_t render(uint32_t frame_idx) {
   uint32_t t1 = uptime_ms();
   maybe_update_time(frame_idx);
   memset(led, 0, sizeof(led));
-  const uint8_t next_render_fn = render_functions[render_fn_idx](
-    led, buttons_get(), frame_idx, time_hhmm, clock_settings());
+  uint8_t toggle_setting_time = 0;
+  if (setting_time) {
+    toggle_setting_time = set_time_render(
+          led, buttons_get(), frame_idx, time_hhmm, clock_settings());
+  } else {
+    toggle_setting_time = clock_render(
+          led, buttons_get(), frame_idx, time_hhmm, clock_settings());
+  }
+  if (toggle_setting_time) {
+    setting_time = !setting_time;
+    frame_idx = 0;
+  } else {
+    ++frame_idx;
+  }
   led_matrix_render(led);
   clock_settings_poll(time_hhmm);
+  // calculate tdelta to get a smooth frame rate, even if the loop time
+  // varies.
   uint32_t tdelta = uptime_ms() - t1;
   if (tdelta < FRAME_DELAY_MS) {
     sleep_ms(FRAME_DELAY_MS - tdelta);
   }
-  return next_render_fn;
+  return frame_idx;
 }
 
 // Program starting point
 int main() {
   init();
-  uint8_t render_fn_idx = 0;
   uint32_t frame_idx = 0;
   while (1) {
-    if (render(frame_idx, render_fn_idx)) {
-      ++render_fn_idx;
-      frame_idx = 0;
-      if (render_fn_idx >= RENDER_FN_COUNT) {
-        render_fn_idx = 0;
-      }
-    } else {
-      ++frame_idx;
-    }
+    frame_idx = render(frame_idx);
   }
 }

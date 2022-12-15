@@ -2,6 +2,7 @@ use <mattwach/util.scad>
 include <lib/matrix_clock_assembled_board.scad>
 
 module matrix_clock_case() {
+  overlap = 0.01;
 
   module clock_base() {
     case_bottom_thickness = 2;
@@ -30,13 +31,47 @@ module matrix_clock_case() {
     }
 
     module base_shell() {
+      mounting_post_hole_x1 = 59.9;
+      mounting_post_hole_y1 = 3.7;
+      mounting_post_hole_x2 = 6.9;
+      mounting_post_hole_y2 = 50.7;
+      module mounting_post(is_hole) {
+        mounting_post_hole_size = 1.85;
+        mounting_post_diameter = mounting_post_hole_size + 4;
+        if (is_hole) {
+          tz(-overlap) cylinder(
+              d=mounting_post_hole_size,
+              h=board_zpad + overlap * 2);
+        } else {
+          tz(case_bottom_thickness - overlap) cylinder(
+              d=mounting_post_diameter, h=board_zpad - case_bottom_thickness);
+        }
+      }
+
+      module mounting_posts() {
+        txy(mounting_post_hole_x1, mounting_post_hole_y1) mounting_post(false);
+        txy(mounting_post_hole_x2, mounting_post_hole_y2) mounting_post(false);
+        txy(3,3) mounting_post(false);
+        txy(60.5,51.5) mounting_post(false);
+      }
+      module mounting_holes() {
+        txy(mounting_post_hole_x1, mounting_post_hole_y1) mounting_post(true);
+        txy(mounting_post_hole_x2, mounting_post_hole_y2) mounting_post(true);
+      }
       difference() {
-        base(base_zsize, 0);
-        tz(case_bottom_thickness) base(base_zsize, case_shell_thickness);
+        union() {
+          difference() {
+            base(base_zsize, 0);
+            tz(case_bottom_thickness) base(base_zsize, case_shell_thickness);
+          }
+          mounting_posts();
+        }
+        mounting_holes();
       }
     }
 
     tz(board_zpad) matrix_clock_assembled_board();
+    
     color("white", 0.5) base_shell();
   }
   

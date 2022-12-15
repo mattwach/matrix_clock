@@ -11,6 +11,14 @@
 void buttons_init(void);
 
 // returns current button state as a bit array
+// Note that reading the value also resets the state back to unpressed
+// e.g.
+//  * somewone presses and releases the SELECT_BUTTON
+//  * some amount of time goes by
+//  * buttons_get() is called
+//  * SELECT_BUTTON is returned
+//  * any future calls to buttons_get() return zero until a button
+//    is pressed again.
 uint8_t buttons_get(void);
 
 #endif

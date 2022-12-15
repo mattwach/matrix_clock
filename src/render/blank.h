@@ -4,6 +4,7 @@
 #include <inttypes.h>
 #include "../clock_settings.h"
 
+// Turns off all LEDs
 void blank_render(
     uint32_t* led,
     uint32_t frame_index,

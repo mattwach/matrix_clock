@@ -19,6 +19,7 @@ void guide_render(
     }
   }
 
+  // draw the color key table
   const uint8_t br = brightness_step_to_brightness(settings);
   for (uint8_t i=0; i<10; ++i) {
     const uint32_t color = get_color(i);

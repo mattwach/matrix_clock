@@ -27,6 +27,9 @@ uint8_t debounce_sample(struct Debounce* db, uint32_t time_ms, uint8_t val) {
   return 0;
 }
 
+// IRQ callback that handles the not-so-intuitive logic of converting a set
+// of rising and falling edges into a clean signal that filters away debounce
+// noise without losing presses.
 uint8_t debounce_gpio_irq_callback_helper(struct Debounce* db, uint32_t time_ms, uint32_t events) {
   uint8_t val = 0;
   switch (events) {

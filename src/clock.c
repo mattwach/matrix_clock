@@ -10,18 +10,25 @@
 #define DS3231_I2C_ADDRESS 0x68
 
 uint16_t clock_get_time() {
-  // get the raw data
+  // Need two bytes of data to capture hours and minutes from tje
+  // DS3231.
   uint8_t buf[2];
   const uint8_t addr = 0x01;  // register address that starts with minute
 
+  // Read address 0x01 and 0x02 from the DS3231
   i2c_write_blocking(i2c0, DS3231_I2C_ADDRESS, &addr, 1, true);
   const int err = i2c_read_blocking(i2c0, DS3231_I2C_ADDRESS, buf, 2, false);
   if (err < 0) {
       return 100 - err;
   }
-  // byte is laid out as 0HHHLLLL, where H is the "tens" place and L is the "ones"
+  // The minute byte is not a direct binary number but is instead
+  // has a bit format of 0HHHLLLL, where H is the "tens" place and
+  // L is the "ones"
   const uint8_t minute = (buf[0] & 0x0F) + ((buf[0] >> 4) * 10);
 
+  // Hours is a bit more involved to process due to the possibility
+  // of 12h and 24h modes.  If you know what mode the clock is going
+  // to be in, then the code below can be simplified.
   uint8_t hours = buf[1] & 0x0F;
   if (buf[1] & 0x10) {
     hours += 10;

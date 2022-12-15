@@ -15,17 +15,21 @@ static inline uint32_t uptime_ms() {
   return to_ms_since_boot(get_absolute_time());
 }
 
+// Callback for gpio_set_irq_callback.  Since it's an ISR,
+// try to avoid expensive operations.
 static void button_pressed_callback(uint gpio, uint32_t events) {
   switch (gpio) {
     case SELECT_GPIO:
+      // The callback helper helps filter away debounce glitches
+      // The debounce_gpio_irq_callback_helper has a side effect (updates state in
+      // the debounce structure so it should always be called.
       if (debounce_gpio_irq_callback_helper(&select_db, uptime_ms(), events) &&
           select_db.val) {
         button_bit_array |= SELECT_BUTTON;
       }
       break;
     case INCREMENT_GPIO:
-      // Note debounce_gpio_irq_callback_helper has a side effect (updates state in
-      // the debounce structure so it should always be called.
+      // The comment for SELECT_GPIO above also apply here.
       if (debounce_gpio_irq_callback_helper(&increment_db, uptime_ms(), events) &&
           increment_db.val) {
         button_bit_array |= INCREMENT_BUTTON;
@@ -34,9 +38,13 @@ static void button_pressed_callback(uint gpio, uint32_t events) {
   }
 }
 
+// Sets up a pin to sense a button press.  Hardware-wise the button is
+// connected to the pin and to ground.  The code below sets the internal
+// pullup for the button so the pin will sit at 3.3V when the button
+// is not pressed.  When the button is pressed, the 3.3V will be pulled
+// to ground which is an event that the pico is configured to recognize
+// and raise an interrupt for.
 static void setup_gpio(uint gpio) {
-  //gpio_init(gpio);  // maybe not needed
-  //gpio_set_dir(gpio, GPIO_IN);  // maybe not needed
   gpio_pull_up(gpio);
   sleep_ms(1);  // give the pullup some time to do it's thing. Maybe not needed.
   gpio_set_irq_enabled(gpio, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true);

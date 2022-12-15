@@ -17,9 +17,15 @@
 #define FLASH_OFFSET (PICO_FLASH_SIZE_BYTES - FLASH_SECTOR_SIZE)
 #define FLASH_ADDRESS ((uint8_t*)(XIP_BASE + FLASH_OFFSET))
 
+// Most of the USB-console logic is offloaded into the uart_console
+// library.
 struct ConsoleConfig console;
 struct ClockSettings settings;
 
+// A simple checksum calculation that also incorporates
+// CLOCK_SETTINGS_VERSION.  If CLOCK_SETTINGS_VERSION is changed
+// then the checksum will fail (by design) until the data
+// is rewritten with the updated version.
 static uint32_t calc_checksum(const struct ClockSettings* cs) {
   uint8_t* start = ((uint8_t*)cs) + sizeof(uint32_t);
   size_t len = sizeof(struct ClockSettings) - sizeof(uint32_t);
@@ -30,6 +36,7 @@ static uint32_t calc_checksum(const struct ClockSettings* cs) {
   return sum;
 }
 
+// saves current settingsw to flash
 static void clock_settings_save(const struct ClockSettings* cs) {
   uint8_t buff[FLASH_PAGE_SIZE];
   memset(buff, 0, sizeof(buff));
@@ -47,6 +54,7 @@ static void clock_settings_save(const struct ClockSettings* cs) {
   restore_interrupts (ints);
 }
 
+// dumps current sleep settings to the console
 static void output_sleep_data(void) {
   const char* sleep_enabled =
       (settings.sleep_time == settings.wake_time) ? "disabled" : "enabled";
@@ -54,6 +62,7 @@ static void output_sleep_data(void) {
   printf("wake_time = %d (%s)\n", settings.wake_time, sleep_enabled);
 }
 
+// callback for the "get" shell command
 static void get_cmd(uint8_t argc, char* argv[]) {
   printf("brightness = %d\n", settings.brightness);
   printf(
@@ -62,6 +71,7 @@ static void get_cmd(uint8_t argc, char* argv[]) {
   output_sleep_data();
 }
 
+// callback for the "brightness" shell command
 static void brightness_cmd(uint8_t argc, char* argv[]) {
   int brightness = 0;
   if (strcmp(argv[0], "0")) {
@@ -77,6 +87,9 @@ static void brightness_cmd(uint8_t argc, char* argv[]) {
   }
 }
 
+// helper function to convert a string to hhmm format
+// e.g. "1234" -> 1234.  Does various sanity checks and
+// returns -1 if an of these checks fail.
 static int16_t parse_hhmm(const char* t) {
   if (strlen(t) != 4) {
     printf("Expected HHMM format (e.g. 1205), got %s\n", t);
@@ -102,14 +115,17 @@ static int16_t parse_hhmm(const char* t) {
   return hour * 100 + minute;
 }
 
+// callback for the "set_time" shell command
 static void time_cmd(uint8_t argc, char* argv[]) {
   int16_t t = parse_hhmm(argv[0]);
   if (t >= 0) {
+    // No flash update needed since the RTC hardware tracks the time
     clock_set_time(t);
     printf("Time updated\n");
   }
 }
 
+// callback for the "sleep_time" shell command
 static void sleep_time_cmd(uint8_t argc, char* argv[]) {
   int16_t t = parse_hhmm(argv[0]);
   if (t >= 0) {
@@ -119,6 +135,7 @@ static void sleep_time_cmd(uint8_t argc, char* argv[]) {
   }
 }
 
+// callback for the "wake_time" shell command
 static void wake_time_cmd(uint8_t argc, char* argv[]) {
   int16_t t = parse_hhmm(argv[0]);
   if (t >= 0) {
@@ -128,6 +145,7 @@ static void wake_time_cmd(uint8_t argc, char* argv[]) {
   }
 }
 
+// callback for the "list_display_modes" shell command
 static void list_display_modes_cmd(uint8_t argc, char* argv[]) {
   const uint8_t num_modes = clock_render_num_display_modes();
   for (uint8_t i=0; i < num_modes; ++i) {
@@ -135,6 +153,7 @@ static void list_display_modes_cmd(uint8_t argc, char* argv[]) {
   }
 }
 
+// callback for the "startup_display_mode" shell command
 static void startup_display_mode_cmd(uint8_t argc, char* argv[]) {
   const char* mode = argv[0];
   const uint8_t num_modes = clock_render_num_display_modes();
@@ -149,6 +168,8 @@ static void startup_display_mode_cmd(uint8_t argc, char* argv[]) {
   printf("Unknown display mode: %s.  Try list_display_modes\n", mode);
 }
 
+// The list of supported shell commands, along with a short description and
+// function callback.
 struct ConsoleCallback callbacks[] = {
   {"brightness", "Change brightness from 0-10", 1, brightness_cmd},
   {"get", "Get current settings", 0, get_cmd},
@@ -162,6 +183,8 @@ struct ConsoleCallback callbacks[] = {
 };
 #define NUM_CALLBACKS (sizeof(callbacks) / sizeof(callbacks[0]))
 
+// Looks at checksum and the eyecatcher to validate if the stored settings
+// are good or bad.
 static uint8_t validate_settings(const struct ClockSettings* cs) {
   if ((cs->eyecatcher[0] != 'M') ||
       (cs->eyecatcher[1] != 'C') ||
@@ -176,6 +199,8 @@ static uint8_t validate_settings(const struct ClockSettings* cs) {
   return 1;
 }
 
+// Called when the stored setting are invalid, maybe they were never
+// written?  Sets "reasonable" defaults.
 static void init_default_settings(void) {
   memset(&settings, 0, sizeof(struct ClockSettings));
   settings.brightness = 3;

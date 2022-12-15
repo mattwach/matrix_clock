@@ -144,7 +144,7 @@ static void update_particle(struct Particle* p) {
 }
 
 
-
+// Initializes particles, but only when frame_idx is zero.
 static void maybe_clock_init(
   uint32_t frame_index,
   uint8_t time_hhmm,
@@ -156,6 +156,7 @@ static void maybe_clock_init(
   }
 }
 
+// public interface
 void matrix_render(
     uint32_t* led,
     uint32_t frame_index,

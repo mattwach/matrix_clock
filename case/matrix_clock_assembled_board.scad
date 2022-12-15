@@ -29,28 +29,21 @@ module matrix_clock_assembled_board() {
   module rtc() {
     pin_x_offset = 47.6;
     pin_y_offset = 4.5;
-    module board_pin_header() {
-      translate([
-          pin_x_offset,
-          pin_y_offset,
-          MATRIX_CLOCK_PCB_THICKNESS]) pin_socket(2p54header, 4, 1);
-    }
-
+    pin_z_offset = 2.4 + MATRIX_CLOCK_PCB_THICKNESS + 3;
     module clock_pins() {
       translate([
           pin_x_offset,
           pin_y_offset,
-          12.6]) ry(180) pin_header(2p54header, 4, 1);
+          pin_z_offset]) ry(180) pin_header(2p54header, 4, 1);
     }
 
     module clock_module() {
       translate([
           58.8,
           40.3,
-          14.2]) rz(-90) rx(180) ds3231_rtc();
+          pin_z_offset + 1.6]) rz(-90) rx(180) ds3231_rtc();
     }
 
-    board_pin_header();
     clock_pins();
     clock_module();
   }

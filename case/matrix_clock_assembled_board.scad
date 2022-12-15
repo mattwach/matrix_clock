@@ -1,4 +1,5 @@
 use <mattwach/util.scad>
+use <mattwach/vitamins/electronics/buttons.scad>
 include <mattwach/vitamins/electronics/pi_pico.scad>
 include <mattwach/vitamins/electronics/ds3231_rtc.scad>
 include <NopSCADlib/core.scad>
@@ -61,10 +62,24 @@ module matrix_clock_assembled_board() {
         MATRIX_CLOCK_PCB_THICKNESS]) rz(-90) jst_xh_header(jst_xh_header, 4);
   }
 
+  module interface_buttons() {
+      button_y_offset = 4.6;
+      button_z_offset = 2;
+      translate([
+          10.2,
+          button_y_offset,
+          button_z_offset]) push_switch_12x12(button_color="#aaa");
+      translate([
+          24.8,
+          button_y_offset,
+          button_z_offset]) push_switch_12x12(button_color="#aaa");
+  }
+
   pcb();
   pico();
   rtc();
   led_matrix_interface();
+  interface_buttons();
 }
 
 $fa=2;

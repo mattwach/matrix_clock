@@ -54,9 +54,17 @@ module matrix_clock_assembled_board() {
     clock_module();
   }
 
+  module led_matrix_interface() {
+    translate([
+        3.8,
+        41.9,
+        MATRIX_CLOCK_PCB_THICKNESS]) rz(-90) jst_xh_header(jst_xh_header, 4);
+  }
+
   pcb();
   pico();
   rtc();
+  led_matrix_interface();
 }
 
 $fa=2;

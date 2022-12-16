@@ -1,5 +1,6 @@
 use <mattwach/util.scad>
 include <lib/matrix_clock_assembled_board.scad>
+include <mattwach/vitamins/electronics/adafruit_dotstar_8x8_matrix.scad>
 
 module matrix_clock_case() {
   overlap = 0.01;
@@ -13,14 +14,16 @@ module matrix_clock_case() {
     case_ysize = MATRIX_CLOCK_PCB_WIDTH + case_shell_thickness * 2 + board_xypad * 2;
     case_xsize = MATRIX_CLOCK_PCB_LENGTH + board_xypad * 2 + case_fillet_radius * 2;
     base_zsize = board_zpad + 20;
+    case_xbase = -board_xypad - case_fillet_radius;
+    case_ybase = -case_shell_thickness - board_xypad;
 
     module base(height, inset) {
-      x1 = board_xypad + inset;
+      x1 = -board_xypad + inset;
       x2 = MATRIX_CLOCK_PCB_LENGTH + board_xypad - inset;
       y1 = case_fillet_radius - case_shell_thickness - board_xypad + inset;
       y2 = MATRIX_CLOCK_PCB_WIDTH - case_fillet_radius + case_shell_thickness + board_xypad - inset;
       //txy(-case_fillet_radius - board_xypad,
-      //    -case_shell_thickness - board_xypad)
+      //  -case_shell_thickness - board_xypad)
       //  cube([case_xsize, case_ysize, height/2]);
       hull() {
         txy(x1, y1) cylinder(r=case_fillet_radius, h=height);
@@ -90,8 +93,17 @@ module matrix_clock_case() {
       }
     }
 
+    module led_matrix() {
+      led_matrix_z = 20;
+      led_matrix_angle = 0;
+      ry(led_matrix_angle) translate([
+          case_xbase,
+          case_ybase + (DOTSTAR_8X8_BASE_WIDTH + case_ysize) / 2, 
+          led_matrix_z]) ry(-90) rz(-90) adafruit_dotstar_8x8_matrix();
+    }
+
     tz(board_zpad) matrix_clock_assembled_board();
-    
+    led_matrix();    
     color("white", 0.5) base_shell();
   }
   

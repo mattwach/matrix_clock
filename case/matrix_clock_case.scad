@@ -111,13 +111,13 @@ module matrix_clock_case() {
         module matrix_mounting_bar() {
           module matrix_mounting_hole() {
             matrix_hole_diameter = 2.35;
-            tz(-overlap) cylinder(
+            tx(led_matrix_z) tz(-overlap) cylinder(
                 d=matrix_hole_diameter, h=mounting_post_height + overlap * 2);
           }
           module matrix_mounting_block() {
             txy(-mounting_post_width / 2,
                 -mounting_post_width / 2) cube([
-                mounting_post_length,
+                mounting_post_length + led_matrix_z,
                 mounting_post_width,
                 mounting_post_height]);
           }
@@ -125,14 +125,15 @@ module matrix_clock_case() {
           translate([
               case_xbase + mounting_post_height + case_shell_thickness,
               MATRIX_CLOCK_PCB_WIDTH / 2 + DOTSTAR_8X8_WIDTH_WITH_TABS / 2 - mounting_post_width / 2,
-              led_matrix_z + mounting_post_width / 2]) ry(-90) difference() {
+              mounting_post_width / 2]) ry(-90) difference() {
             matrix_mounting_block();
             matrix_mounting_hole();
-            #tx(DOTSTAR_8X8_BOLT_SPAN) matrix_mounting_hole();
+            tx(DOTSTAR_8X8_BOLT_SPAN) matrix_mounting_hole();
           }
         }
 
         matrix_mounting_bar();
+        ty(-DOTSTAR_8X8_WIDTH_WITH_TABS + mounting_post_width) matrix_mounting_bar();
       }
 
       difference() {
@@ -142,11 +143,11 @@ module matrix_clock_case() {
             tz(case_bottom_thickness) base(base_zsize, case_shell_thickness);
           }
           pcb_mounting_posts();
+          led_matrix_mount();
         }
         mounting_holes();
         button_access_holes();
         usb_access_hole();
-        led_matrix_mount();
       }
     }
 

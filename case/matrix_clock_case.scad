@@ -10,10 +10,10 @@ module matrix_clock_case() {
     board_zpad = case_bottom_thickness + 4;  // clearance for bolts and buttons
     case_shell_thickness = 1.5;
     board_xypad = 1;
-    case_fillet_radius = 10;
+    case_fillet_radius = 12;
     case_ysize = MATRIX_CLOCK_PCB_WIDTH + case_shell_thickness * 2 + board_xypad * 2;
     case_xsize = MATRIX_CLOCK_PCB_LENGTH + board_xypad * 2 + case_fillet_radius * 2;
-    base_zsize = board_zpad + 40;
+    base_zsize = board_zpad + 19.5 + 5 * 2;
     case_xbase = -board_xypad - case_fillet_radius;
     case_ybase = -case_shell_thickness - board_xypad;
 
@@ -82,7 +82,7 @@ module matrix_clock_case() {
 
       module usb_access_hole() {
         usb_access_hole_width = 14;
-        usb_access_hole_depth = 15;
+        usb_access_hole_depth = 17;
         usb_access_hole_height = 8;
         usb_access_hole_yoffest = 36.5;
         union() {
@@ -117,7 +117,7 @@ module matrix_clock_case() {
     }
 
     module led_matrix() {
-      led_matrix_z = 10;
+      led_matrix_z = 5;
       led_matrix_ypad = 1;
       translate([
           case_xbase + DOTSTAR_8X8_THICKNESS + case_shell_thickness + led_matrix_ypad,

@@ -16,6 +16,8 @@ module matrix_clock_case() {
     base_zsize = board_zpad + 19.5 + 5 * 2;
     case_xbase = -board_xypad - case_fillet_radius;
     case_ybase = -case_shell_thickness - board_xypad;
+    led_matrix_z = 5;
+    led_matrix_ypad = 2;
 
     module base(height, inset) {
       x1 = -board_xypad + inset;
@@ -102,6 +104,37 @@ module matrix_clock_case() {
         }
       }
 
+      module led_matrix_mount() {
+        mounting_post_height = led_matrix_ypad + DOTSTAR_8X8_THICKNESS - DOTSTAR_8X8_PCB_THICKNESS;
+        mounting_post_length = DOTSTAR_8X8_BASE_WIDTH;
+        mounting_post_width = DOTSTAR_8X8_TAB_WIDTH;
+        module matrix_mounting_bar() {
+          module matrix_mounting_hole() {
+            matrix_hole_diameter = 2.35;
+            tz(-overlap) cylinder(
+                d=matrix_hole_diameter, h=mounting_post_height + overlap * 2);
+          }
+          module matrix_mounting_block() {
+            txy(-mounting_post_width / 2,
+                -mounting_post_width / 2) cube([
+                mounting_post_length,
+                mounting_post_width,
+                mounting_post_height]);
+          }
+
+          translate([
+              case_xbase + mounting_post_height + case_shell_thickness,
+              MATRIX_CLOCK_PCB_WIDTH / 2 + DOTSTAR_8X8_WIDTH_WITH_TABS / 2 - mounting_post_width / 2,
+              led_matrix_z + mounting_post_width / 2]) ry(-90) difference() {
+            matrix_mounting_block();
+            matrix_mounting_hole();
+            #tx(DOTSTAR_8X8_BOLT_SPAN) matrix_mounting_hole();
+          }
+        }
+
+        matrix_mounting_bar();
+      }
+
       difference() {
         union() {
           difference() {
@@ -113,12 +146,11 @@ module matrix_clock_case() {
         mounting_holes();
         button_access_holes();
         usb_access_hole();
+        led_matrix_mount();
       }
     }
 
     module led_matrix() {
-      led_matrix_z = 5;
-      led_matrix_ypad = 1;
       translate([
           case_xbase + DOTSTAR_8X8_THICKNESS + case_shell_thickness + led_matrix_ypad,
           case_ybase + (DOTSTAR_8X8_BASE_WIDTH + case_ysize) / 2, 

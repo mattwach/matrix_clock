@@ -54,10 +54,29 @@ module matrix_clock_case() {
         txy(3,3) mounting_post(false);
         txy(60.5,51.5) mounting_post(false);
       }
+
       module mounting_holes() {
         txy(mounting_post_hole_x1, mounting_post_hole_y1) mounting_post(true);
         txy(mounting_post_hole_x2, mounting_post_hole_y2) mounting_post(true);
       }
+
+      module button_access_holes() {
+        access_hole_diameter = 15;
+        module access_hole() {
+          tz(-overlap) cylinder(
+              d=access_hole_diameter,
+              h=case_bottom_thickness + overlap * 2);
+        }
+        module bootsel_hole() {
+          txy(47, 33) access_hole();
+        }
+        module reset_hole() {
+          txy(29, 48) access_hole();
+        }
+        bootsel_hole();
+        reset_hole();
+      }
+
       difference() {
         union() {
           difference() {
@@ -67,6 +86,7 @@ module matrix_clock_case() {
           mounting_posts();
         }
         mounting_holes();
+        button_access_holes();
       }
     }
 

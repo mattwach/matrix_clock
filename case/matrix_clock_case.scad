@@ -10,10 +10,10 @@ module matrix_clock_case() {
     board_zpad = case_bottom_thickness + 4;  // clearance for bolts and buttons
     case_shell_thickness = 1.5;
     board_xypad = 1;
-    case_fillet_radius = 5;
+    case_fillet_radius = 10;
     case_ysize = MATRIX_CLOCK_PCB_WIDTH + case_shell_thickness * 2 + board_xypad * 2;
     case_xsize = MATRIX_CLOCK_PCB_LENGTH + board_xypad * 2 + case_fillet_radius * 2;
-    base_zsize = board_zpad + 20;
+    base_zsize = board_zpad + 40;
     case_xbase = -board_xypad - case_fillet_radius;
     case_ybase = -case_shell_thickness - board_xypad;
 
@@ -51,7 +51,7 @@ module matrix_clock_case() {
         }
       }
 
-      module mounting_posts() {
+      module pcb_mounting_posts() {
         txy(mounting_post_hole_x1, mounting_post_hole_y1) mounting_post(false);
         txy(mounting_post_hole_x2, mounting_post_hole_y2) mounting_post(false);
         txy(3,3) mounting_post(false);
@@ -86,7 +86,7 @@ module matrix_clock_case() {
             base(base_zsize, 0);
             tz(case_bottom_thickness) base(base_zsize, case_shell_thickness);
           }
-          mounting_posts();
+          pcb_mounting_posts();
         }
         mounting_holes();
         button_access_holes();
@@ -94,10 +94,10 @@ module matrix_clock_case() {
     }
 
     module led_matrix() {
-      led_matrix_z = 20;
-      led_matrix_angle = 0;
-      ry(led_matrix_angle) translate([
-          case_xbase,
+      led_matrix_z = 10;
+      led_matrix_ypad = 1;
+      translate([
+          case_xbase + DOTSTAR_8X8_THICKNESS + case_shell_thickness + led_matrix_ypad,
           case_ybase + (DOTSTAR_8X8_BASE_WIDTH + case_ysize) / 2, 
           led_matrix_z]) ry(-90) rz(-90) adafruit_dotstar_8x8_matrix();
     }

@@ -80,6 +80,28 @@ module matrix_clock_case() {
         reset_hole();
       }
 
+      module usb_access_hole() {
+        usb_access_hole_width = 14;
+        usb_access_hole_depth = 15;
+        usb_access_hole_height = 8;
+        usb_access_hole_yoffest = 36.5;
+        union() {
+          translate([
+              case_xbase + case_xsize - usb_access_hole_depth + usb_access_hole_width / 2,
+              usb_access_hole_yoffest,
+              -overlap]) cylinder(
+                d=usb_access_hole_width,
+                h=case_bottom_thickness + overlap * 2);
+          translate([
+              case_xbase + case_xsize - usb_access_hole_depth + usb_access_hole_width / 2,
+              usb_access_hole_yoffest - usb_access_hole_width / 2,
+              -overlap]) cube([
+                usb_access_hole_depth - usb_access_hole_width / 2 + overlap,
+                usb_access_hole_width,
+                usb_access_hole_height]);
+        }
+      }
+
       difference() {
         union() {
           difference() {
@@ -90,6 +112,7 @@ module matrix_clock_case() {
         }
         mounting_holes();
         button_access_holes();
+        usb_access_hole();
       }
     }
 

@@ -5,35 +5,36 @@ include <mattwach/vitamins/electronics/adafruit_dotstar_8x8_matrix.scad>
 module matrix_clock_case() {
   overlap = 0.01;
 
+  case_bottom_thickness = 2;
+  board_zpad = case_bottom_thickness + 4;  // clearance for bolts and buttons
+  board_xypad = 1;
+  case_fillet_radius = 12;
+  case_shell_thickness = 1.5;
+  base_zsize = board_zpad + 19.5 + 5 * 2 - case_shell_thickness;
+  case_ysize = MATRIX_CLOCK_PCB_WIDTH + case_shell_thickness * 2 + board_xypad * 2;
+  case_xsize = MATRIX_CLOCK_PCB_LENGTH + board_xypad * 2 + case_fillet_radius * 2;
+  case_xbase = -board_xypad - case_fillet_radius;
+  case_ybase = -case_shell_thickness - board_xypad;
+
+  module base(height, inset) {
+    x1 = -board_xypad + inset;
+    x2 = MATRIX_CLOCK_PCB_LENGTH + board_xypad - inset;
+    y1 = case_fillet_radius - case_shell_thickness - board_xypad + inset;
+    y2 = MATRIX_CLOCK_PCB_WIDTH - case_fillet_radius + case_shell_thickness + board_xypad - inset;
+    //txy(-case_fillet_radius - board_xypad,
+    //  -case_shell_thickness - board_xypad)
+    //  cube([case_xsize, case_ysize, height/2]);
+    hull() {
+      txy(x1, y1) cylinder(r=case_fillet_radius, h=height);
+      txy(x1, y2) cylinder(r=case_fillet_radius, h=height);
+      txy(x2, y1) cylinder(r=case_fillet_radius, h=height);
+      txy(x2, y2) cylinder(r=case_fillet_radius, h=height);
+    }
+  }
+
   module clock_base() {
-    case_bottom_thickness = 2;
-    board_zpad = case_bottom_thickness + 4;  // clearance for bolts and buttons
-    case_shell_thickness = 1.5;
-    board_xypad = 1;
-    case_fillet_radius = 12;
-    case_ysize = MATRIX_CLOCK_PCB_WIDTH + case_shell_thickness * 2 + board_xypad * 2;
-    case_xsize = MATRIX_CLOCK_PCB_LENGTH + board_xypad * 2 + case_fillet_radius * 2;
-    base_zsize = board_zpad + 19.5 + 5 * 2;
-    case_xbase = -board_xypad - case_fillet_radius;
-    case_ybase = -case_shell_thickness - board_xypad;
     led_matrix_z = 5;
     led_matrix_ypad = 2;
-
-    module base(height, inset) {
-      x1 = -board_xypad + inset;
-      x2 = MATRIX_CLOCK_PCB_LENGTH + board_xypad - inset;
-      y1 = case_fillet_radius - case_shell_thickness - board_xypad + inset;
-      y2 = MATRIX_CLOCK_PCB_WIDTH - case_fillet_radius + case_shell_thickness + board_xypad - inset;
-      //txy(-case_fillet_radius - board_xypad,
-      //  -case_shell_thickness - board_xypad)
-      //  cube([case_xsize, case_ysize, height/2]);
-      hull() {
-        txy(x1, y1) cylinder(r=case_fillet_radius, h=height);
-        txy(x1, y2) cylinder(r=case_fillet_radius, h=height);
-        txy(x2, y1) cylinder(r=case_fillet_radius, h=height);
-        txy(x2, y2) cylinder(r=case_fillet_radius, h=height);
-      }
-    }
 
     module base_shell() {
       mounting_post_hole_x1 = 59.9;
@@ -160,7 +161,48 @@ module matrix_clock_case() {
     led_matrix();    
     color("white", 0.5) base_shell();
   }
+
+  module top_cover() {
+    top_cover_thickness = case_shell_thickness;
+    inset_thickness = 1.5;
+    insert_zsize = 10;
+
+    module cover() {
+      base(top_cover_thickness, 0);
+    }
+
+    module side_inserts() {
+      side_insert_length = case_xsize - case_fillet_radius * 2;
+      module side_insert() {
+        translate([
+            case_xbase + (case_xsize - side_insert_length) / 2,
+            case_ybase,
+            -insert_zsize + overlap]) cube([side_insert_length, inset_thickness, insert_zsize]);
+      }
+      ty(case_shell_thickness) side_insert();
+      ty(case_ysize - inset_thickness - case_shell_thickness) side_insert();
+    }
+
+    module front_back_inserts() {
+      fb_insert_length = case_ysize - case_fillet_radius * 2;
+      module fb_insert(zsize) {
+        translate([
+            case_xbase,
+            case_ybase + (case_ysize - fb_insert_length) / 2,
+            -zsize + overlap]) cube([inset_thickness, fb_insert_length, zsize]);
+      }
+      tx(case_shell_thickness) fb_insert(3);
+      tx(case_xsize - inset_thickness - case_shell_thickness) fb_insert(insert_zsize);
+    }
+
+    tz(base_zsize) union() {
+      cover();
+      side_inserts();
+      front_back_inserts();
+    }
+  }
   
+  top_cover();
   clock_base();
 }
 

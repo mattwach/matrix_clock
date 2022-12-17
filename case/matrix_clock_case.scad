@@ -107,33 +107,31 @@ module matrix_clock_case() {
       module led_matrix_mount() {
         mounting_post_height = led_matrix_ypad + DOTSTAR_8X8_THICKNESS - DOTSTAR_8X8_PCB_THICKNESS;
         mounting_post_length = DOTSTAR_8X8_BASE_WIDTH;
-        mounting_post_width = DOTSTAR_8X8_TAB_WIDTH;
-        module matrix_mounting_bar() {
+        mounting_post_width = DOTSTAR_8X8_TAB_WIDTH - 1;
+        module matrix_mounting_post() {
           module matrix_mounting_hole() {
             matrix_hole_diameter = 2.35;
-            tx(led_matrix_z) tz(-overlap) cylinder(
+            tz(-overlap) cylinder(
                 d=matrix_hole_diameter, h=mounting_post_height + overlap * 2);
           }
-          module matrix_mounting_block() {
-            txy(-mounting_post_width / 2,
-                -mounting_post_width / 2) cube([
-                mounting_post_length + led_matrix_z,
-                mounting_post_width,
-                mounting_post_height]);
+          module post() {
+            cylinder(d=mounting_post_width, h=mounting_post_height);
           }
 
           translate([
               case_xbase + mounting_post_height + case_shell_thickness,
-              MATRIX_CLOCK_PCB_WIDTH / 2 + DOTSTAR_8X8_WIDTH_WITH_TABS / 2 - mounting_post_width / 2,
-              mounting_post_width / 2]) ry(-90) difference() {
-            matrix_mounting_block();
+              MATRIX_CLOCK_PCB_WIDTH / 2 + DOTSTAR_8X8_WIDTH_WITH_TABS / 2 - DOTSTAR_8X8_TAB_WIDTH / 2,
+              led_matrix_z + DOTSTAR_8X8_TAB_WIDTH / 2]) ry(-90) difference() {
+            post();
             matrix_mounting_hole();
             tx(DOTSTAR_8X8_BOLT_SPAN) matrix_mounting_hole();
           }
         }
 
-        matrix_mounting_bar();
-        ty(-DOTSTAR_8X8_WIDTH_WITH_TABS + mounting_post_width) matrix_mounting_bar();
+        matrix_mounting_post();
+        ty(-DOTSTAR_8X8_WIDTH_WITH_TABS + DOTSTAR_8X8_TAB_WIDTH) matrix_mounting_post();
+        tz(DOTSTAR_8X8_BOLT_SPAN) matrix_mounting_post();
+        ty(-DOTSTAR_8X8_WIDTH_WITH_TABS + DOTSTAR_8X8_TAB_WIDTH) tz(DOTSTAR_8X8_BOLT_SPAN) matrix_mounting_post();
       }
 
       difference() {

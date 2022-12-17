@@ -145,7 +145,7 @@ module matrix_clock_case() {
 
       module button_slots() {
         module button_slot() {
-          button_slot_height = 6 + button_peg_height;
+          button_slot_height = 4 + button_peg_height;
 
           translate([
               case_xbase + button_slot_xoffset,
@@ -180,15 +180,17 @@ module matrix_clock_case() {
       button_peg_zoffset = button_slot_zoffset + 3;
       button_peg_yoffset = 2;
       button_peg_backing_thickness = 2;
-      button_peg_backing_xpad = 3;
+      button_peg_backing_xpad = 1.5;
       button_peg_backing_zpad = 5;
       module button_peg_shaft() {
         button_peg_front_xpad = 1;
-        color("green") union() {
+        module main_peg() {
           cube([
               button_peg_width,
               button_peg_length,
               button_peg_height]);
+        }
+        module front_retainer() {
           translate([
               -button_peg_front_xpad,
               0,
@@ -196,6 +198,10 @@ module matrix_clock_case() {
                 button_peg_width + button_peg_front_xpad * 2,
                 button_peg_yoffset,
                 button_peg_height]);
+        }
+        color("green") union() {
+          main_peg();
+          front_retainer();
         }
       }
 

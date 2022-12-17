@@ -180,21 +180,22 @@ module matrix_clock_case() {
       button_peg_zoffset = button_slot_zoffset + 3;
       button_peg_yoffset = 2;
       button_peg_backing_thickness = 2;
-      button_peg_backing_xpad = 2;
-      button_peg_backing_zpad = 4;
+      button_peg_backing_xpad = 3;
+      button_peg_backing_zpad = 5;
       module button_peg_shaft() {
+        button_peg_front_xpad = 1;
         color("green") union() {
           cube([
               button_peg_width,
               button_peg_length,
               button_peg_height]);
           translate([
+              -button_peg_front_xpad,
               0,
-              button_peg_yoffset + case_shell_thickness + button_peg_backing_thickness + 0.2,
-              -1]) cube([
-                button_peg_width,
-                2,
-                button_peg_height + 2]);
+              0]) cube([
+                button_peg_width + button_peg_front_xpad * 2,
+                button_peg_yoffset,
+                button_peg_height]);
         }
       }
 
@@ -208,36 +209,12 @@ module matrix_clock_case() {
               button_peg_backing_zpad * 2 + button_peg_height]);
       }
 
-      module button_peg_front() {
-        front_xpad = 2;
-        front_ypad = 1;
-        front_zpad = 4;
-        front_thickness = button_peg_yoffset + front_ypad;
-        color("#808") translate([
-            -front_xpad,
-            -front_ypad,
-            -front_zpad]) difference() {
-          cube([
-              button_peg_width + front_xpad * 2,
-              front_thickness,
-              button_peg_height + front_zpad * 2]);
-          translate([
-              front_xpad,
-              0.5,
-              1]) cube([
-                button_peg_width,
-                front_thickness,
-                button_peg_height + front_zpad * 2 - 2]);
-        }
-      }
-
       translate([
           case_xbase + button_slot_xoffset,
           case_ybase - button_peg_yoffset,
           button_peg_zoffset]) {
         button_peg_shaft();
-        *button_peg_backing();
-        button_peg_front();
+        button_peg_backing();
       }
     }
 

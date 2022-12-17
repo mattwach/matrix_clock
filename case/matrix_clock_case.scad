@@ -206,13 +206,30 @@ module matrix_clock_case() {
       }
 
       module button_peg_backing() {
+        main_backing_xsize = button_peg_backing_xpad * 2 + button_peg_width;
+        main_backing_zsize = button_peg_backing_zpad * 2 + button_peg_height;
+        module main_backing() {
+          cube([
+              main_backing_xsize,
+              button_peg_backing_thickness,
+              main_backing_zsize]);
+        }
+        module peg_hole() {
+          translate([
+              (main_backing_xsize - button_peg_width) / 2,
+              -overlap,
+              (main_backing_zsize - button_peg_height) / 2]) cube([
+                button_peg_width,
+                button_peg_backing_thickness + overlap * 2,
+                button_peg_height]);
+        }
         color("blue") translate([
             -button_peg_backing_xpad,
             button_peg_yoffset + case_shell_thickness,
-            -button_peg_backing_zpad]) cube([
-              button_peg_backing_xpad * 2 + button_peg_width,
-              button_peg_backing_thickness,
-              button_peg_backing_zpad * 2 + button_peg_height]);
+            -button_peg_backing_zpad]) difference() {
+          main_backing();
+          peg_hole();
+        }
       }
 
       translate([

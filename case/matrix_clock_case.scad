@@ -5,6 +5,14 @@ include <mattwach/vitamins/electronics/adafruit_dotstar_8x8_matrix.scad>
 module matrix_clock_case() {
   overlap = 0.01;
 
+  button_slot_width = 3;
+  button_slot_xoffset = 24.3;
+  button_slot_zoffset = 14;
+  button_slot_span = 14.5;
+  button_peg_height = 3;
+  button_peg_width = button_slot_width - 0.25;
+  button_peg_length = 19;
+
   case_bottom_thickness = 2;
   board_zpad = case_bottom_thickness + 4;  // clearance for bolts and buttons
   board_xypad = 1;
@@ -135,6 +143,23 @@ module matrix_clock_case() {
         ty(-DOTSTAR_8X8_WIDTH_WITH_TABS + DOTSTAR_8X8_TAB_WIDTH) tz(DOTSTAR_8X8_BOLT_SPAN) matrix_mounting_post();
       }
 
+      module button_slots() {
+        module button_slot() {
+          button_slot_height = 6 + button_peg_height;
+
+          translate([
+              case_xbase + button_slot_xoffset,
+              case_ybase - overlap,
+              button_slot_zoffset]) cube([
+                button_slot_width,
+                case_shell_thickness + overlap * 2,
+                button_slot_height]);
+        }
+
+        button_slot();
+        tx(button_slot_span) button_slot();
+      }
+
       difference() {
         union() {
           difference() {
@@ -147,6 +172,72 @@ module matrix_clock_case() {
         mounting_holes();
         button_access_holes();
         usb_access_hole();
+        button_slots();
+      }
+    }
+
+    module button_peg() {
+      button_peg_zoffset = button_slot_zoffset + 3;
+      button_peg_yoffset = 2;
+      button_peg_backing_thickness = 2;
+      button_peg_backing_xpad = 2;
+      button_peg_backing_zpad = 4;
+      module button_peg_shaft() {
+        color("green") union() {
+          cube([
+              button_peg_width,
+              button_peg_length,
+              button_peg_height]);
+          translate([
+              0,
+              button_peg_yoffset + case_shell_thickness + button_peg_backing_thickness + 0.2,
+              -1]) cube([
+                button_peg_width,
+                2,
+                button_peg_height + 2]);
+        }
+      }
+
+      module button_peg_backing() {
+        color("blue") translate([
+            -button_peg_backing_xpad,
+            button_peg_yoffset + case_shell_thickness,
+            -button_peg_backing_zpad]) cube([
+              button_peg_backing_xpad * 2 + button_peg_width,
+              button_peg_backing_thickness,
+              button_peg_backing_zpad * 2 + button_peg_height]);
+      }
+
+      module button_peg_front() {
+        front_xpad = 2;
+        front_ypad = 1;
+        front_zpad = 4;
+        front_thickness = button_peg_yoffset + front_ypad;
+        color("#808") translate([
+            -front_xpad,
+            -front_ypad,
+            -front_zpad]) difference() {
+          cube([
+              button_peg_width + front_xpad * 2,
+              front_thickness,
+              button_peg_height + front_zpad * 2]);
+          translate([
+              front_xpad,
+              0.5,
+              1]) cube([
+                button_peg_width,
+                front_thickness,
+                button_peg_height + front_zpad * 2 - 2]);
+        }
+      }
+
+      translate([
+          case_xbase + button_slot_xoffset,
+          case_ybase - button_peg_yoffset,
+          button_peg_zoffset]) {
+        button_peg_shaft();
+        *button_peg_backing();
+        button_peg_front();
       }
     }
 
@@ -160,6 +251,7 @@ module matrix_clock_case() {
     tz(board_zpad) matrix_clock_assembled_board();
     led_matrix();    
     color("white", 0.5) base_shell();
+    button_peg();
   }
 
   module top_cover() {
@@ -202,7 +294,7 @@ module matrix_clock_case() {
     }
   }
   
-  top_cover();
+  *top_cover();
   clock_base();
 }
 

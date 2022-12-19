@@ -28,4 +28,8 @@ void draw_numbers(
     int8_t brightness,
     uint8_t font);
 
+// introspection, mainly for render functions
+uint8_t font_width(uint8_t font);
+uint8_t font_height(uint8_t font);
+
 #endif

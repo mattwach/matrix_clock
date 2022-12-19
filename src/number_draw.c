@@ -316,3 +316,12 @@ void draw_numbers(
   const uint8_t ones = val % 10; 
   number_draw(led, ones, x + fonts[font].width, y, brightness, font);
 }
+
+uint8_t font_width(uint8_t font) {
+  return fonts[font].width;
+}
+
+uint8_t font_height(uint8_t font) {
+  return fonts[font].height;
+}
+

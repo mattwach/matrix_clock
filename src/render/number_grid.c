@@ -3,8 +3,6 @@
 #include "../led_matrix.h"
 #include "../number_draw.h"
 
-#define FONT_HEIGHT 4
-
 static void common_render(
     uint32_t* led,
     uint16_t time_hhmm,
@@ -12,7 +10,7 @@ static void common_render(
     uint8_t font) {
   const uint8_t br = brightness_step_to_brightness(settings);
   draw_numbers(led, time_hhmm / 100, 0, 0, br, font);
-  draw_numbers(led, time_hhmm % 100, 0, FONT_HEIGHT, br, font);
+  draw_numbers(led, time_hhmm % 100, 0, font_height(font), br, font);
 }
 
 void number_grid_render(

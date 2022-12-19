@@ -4,11 +4,20 @@
 
 #include <inttypes.h>
 
-#define NUMBER_WIDTH 3
-#define NUMBER_HEIGHT 7
+// Font definitions which must align with the font[] structure defined in number_draw.c
+#define FONT3x7         0
+#define FONT3x5         1
+#define FONT4x4         2
+#define BINARY_FONT_4x4 3
 
-// draws a digit
-void number_draw(uint32_t* led, uint8_t digit, uint8_t x, uint8_t y, uint32_t color);
+// draws a digit.  Off screen for x,y  is OK
+void number_draw(
+    uint32_t* led,
+    uint8_t digit,
+    int8_t x,
+    int8_t y,
+    uint32_t color,
+    uint8_t fnot);
 
 // draws two digits in predetermined locations
 void draw_numbers(uint32_t* led, uint8_t val, int8_t brightness);

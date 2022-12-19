@@ -100,7 +100,7 @@ static void maybe_clock_init(
 
 // This logic implements sleep_time and wake_time
 static void check_for_sleep_and_wake(
-  uint8_t time_hhmm,
+  uint16_t time_hhmm,
   const struct ClockSettings* settings) {
   if (settings->sleep_time == settings->wake_time) {
     return;

@@ -196,6 +196,10 @@ static uint8_t validate_settings(const struct ClockSettings* cs) {
   if (checksum != cs->checksum) {
     return 0;
   }
+  if (cs->startup_display_mode >= clock_render_num_display_modes()) {
+    // invalid index, maybe a display mode was removed
+    return 0;
+  }
   return 1;
 }
 

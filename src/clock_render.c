@@ -3,6 +3,7 @@
 #include "render/blank.h"
 #include "render/matrix.h"
 #include "render/number_cascade.h"
+#include "render/number_grid.h"
 
 // This is the "render multiplexer" file.  It registers a table
 // of rendering options (called DisplayMode) and provides logic to
@@ -32,7 +33,9 @@ struct DisplayMode {
 
 struct DisplayMode display_modes[] = {
   {"normal", matrix_render},  // This entry will be the default power-on mode
-  {"cascade", number_cascade_render},
+  {"number_cascade", number_cascade_render},
+  {"number_grid", number_grid_render},
+  {"binary_grid", binary_grid_render},
   {"off", blank_render},  // always put this entry at the end of the list
 };
 #define NUM_DISPLAY_MODES (sizeof(display_modes) / sizeof(display_modes[0]))

@@ -35,9 +35,8 @@ add_executable(matrix_clock
         number_draw.c
         set_time.c
         render/blank.c
-        render/guide.c
         render/matrix.c
-        render/numbers.c
+        render/number_cascade.c
         )
 
 # pull in common dependencies

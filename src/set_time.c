@@ -58,7 +58,10 @@ uint8_t set_time_render(
   draw_numbers(
     led,
     showing_minutes ? minutes : hours,
-    0x10
+    0,
+    0,
+    0x10,
+    FONT3X7
   );
   if (button_pressed & INCREMENT_BUTTON) {
     increment_current();

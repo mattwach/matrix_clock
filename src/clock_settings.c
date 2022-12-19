@@ -64,7 +64,7 @@ static void output_sleep_data(void) {
 
 // callback for the "get" shell command
 static void get_cmd(uint8_t argc, char* argv[]) {
-  printf("brightness = %d\n", settings.brightness);
+  printf("brightness = %d\n", settings.brightness_step);
   printf(
       "startup_display_mode = %s\n",
       clock_render_display_mode_name(settings.startup_display_mode));
@@ -81,8 +81,8 @@ static void brightness_cmd(uint8_t argc, char* argv[]) {
       return;
     }
   }
-  if (brightness != settings.brightness) {
-    settings.brightness = brightness;
+  if (brightness != settings.brightness_step) {
+    settings.brightness_step = brightness;
     clock_settings_save(&settings);
   }
 }
@@ -203,7 +203,7 @@ static uint8_t validate_settings(const struct ClockSettings* cs) {
 // written?  Sets "reasonable" defaults.
 static void init_default_settings(void) {
   memset(&settings, 0, sizeof(struct ClockSettings));
-  settings.brightness = 3;
+  settings.brightness_step = 3;
 }
 
 void clock_settings_init() {
@@ -234,7 +234,7 @@ const struct ClockSettings* clock_settings(void) {
 }
 
 uint8_t brightness_step_to_brightness(const struct ClockSettings* settings) {
-  uint8_t brightness_step = settings->brightness;
+  uint8_t brightness_step = settings->brightness_step;
   if (brightness_step > BRIGHTNESS_STEPS) {
     brightness_step = BRIGHTNESS_STEPS;
   } 

@@ -1,9 +1,8 @@
 #include "clock_render.h"
 #include "buttons.h"
 #include "render/blank.h"
-#include "render/guide.h"
 #include "render/matrix.h"
-#include "render/numbers.h"
+#include "render/number_cascade.h"
 
 // This is the "render multiplexer" file.  It registers a table
 // of rendering options (called DisplayMode) and provides logic to
@@ -33,8 +32,7 @@ struct DisplayMode {
 
 struct DisplayMode display_modes[] = {
   {"normal", matrix_render},  // This entry will be the default power-on mode
-  {"guide", guide_render},
-  {"numbers", numbers_render},
+  {"cascade", number_cascade_render},
   {"off", blank_render},  // always put this entry at the end of the list
 };
 #define NUM_DISPLAY_MODES (sizeof(display_modes) / sizeof(display_modes[0]))

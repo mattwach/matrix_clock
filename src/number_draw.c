@@ -282,11 +282,18 @@ static void pixel(
 }
 
 // Draws a number 0-9 at the specified cordinates
-void number_draw(uint32_t* led, uint8_t digit, int8_t x, int8_t y, uint32_t color, uint8_t font) {
+void number_draw(
+    uint32_t* led,
+    uint8_t digit,
+    int8_t x,
+    int8_t y,
+    uint8_t brightness,
+    uint8_t font) {
   if (digit > 9) {
     return;
   }
   const struct FontData* font_data = fonts + font;
+  const uint32_t color = ((uint32_t)brightness << 24) | get_color(digit);
   for (int8_t yd = 0; yd < font_data->height; ++yd) {
     for (int8_t xd = 0; xd < font_data->width; ++xd) {
       if (font_data->data[yd * font_data->width + xd] != ' ') {
@@ -297,9 +304,15 @@ void number_draw(uint32_t* led, uint8_t digit, int8_t x, int8_t y, uint32_t colo
 }
 
 // Draws val to led memory.  val must be 0-99.
-void draw_numbers(uint32_t* led, uint8_t val, int8_t brightness) {
+void draw_numbers(
+    uint32_t* led,
+    uint8_t val,
+    int8_t x,
+    int8_t y,
+    int8_t brightness,
+    uint8_t font) {
   const uint8_t tens = val / 10;
-  number_draw(led, tens, 0, 0, ((uint32_t)brightness << 24) | get_color(tens), FONT3x7);
+  number_draw(led, tens, x, y, brightness, font);
   const uint8_t ones = val % 10; 
-  number_draw(led, ones, 4, 0, ((uint32_t)brightness << 24) | get_color(ones), FONT3x7);
+  number_draw(led, ones, x + fonts[font].width, y, brightness, font);
 }

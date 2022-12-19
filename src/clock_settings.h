@@ -20,7 +20,7 @@ struct ClockSettings {
   uint8_t eyecatcher[4];  // 'MCLK'
   uint32_t version;  // bump this when structure changes
 
-  uint8_t brightness;  // brightness value
+  uint8_t brightness_step;  // brightness value
   uint8_t startup_display_mode; // This is "normal" by default but the user can
                                 // change it if preferred.
   

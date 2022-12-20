@@ -34,7 +34,6 @@ struct DisplayMode {
 struct DisplayMode display_modes[] = {
   {"normal", matrix_render},  // This entry will be the default power-on mode
   {"number_cascade", number_cascade_render},
-  {"number_grid", number_grid_render},
   {"binary_grid", binary_grid_render},
   {"off", blank_render},  // always put this entry at the end of the list
 };

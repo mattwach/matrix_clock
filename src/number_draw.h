@@ -7,8 +7,7 @@
 // Font definitions which must align with the font[] structure defined in number_draw.c
 #define FONT3X7        0
 #define FONT3X5        1
-#define FONT4X4        2
-#define BINARY_FONT4X4 3
+#define BINARY_FONT4X4 2
 
 // draws a digit with an indexed color.  Off screen for x,y  is OK
 void number_draw(

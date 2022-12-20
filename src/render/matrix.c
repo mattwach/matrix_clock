@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include "../colors.h"
 #include "../led_matrix.h"
+// only for debug
+#include <stdio.h>
 
 #define PARTICLE_COUNT 15
 
@@ -9,8 +11,14 @@
 #define START_DELAY_MAX 60
 // How fast to move particles, based on their represented clock position
 #define HOUR_DELAY 14
-#define MINUTE_DELAY 3
-#define SECOND_DELAY 1
+#define MINUTE_TENS_DELAY 3
+#define MINUTE_ONES_DELAY 1
+
+// typs for init_particle
+#define HOUR_ONES_TYPE 0
+#define MINUTE_TENS_TYPE 1
+#define MINUTE_ONES_TYPE 2
+#define NUM_PARTICLE_TYPES (MINUTE_ONES_TYPE + 1)
 
 // Color decay is 0-255 how much to decay color intensity per frame
 #define COLOR_DECAY_PERCENT 80
@@ -31,6 +39,56 @@ struct Particle {
 // Holds state of all particles
 struct Particle particle[PARTICLE_COUNT];
 
+// Looks at what particles are live and uses this infomation
+// to randomly weight the likelyhood of a new one.
+// basically trying to keep the particle count even while
+// still being somewhat random
+#define DISTRIBUTION_MAX_ROUNDS 32
+// tuning parms:
+uint32_t event_enter = 0;
+uint32_t event_hours = 0;
+uint32_t event_minute_tens = 0;
+uint32_t event_minute_ones = 0;
+uint32_t event_random = 0;
+static uint8_t even_distribution_type(void) {
+  ++event_enter;
+  if ((event_enter % 100) == 0) {
+    printf("event hours=%d, minute_ten=%d, minute_one=%d, random=%d\n", event_hours, event_minute_tens, event_minute_ones, event_random);
+  }
+  uint8_t type_mask = (1 << NUM_PARTICLE_TYPES) - 1;
+  for (uint32_t i=0; i<DISTRIBUTION_MAX_ROUNDS; ++i) {
+    switch (type_mask) {
+      case (1 << HOUR_ONES_TYPE):
+        ++event_hours;
+        return HOUR_ONES_TYPE;
+      case (1 << MINUTE_TENS_TYPE):
+        ++event_minute_tens;
+        return MINUTE_TENS_TYPE;
+      case (1 << MINUTE_ONES_TYPE):
+        ++event_minute_ones;
+        return MINUTE_ONES_TYPE;
+    }
+
+    // try and remove something from the mask
+    const struct Particle* p = particle + (random() % PARTICLE_COUNT);
+    switch (p->delay) {
+      case HOUR_DELAY:
+        type_mask &= ~(1 << HOUR_ONES_TYPE);
+        break;
+      case MINUTE_TENS_DELAY:
+        type_mask &= ~(1 << MINUTE_TENS_TYPE);
+        break;
+      case MINUTE_ONES_DELAY:
+        type_mask &= ~(1 << MINUTE_ONES_TYPE);
+        break;
+    }
+  }
+
+  // we didn't get there, fall back to pure random
+  ++event_random;
+  return random() % NUM_PARTICLE_TYPES;
+}
+
 // inisializes a particle
 static void init_particle(struct Particle* p, uint16_t time_hhmm) {
   p->x = random() % LED_MATRIX_WIDTH;
@@ -40,17 +98,17 @@ static void init_particle(struct Particle* p, uint16_t time_hhmm) {
   p->delay_counter = 0;
 
   uint8_t color_idx = 0;
-  switch (random() & 0x03) {
-    case 0:  // hour (24h, 1s place)
+  switch (even_distribution_type()) {
+    case HOUR_ONES_TYPE:
       p->delay = HOUR_DELAY;
       color_idx = (time_hhmm / 100) % 10;
       break;
-    case 1:  // minute (10s place)
-      p->delay = MINUTE_DELAY;
+    case MINUTE_TENS_TYPE:  // minute (10s place)
+      p->delay = MINUTE_TENS_DELAY;
       color_idx = (time_hhmm / 10) % 10;
       break;
     default: // second (1s place) 
-      p->delay = SECOND_DELAY;
+      p->delay = MINUTE_ONES_DELAY;
       color_idx = time_hhmm % 10;
       break;
   }

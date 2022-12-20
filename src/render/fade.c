@@ -19,11 +19,10 @@ static uint32_t data[LED_MATRIX_COUNT];
 static uint32_t target[LED_MATRIX_COUNT];
 
 // update these at the start to avoid odd changing mid animation
-static uint8_t hours;
 static uint8_t minutes;
 
 // how fast the fade occurs
-#define FRAMES_PER_FADE_PIXEL 2
+#define FRAMES_PER_FADE_PIXEL 1
 
 // we take a frame_index modulus and compare to the following
 // thresholds to determine what the render should be doing
@@ -59,11 +58,10 @@ static void hour_digits(uint32_t* led, uint32_t fade_index, uint8_t br, uint16_t
   if (fade_index == 0) {
     shuffle_fade_order();
     memset(target, 0, sizeof(target));
-    hours = time_hhmm / 100;
     minutes = time_hhmm % 100;
-    draw_numbers(target, hours, 1, 0, br, FONT3X7);
+    draw_numbers(target, time_hhmm / 100, 1, 0, br, FONT3X7);
   }
-  const uint8_t led_index = fade_order[fade_index];
+  const uint8_t led_index = fade_order[fade_index / FRAMES_PER_FADE_PIXEL];
   data[led_index] = target[led_index];
 }
 
@@ -73,7 +71,7 @@ static void minute_digits(uint32_t* led, uint32_t fade_index, uint8_t br) {
     memset(target, 0, sizeof(target));
     draw_numbers(target, minutes, 0, 0, br, FONT3X7);
   }
-  const uint8_t led_index = fade_order[fade_index];
+  const uint8_t led_index = fade_order[fade_index / FRAMES_PER_FADE_PIXEL];
   data[led_index] = target[led_index];
 }
 
@@ -82,7 +80,7 @@ static void blank_out(uint32_t* led, uint32_t fade_index) {
     shuffle_fade_order();
     memset(target, 0, sizeof(target));
   }
-  const uint8_t led_index = fade_order[fade_index];
+  const uint8_t led_index = fade_order[fade_index / FRAMES_PER_FADE_PIXEL];
   data[led_index] = target[led_index];
 }
 
@@ -97,15 +95,15 @@ void fade_render(
   const uint32_t state = frame_index % STATE_MODULUS;
   const uint8_t br = brightness_step_to_brightness(settings);
   if (state < BUILD_HOUR_DIGITS) {
-    hour_digits(led, state / FRAMES_PER_FADE_PIXEL, br, time_hhmm);
+    hour_digits(led, state, br, time_hhmm);
   } else if (state < SHOW_HOUR) {
     // do nothing
   } else if (state < BUILD_MINUTE_DIGITS) {
-    minute_digits(led, (state - SHOW_HOUR) / FRAMES_PER_FADE_PIXEL, br);
+    minute_digits(led, state - SHOW_HOUR, br);
   } else if (state < SHOW_MINUTE) {
     // do nothing
   } else if (state < BLANK_OUT) {
-    blank_out(led, (state - SHOW_MINUTE) / FRAMES_PER_FADE_PIXEL);
+    blank_out(led, state - SHOW_MINUTE);
   }
   // else (SHOW_BLANK) do nothing
 

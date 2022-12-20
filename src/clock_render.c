@@ -72,7 +72,8 @@ static uint8_t check_buttons(uint8_t button_pressed, uint32_t frame_index) {
     // the mode to return to when waking up
     wake_display_mode = display_mode;
     // This is done to show numbers right away in DISPLAY_NUMBERS mode
-    frame_index_delta = frame_index;
+    // +1 because check_buttons is called at the end of the loop
+    frame_index_delta = frame_index + 1;
   }
   if (button_pressed & SELECT_BUTTON) {
     // The user asked to go into set time mode (whether they realize it or not).

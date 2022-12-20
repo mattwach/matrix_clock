@@ -2,8 +2,6 @@
 #include <stdlib.h>
 #include "../colors.h"
 #include "../led_matrix.h"
-// only for debug
-#include <stdio.h>
 
 #define PARTICLE_COUNT 15
 
@@ -44,28 +42,15 @@ struct Particle particle[PARTICLE_COUNT];
 // basically trying to keep the particle count even while
 // still being somewhat random
 #define DISTRIBUTION_MAX_ROUNDS 32
-// tuning parms:
-uint32_t event_enter = 0;
-uint32_t event_hours = 0;
-uint32_t event_minute_tens = 0;
-uint32_t event_minute_ones = 0;
-uint32_t event_random = 0;
 static uint8_t even_distribution_type(void) {
-  ++event_enter;
-  if ((event_enter % 100) == 0) {
-    printf("event hours=%d, minute_ten=%d, minute_one=%d, random=%d\n", event_hours, event_minute_tens, event_minute_ones, event_random);
-  }
   uint8_t type_mask = (1 << NUM_PARTICLE_TYPES) - 1;
   for (uint32_t i=0; i<DISTRIBUTION_MAX_ROUNDS; ++i) {
     switch (type_mask) {
       case (1 << HOUR_ONES_TYPE):
-        ++event_hours;
         return HOUR_ONES_TYPE;
       case (1 << MINUTE_TENS_TYPE):
-        ++event_minute_tens;
         return MINUTE_TENS_TYPE;
       case (1 << MINUTE_ONES_TYPE):
-        ++event_minute_ones;
         return MINUTE_ONES_TYPE;
     }
 
@@ -85,7 +70,6 @@ static uint8_t even_distribution_type(void) {
   }
 
   // we didn't get there, fall back to pure random
-  ++event_random;
   return random() % NUM_PARTICLE_TYPES;
 }
 

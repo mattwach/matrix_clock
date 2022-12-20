@@ -72,21 +72,8 @@ static void merge_pixel(
   uint8_t r,
   uint8_t g,
   uint8_t b) {
-  const uint32_t pixel = (br << 24) | (r << 16) | (g << 8) | b;
-  const uint8_t idx = get_pixel_idx(x, y);
-  const uint32_t old_pixel = led[idx];
-  uint32_t new_pixel = 0x00000000;
-  // Finds the maximum for each independent channel
-  for (uint32_t mask = 0xFF000000; mask; mask >>= 8) {
-    if ((old_pixel & mask) >= (pixel & mask)) {
-      new_pixel |= old_pixel & mask;
-    } else {
-      new_pixel |= pixel & mask;
-    }
-  }
-  if (new_pixel != old_pixel) {
-    led[idx] = new_pixel;
-  }
+  const uint32_t new_pixel = (br << 24) | (r << 16) | (g << 8) | b;
+  led[get_pixel_idx(x, y)] = new_pixel;
 }
 
 

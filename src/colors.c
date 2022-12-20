@@ -15,7 +15,7 @@ static struct Color colors[10] = {
   { 0x0000FF, "blue" },       // 5
   { 0x00FFFF, "cyan" },       // 6
   { 0xFF00FF, "magenta" },    // 7
-  { 0xFF9090, "pink" },       // 8
+  { 0xF08080, "pink" },       // 8
   { 0xFFFFFF, "white" },      // 9
 };
 

@@ -35,6 +35,7 @@ add_executable(matrix_clock
         number_draw.c
         set_time.c
         render/blank.c
+        render/fade.c
         render/matrix.c
         render/number_cascade.c
         render/number_grid.c

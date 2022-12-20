@@ -3,8 +3,9 @@
 #include "../led_matrix.h"
 #include "../number_draw.h"
 
-static void binary_grid_render(
+void binary_grid_render(
     uint32_t* led,
+    uint32_t unused_frame_index,
     uint16_t time_hhmm,
     const struct ClockSettings* settings) {
   const uint8_t font = BINARY_FONT4X4;

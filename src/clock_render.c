@@ -1,6 +1,7 @@
 #include "clock_render.h"
 #include "buttons.h"
 #include "render/blank.h"
+#include "render/fade.h"
 #include "render/matrix.h"
 #include "render/number_cascade.h"
 #include "render/number_grid.h"
@@ -34,6 +35,7 @@ struct DisplayMode {
 struct DisplayMode display_modes[] = {
   {"normal", matrix_render},  // This entry will be the default power-on mode
   {"number_cascade", number_cascade_render},
+  {"number_fade", fade_render},
   {"binary_grid", binary_grid_render},
   {"off", blank_render},  // always put this entry at the end of the list
 };

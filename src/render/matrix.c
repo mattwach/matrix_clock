@@ -8,7 +8,7 @@
 // maximum frames to wait before recycling a particle
 #define START_DELAY_MAX 60
 // How fast to move particles, based on their represented clock position
-#define HOUR_DELAY 7
+#define HOUR_DELAY 14
 #define MINUTE_DELAY 3
 #define SECOND_DELAY 1
 

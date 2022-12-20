@@ -294,9 +294,12 @@ void number_draw(
   }
   const struct FontData* font_data = fonts + font;
   const uint32_t color = ((uint32_t)brightness << 24) | get_color(digit);
+  const char* data = font_data->data + (font_data->width * font_data->height * digit);
   for (int8_t yd = 0; yd < font_data->height; ++yd) {
     for (int8_t xd = 0; xd < font_data->width; ++xd) {
-      if (font_data->data[yd * font_data->width + xd] != ' ') {
+      // need to scan from the bottom of the font becuase the matrix
+      // defines Y from bottom up.
+      if (data[((font_data->height - 1) - yd) * font_data->width + xd] != ' ') {
         pixel(led, x + xd, y + yd, color);
       }
     }

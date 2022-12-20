@@ -3,7 +3,7 @@
 #include "../led_matrix.h"
 #include "../number_draw.h"
 
-#define FRAMES_PER_SCROLL 10
+#define FRAMES_PER_SCROLL 7
 #define FONT FONT3X5
 
 static int8_t hours_ypos;  // upper right of hour text

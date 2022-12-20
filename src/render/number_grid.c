@@ -9,8 +9,8 @@ static void common_render(
     const struct ClockSettings* settings,
     uint8_t font) {
   const uint8_t br = brightness_step_to_brightness(settings);
-  draw_numbers(led, time_hhmm / 100, 0, 0, br, font);
-  draw_numbers(led, time_hhmm % 100, 0, font_height(font), br, font);
+  draw_numbers(led, time_hhmm / 100, 0, font_height(font), br, font);
+  draw_numbers(led, time_hhmm % 100, 0, 0, br, font);
 }
 
 void number_grid_render(

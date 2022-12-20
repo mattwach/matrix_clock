@@ -30,6 +30,7 @@ add_executable(matrix_clock
         clock_settings.c
         colors.c
         debounce.c
+        debug.c
         led_matrix_dotstar.c
         main.c
         number_draw.c

@@ -7,7 +7,7 @@ struct Color {
 
 // defines colors
 static struct Color colors[10] = {
-  { 0x654321, "brown" },      // 0
+  { 0x352311, "brown" },      // 0
   { 0xFF0000, "red" },        // 1
   { 0xD05000, "orange" },     // 2
   { 0xFFFF10, "yellow" },     // 3

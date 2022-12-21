@@ -176,7 +176,7 @@ static void update_particle(struct Particle* p) {
 // Initializes particles, but only when frame_idx is zero.
 static void maybe_clock_init(
   uint32_t frame_index,
-  uint8_t time_hhmm,
+  uint16_t time_hhmm,
   const struct ClockSettings* settings) {
   if (frame_index == 0) {
     for (uint8_t i = 0; i < PARTICLE_COUNT; ++i) {

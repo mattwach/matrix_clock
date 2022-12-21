@@ -28,13 +28,13 @@ static inline uint32_t uptime_ms() {
 
 // Initialization function
 static void init(void) {
-  time_hhmm = 0;
   setting_time = 0;
   clock_settings_init();
   led_matrix_init();
   clock_init();
   buttons_init();
   sleep_ms(50);
+  time_hhmm = clock_get_time();
 }
 
 // Updates time_hhmm periocially (based on TIME_UPDATE_FRAMES)

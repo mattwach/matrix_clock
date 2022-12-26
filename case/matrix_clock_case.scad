@@ -1,6 +1,6 @@
-use <mattwach/util.scad>
+use <dep/mattwach/util.scad>
 include <lib/matrix_clock_assembled_board.scad>
-include <mattwach/vitamins/electronics/adafruit_dotstar_8x8_matrix.scad>
+include <dep/mattwach/vitamins/electronics/adafruit_dotstar_8x8_matrix.scad>
 
 module matrix_clock_case() {
   overlap = 0.01;

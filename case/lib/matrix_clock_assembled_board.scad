@@ -1,9 +1,9 @@
-use <mattwach/util.scad>
-use <mattwach/vitamins/electronics/buttons.scad>
-include <mattwach/vitamins/electronics/pi_pico.scad>
-include <mattwach/vitamins/electronics/ds3231_rtc.scad>
-include <NopSCADlib/core.scad>
-include <NopSCADlib/vitamins/pin_headers.scad>
+use <../dep/mattwach/util.scad>
+use <../dep/mattwach/vitamins/electronics/buttons.scad>
+include <../dep/mattwach/vitamins/electronics/pi_pico.scad>
+include <../dep/mattwach/vitamins/electronics/ds3231_rtc.scad>
+include <../dep/NopSCADlib/core.scad>
+include <../dep/NopSCADlib/vitamins/pin_headers.scad>
 
 MATRIX_CLOCK_PCB_LENGTH = 63.5;
 MATRIX_CLOCK_PCB_WIDTH = 54.6;

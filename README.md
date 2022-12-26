@@ -183,6 +183,36 @@ The two major things done here are getting some dependencies (submodules) and se
 
 If all went well above, you will have a `build/matrix_clock.uf2` file available to load onto a PI Pico.
 
+# 3D Printed Case
+
+The 3D printed case is available at [case/matrix_clock_case.scad](case/matrix_clock_case.scad)
+
+![3d printed case](images/3d_printed_case.png)
+
+Looking at the underside, we can see the PICO.  There are also some access ports for the BOOTSEL and reset buttons (for convienent firmware reloading):
+
+![case underside](images/3d_case_underside.png)
+
+If you don't want to mess around with OpenSCAD, you can look at the [case/3mf](case/3mf) directory for files you can load direclty into your slicer program.  The same directory also has the file [3mf/prusa_slicer_project.3mf](3mf/prosa_slicer_project.3mf) which can be loaded into Prusa slicer if you happen to use that software.
+
+If you do want to dig into OpenSCAD, I'll point to these lines specifically:
+
+```openscad
+  button_peg_shaft();
+  button_peg_backing();
+  ...
+  *top_cover();
+  clock_base();
+```
+
+These represent the major printable parts.  You can place a `*` in front of a part to hide it or a `!` in front of it to show it in isolation.
+
+A few of other notes about the design:
+
+* The spacing between the LED matrix and front wall leads to a fairly diffused display.  This looks fine in the "matrix" mode but blurry when displaying numbers.  If you want to more readable numbers, you may want to inset a grid into the front to help guide the light.  Keep in mind that the LED matrix does produce some heat while it is running.
+* I intentionally set the matrix spacing to allow for some light to leak into the rest of the case.  I like the resulting effect but you could mask off the light paths if you would prefer the back of the case remain dark.
+* I would consider the button design "ok" but not "great".  It gets the job done for occasional use but I'd suggest rethinking the design if you plan to use the buttons often.  The current design uses the backing plate for leverage (blue in the image above).  The tight is intentionally tight and might require some light sanding to get it on.  After you get the feel correct, you fix the backing into place with a touch of CA glue.
+
 # Cusomization Guide
 
 This part of the documentation point you in the right direction if you want to modify the project.

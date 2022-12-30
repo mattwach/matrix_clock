@@ -165,6 +165,9 @@ The other buttons are "set" and "increment" as-described in an earlier section. 
 
 ## Firmware
 
+> TLDR: If you don't want to build the firmware (`matrix_clock.uf2`) yourself, I
+have a precompiled version under the [firmware](firmware) directory.
+
 Firmware is provided in the [src/](src) directory.  If you have never built PI Pico firmware before, run through the official [Getting started with the Raspberry Pi PICO](https://datasheets.raspberrypi.com/pico/getting-started-with-pico.pdf) documentation first to get the needed tools up-and-running on your system.
 
 The instructions for building the clock firmware are the same as the guide

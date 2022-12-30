@@ -308,7 +308,7 @@ This section lists the display modes, names them and provides a function pointer
 #include "render/number_grid.h"
 ```
 
-Note that, bu convention, all rendering functions are defined in the [src/render](src/render) directory.  Here is an example [src/render/blank.c](src/render/blank.c):
+Note that, by convention, all rendering functions are defined in the [src/render](src/render) directory.  Here is an example [src/render/blank.c](src/render/blank.c):
 
 ```c
 void blank_render(

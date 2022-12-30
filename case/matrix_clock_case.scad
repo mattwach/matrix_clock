@@ -294,7 +294,7 @@ module matrix_clock_case() {
     }
   }
   
-  *top_cover();
+  top_cover();
   clock_base();
 }
 

@@ -138,7 +138,7 @@ Talking a bit more about the schematic:
 
 The PI Pico connects to the RTC (Real time clock) with a
 [I2C](https://en.wikipedia.org/wiki/I%C2%B2C) connection.  There is a bit of a
-tripping point here.  Most RTC moddules ask for 5V but the Pico is 3.3V.  If you
+tripping point here.  Most RTC modules ask for 5V but the Pico is 3.3V.  If you
 provide 5V to the RTC, pullup resistors that are almost always included on the
 RTC PCB will pull the SDA and SCL lines to 5V which the Pico does not support.
 One solution is to remove these pullup resistors and provide your own pullup

@@ -69,9 +69,9 @@ When you plug in the clock via any USB power source you will get a matrix clock 
 
 The clock has two buttons on it's side: "set" and "increment".
 
-   * If you press the set button once, the clock will show the current hours as numbers.  You can use the "increment" button to change the hour.
-   * If you press the set button again, the clock will show the current minutes.  You can use the "increment" button to change the minute.
-   * If you press the set button a third time, the clock will return to showing the matrix display
+   * If you press the *set* button once, the clock will show the current hours as numbers.  You can use the *increment* button to change the hour.
+   * If you press the *set* button again, the clock will show the current minutes.  You can use the *increment* button to change the minute.
+   * If you press the *set* button a third time, the clock will return to showing the matrix display
 
 > You can also set the clock via the USB connection.
 
@@ -80,11 +80,11 @@ The clock has two buttons on it's side: "set" and "increment".
 If you press the "increment" button while the matrix is showing, the clock will
 cycle through display modes.  Currently defined modes include:
 
-* **Matrix** (the default)
-* **Time scroll**, similar to matrix mode but uses numbers so it's easier to read
-* **Time fade**.  Uses bigger numbers so even easier to read
-* **Binary digits**.  Uses binary symbols in place of digits. Unfortunately my plastic case diffuses the pixels too much for this mode to work well for me, but it would work better with alternate case designs.
-* **Off**.  Useful if you want a darkened room.
+* **Matrix -** The default
+* **Time scroll -**, similar to matrix mode but uses numbers so it's easier to read
+* **Time fade -**.  Uses bigger numbers so even easier to read
+* **Binary digits -**  Uses binary symbols in place of digits. Unfortunately my plastic case diffuses the pixels too much for this mode to work well for me, but it would work better with alternate case designs.
+* **Off -**  Useful if you want a darkened room.
 
 ## Console Configuration
 
@@ -96,7 +96,7 @@ minicom -b 115200 -P /dev/ttyUSB0
 
 > The serial device (`/dev/ttyUSB0`) can vary between computers and operating systems. 
 
-Once started, youi will see something like this:
+Once started, you will see something like this:
 
 ![minicom](images/minicom.jpg)
 
@@ -168,7 +168,7 @@ The other buttons are "set" and "increment" as-described in an earlier section. 
 > TLDR: If you don't want to build the firmware (`matrix_clock.uf2`) yourself, I
 have a precompiled version under the [firmware](firmware) directory.
 
-Firmware is provided in the [src/](src) directory.  If you have never built PI Pico firmware before, run through the official [Getting started with the Raspberry Pi PICO](https://datasheets.raspberrypi.com/pico/getting-started-with-pico.pdf) documentation first to get the needed tools up-and-running on your system.
+Source files (written in C) are  provided in the [src/](src) directory.  If you have never built PI Pico firmware before, run through the official [Getting started with the Raspberry Pi PICO](https://datasheets.raspberrypi.com/pico/getting-started-with-pico.pdf) documentation first to get the needed tools up-and-running on your system.
 
 The instructions for building the clock firmware are the same as the guide
 linked above, but I created a small/simple [bootstrap.sh](src/bootstrap.sh)
@@ -211,7 +211,7 @@ Looking at the underside, we can see the PICO.  There are also some access ports
 
 ![case underside](images/3d_case_underside.png)
 
-If you don't want to mess around with OpenSCAD, you can look at the [case/3mf](case/3mf) directory for files you can load direclty into your slicer program.  The same directory also has the file [3mf/prusa_slicer_project.3mf](3mf/prosa_slicer_project.3mf) which can be loaded into Prusa slicer if you happen to use that software.
+If you don't want to mess around with OpenSCAD, you can look at the [case/3mf](case/3mf) directory for files you can load directly into your slicer program.  The same directory also has the file [3mf/prusa_slicer_project.3mf](3mf/prosa_slicer_project.3mf) which can be loaded into Prusa slicer if you happen to use that software.
 
 If you do want to dig into OpenSCAD, I'll point to these lines specifically:
 

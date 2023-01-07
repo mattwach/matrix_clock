@@ -3,8 +3,6 @@
 #include "hardware/gpio.h"
 #include "pico/stdlib.h"
 
-#define SELECT_GPIO 14
-#define INCREMENT_GPIO 15
 #define DEBOUNCE_MS 10
 
 struct Debounce select_db;
@@ -19,7 +17,7 @@ static inline uint32_t uptime_ms() {
 // try to avoid expensive operations.
 static void button_pressed_callback(uint gpio, uint32_t events) {
   switch (gpio) {
-    case SELECT_GPIO:
+    case SELECT_BUTTON_GPIO:
       // The callback helper helps filter away debounce glitches
       // The debounce_gpio_irq_callback_helper has a side effect (updates state in
       // the debounce structure so it should always be called.
@@ -28,8 +26,8 @@ static void button_pressed_callback(uint gpio, uint32_t events) {
         button_bit_array |= SELECT_BUTTON;
       }
       break;
-    case INCREMENT_GPIO:
-      // The comment for SELECT_GPIO above also apply here.
+    case INCREMENT_BUTTON_GPIO:
+      // The comment for SELECT_BUTTON_GPIO above also apply here.
       if (debounce_gpio_irq_callback_helper(&increment_db, uptime_ms(), events) &&
           increment_db.val) {
         button_bit_array |= INCREMENT_BUTTON;
@@ -54,8 +52,8 @@ void buttons_init(void) {
   // Setup two GPIOs for select and increment buttons.
   // These are connected to ground though a button.  The chip
   // is then configured to use internal pullup resistors.
-  setup_gpio(SELECT_GPIO);
-  setup_gpio(INCREMENT_GPIO);
+  setup_gpio(SELECT_BUTTON_GPIO);
+  setup_gpio(INCREMENT_BUTTON_GPIO);
   gpio_set_irq_callback(button_pressed_callback);
   irq_set_enabled(IO_IRQ_BANK0, true);
 

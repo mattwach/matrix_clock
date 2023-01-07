@@ -13,11 +13,17 @@ endif()
 
 set(PICO_EXAMPLES_PATH ${PROJECT_SOURCE_DIR})
 
-# setup connected hardware
+# Choose a clock source
 set(CLOCK_SOURCE clock_ds3231)
+#set(CLOCK_SOURCE clock_pico_internal)
+
+# Choose an led matrix
 set(LED_MATRIX_SOURCE led_matrix_dotstar)
 set(LED_MATRIX_WIDTH 8)
 set(LED_MATRIX_HEIGHT 8)
+#set(LED_MATRIX_SOURCE led_matrix_32x64)
+#set(LED_MATRIX_WIDTH 32)
+#set(LED_MATRIX_HEIGHT 64)
 
 # Initialize the SDK
 pico_sdk_init()
@@ -52,12 +58,33 @@ add_executable(matrix_clock
 
 # pull in common dependencies
 target_link_libraries(matrix_clock
-#    pico_multicore
     pico_stdlib
     UART_CONSOLE
-    hardware_spi
+)
+
+if(CLOCK_SOURCE STREQUAL clock_pico_internal)
+target_link_libraries(matrix_clock
+    hardware_rtc
+)
+endif()
+
+if(CLOCK_SOURCE STREQUAL clock_ds3231)
+target_link_libraries(matrix_clock
     hardware_i2c
 )
+endif()
+
+if(LED_MATRIX_SOURCE STREQUAL led_matrix_dotstar)
+target_link_libraries(matrix_clock
+    hardware_spi
+)
+endif()
+
+if(LED_MATRIX_SOURCE STREQUAL led_matrix_32x64)
+target_link_libraries(matrix_clock
+    pico_multicore
+)
+endif()
 
 # enable usb output, disable uart output
 pico_enable_stdio_usb(matrix_clock 1)

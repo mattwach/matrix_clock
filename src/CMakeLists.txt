@@ -32,6 +32,7 @@ add_executable(matrix_clock
         debounce.c
         debug.c
         led_matrix_dotstar.c
+#        led_matrix_32x64.c
         main.c
         number_draw.c
         set_time.c
@@ -44,6 +45,7 @@ add_executable(matrix_clock
 
 # pull in common dependencies
 target_link_libraries(matrix_clock
+#    pico_multicore
     pico_stdlib
     UART_CONSOLE
     hardware_spi

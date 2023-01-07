@@ -13,6 +13,10 @@ endif()
 
 set(PICO_EXAMPLES_PATH ${PROJECT_SOURCE_DIR})
 
+# choose the clock source.
+set(CLOCK_SOURCE clock_ds3231)
+set(LED_MATRIX_SOURCE led_matrix_dotstar)
+
 # Initialize the SDK
 pico_sdk_init()
 
@@ -24,15 +28,14 @@ add_compile_options(-Wall
 
 
 add_executable(matrix_clock
+        ${CLOCK_SOURCE}.c
+        ${LED_MATRIX_SOURCE}.c
         buttons.c
-        clock.c
         clock_render.c
         clock_settings.c
         colors.c
         debounce.c
         debug.c
-        led_matrix_dotstar.c
-#        led_matrix_32x64.c
         main.c
         number_draw.c
         set_time.c

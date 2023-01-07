@@ -13,9 +13,11 @@ endif()
 
 set(PICO_EXAMPLES_PATH ${PROJECT_SOURCE_DIR})
 
-# choose the clock source.
+# setup connected hardware
 set(CLOCK_SOURCE clock_ds3231)
 set(LED_MATRIX_SOURCE led_matrix_dotstar)
+set(LED_MATRIX_WIDTH 8)
+set(LED_MATRIX_HEIGHT 8)
 
 # Initialize the SDK
 pico_sdk_init()
@@ -24,6 +26,8 @@ add_compile_options(-Wall
         -Wno-format          # int != int32_t as far as the compiler is concerned because gcc has int32_t as long int
         -Wno-unused-function # we have some for the docs that aren't called
         -Wno-maybe-uninitialized
+        -DLED_MATRIX_WIDTH=${LED_MATRIX_WIDTH}
+        -DLED_MATRIX_HEIGHT=${LED_MATRIX_HEIGHT}
         )
 
 

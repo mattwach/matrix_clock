@@ -11,8 +11,6 @@
 // Matrix dimensions.  You may need to change these if your's
 // is different as well as attend to code that might not
 // like your chosen numbers.
-#define LED_MATRIX_WIDTH 8
-#define LED_MATRIX_HEIGHT 8
 #define LED_MATRIX_COUNT (LED_MATRIX_WIDTH * LED_MATRIX_HEIGHT)
 
 // Initialize the matrix

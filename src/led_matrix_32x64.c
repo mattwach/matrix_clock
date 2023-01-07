@@ -3,6 +3,7 @@
 #include "pico/stdlib.h"
 #include "pico/multicore.h"
 #include "pico/mutex.h"
+#include <string.h>
 
 #if LED_MATRIX_WIDTH != 32
 #error led_matrix_32x64 requires LED_MATRIX_WIDTH be set to 32
@@ -49,7 +50,8 @@
   (1 << GPIO_G2) | \
   (1 << GPIO_B2))
 
-struct LEDMatrixFrame {
+static struct LEDMatrixFrame {
+  mutex_t mut;
   uint32_t value;  // current value for on/off comparisons
   uint32_t step;
   uint32_t frame_a[LED_ROWS * LED_COLUMNS];
@@ -121,18 +123,18 @@ static void program_rows(
 }
 
 void led_matrix_frame_update() {
-  led->value += led->step;
-  led->step = (led->step * BRIGHTNESS_GAMMA / 100);
-  if (led->value > 0xFFFF) {
-    led->value = BRIGHTNESS_STEP;
-    led->step = BRIGHTNESS_STEP;
+  led.value += led.step;
+  led.step = (led.step * BRIGHTNESS_GAMMA / 100);
+  if (led.value > 0xFFFF) {
+    led.value = BRIGHTNESS_STEP;
+    led.step = BRIGHTNESS_STEP;
   }
   for (uint16_t address = 0; address < ADDRESS_COUNT; ++address) {
     // address zero, row zero is the bottom row if the panel.  Thus 0 -> (LED_ROWS - 1)
     const uint32_t* row0 = led.active_frame + (LED_ROWS - 1 - address) * LED_COLUMNS;
     // address zero, row one is the middle of the pannel.  This 0 -> (ADDRESS_COUNT - 1)
     const uint32_t* row1 = led.active_frame + (ADDRESS_COUNT - 1 - address) * LED_COLUMNS;
-    program_rows(address, (uint16_t)led->value >> 8, row0, row1);
+    program_rows(address, (uint16_t)led.value >> 8, row0, row1);
   }
 }
 
@@ -155,8 +157,8 @@ void led_matrix_init() {
   gpio_put(GPIO_OE, 1); // disable by default
   led.value = 0;
   led.step = BRIGHTNESS_STEP;
-  memset(led.frame_a, 0, sizeof(led.frame_a) * sizeof(led.frame_a[0]));
-  memset(led.frame_b, 0, sizeof(led.frame_b) * sizeof(led.frame_b[0]));
+  memset(led.frame_a, 0, sizeof(led.frame_a));
+  memset(led.frame_b, 0, sizeof(led.frame_b));
   led.active_frame = led.frame_a;
   led.draw_frame = led.frame_b;
   mutex_init(&led.mut);
@@ -175,7 +177,7 @@ void led_matrix_render(uint32_t* data) {
       const uint32_t pixel_out =
         ((r * br / 0xFF) << 16) |
         ((b * br / 0xFF) << 8) |
-        ((g * br / 0xFF);
+        (g * br / 0xFF);
       led.draw_frame[x * LED_ROWS + y] = pixel_out;
     }
   }
@@ -184,6 +186,6 @@ void led_matrix_render(uint32_t* data) {
   mutex_enter_blocking(&led.mut);
   uint32_t* tmp_frame = led.active_frame;
   led.active_frame = led.draw_frame;
-  led.draw_frame = tmp_framw;
+  led.draw_frame = tmp_frame;
   mutex_exit(&led.mut);
 }

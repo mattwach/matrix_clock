@@ -48,7 +48,7 @@
 #define BRIGHTNESS_GAMMA 91
 
 #define GPIO_ALL_PINKS_MASK ( \
-  ((ADDRESS_COUNT - 1) << GPIO_HA) \
+  ((ADDRESS_COUNT - 1) << GPIO_HA) | \
   (1 << GPIO_R1)  | \
   (1 << GPIO_G1)  | \
   (1 << GPIO_B1)  | \

@@ -207,7 +207,7 @@ static uint8_t validate_settings(const struct ClockSettings* cs) {
 // written?  Sets "reasonable" defaults.
 static void init_default_settings(void) {
   memset(&settings, 0, sizeof(struct ClockSettings));
-  settings.brightness_step = 3;
+  settings.brightness_step = DEFAULT_BRIGHTNESS_STEP;
 }
 
 void clock_settings_init() {

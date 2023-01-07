@@ -1,4 +1,9 @@
-// LED matrix implementation for dotstar hardware
+// LED matrix implementation for 64x32 panels
+// These panels are naturally programed in "landscape" mode
+// but (IMO) the LED rain effect looks better when they are rotated.
+// Thus the actual driver works in landscape mode and
+// the interface is in portrait mode.
+
 #include "led_matrix.h"
 #include "pico/stdlib.h"
 #include "pico/multicore.h"
@@ -13,8 +18,9 @@
 #error led_matrix_32x64 requires LED_MATRIX_HEIGHT be set to 64
 #endif
 
-#define LED_ROWS 32
+// The driver works in landscape mode.
 #define LED_COLUMNS 64
+#define LED_ROWS 32
 
 // GPIO for address seclection line.  Sometimes called
 // A or HA.  B, C, and D will follow this sequentially.
@@ -41,14 +47,17 @@
 #define BRIGHTNESS_STEP 0x1800
 #define BRIGHTNESS_GAMMA 91
 
-#define GPIO_ADDRESS_MASK ((ADDRESS_COUNT - 1) << GPIO_HA)
-#define GPIO_LED_MASK ( \
-  (1 << GPIO_R1) | \
-  (1 << GPIO_G1) | \
-  (1 << GPIO_B1) | \
-  (1 << GPIO_R2) | \
-  (1 << GPIO_G2) | \
-  (1 << GPIO_B2))
+#define GPIO_ALL_PINKS_MASK ( \
+  ((ADDRESS_COUNT - 1) << GPIO_HA) \
+  (1 << GPIO_R1)  | \
+  (1 << GPIO_G1)  | \
+  (1 << GPIO_B1)  | \
+  (1 << GPIO_R2)  | \
+  (1 << GPIO_G2)  | \
+  (1 << GPIO_B2)  | \
+  (1 << GPIO_CLK) | \
+  (1 << GPIO_LAT) | \
+  (1 << GPIO_OE))
 
 static struct LEDMatrixFrame {
   mutex_t mut;
@@ -147,13 +156,8 @@ static void start_core1(void) {
 }
 
 void led_matrix_init() {
-  const uint32_t mask = GPIO_ADDRESS_MASK | 
-    GPIO_LED_MASK |
-    (1 << GPIO_CLK) |
-    (1 << GPIO_LAT) |
-    (1 << GPIO_OE);
-  gpio_init_mask(mask);
-  gpio_set_dir_out_masked(mask);
+  gpio_init_mask(GPIO_ALL_PINKS_MASK);
+  gpio_set_dir_out_masked(GPIO_ALL_PINKS_MASK);
   gpio_put(GPIO_OE, 1); // disable by default
   led.value = 0;
   led.step = BRIGHTNESS_STEP;
@@ -166,7 +170,13 @@ void led_matrix_init() {
 }
 
 void led_matrix_render(uint32_t* data) {
-  // data needs to be rotated and birghtness adjusted
+  // Rotate date from portrait mode to the landscape mode
+  // that the driver needs.
+  //
+  // Also the data format is 0xIIRRGGBB and the
+  // driver expected 0x00RRGGBB.  The logic below
+  // converts from the first format to the second
+  // one.
   for (uint16_t y=0; y<LED_MATRIX_HEIGHT; ++y) {
     for (uint16_t x=0; x<LED_MATRIX_WIDTH; ++x) {
       const uint32_t pixel_in = data[y * LED_MATRIX_WIDTH + x]; 

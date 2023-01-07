@@ -21,9 +21,11 @@ set(CLOCK_SOURCE clock_ds3231)
 set(LED_MATRIX_SOURCE led_matrix_dotstar)
 set(LED_MATRIX_WIDTH 8)
 set(LED_MATRIX_HEIGHT 8)
+set(DEFAULT_BRIGHTNESS_STEP 3)
 #set(LED_MATRIX_SOURCE led_matrix_32x64)
 #set(LED_MATRIX_WIDTH 32)
 #set(LED_MATRIX_HEIGHT 64)
+#set(DEFAULT_BRIGHTNESS_STEP 10)
 
 # Initialize the SDK
 pico_sdk_init()
@@ -34,6 +36,7 @@ add_compile_options(-Wall
         -Wno-maybe-uninitialized
         -DLED_MATRIX_WIDTH=${LED_MATRIX_WIDTH}
         -DLED_MATRIX_HEIGHT=${LED_MATRIX_HEIGHT}
+        -DDEFAULT_BRIGHTNESS_STEP=${DEFAULT_BRIGHTNESS_STEP}
         )
 
 

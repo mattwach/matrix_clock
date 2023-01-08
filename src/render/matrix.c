@@ -9,7 +9,7 @@
 #define START_DELAY_MAX 60
 // How fast to move particles, based on their represented clock position
 #define HOUR_DELAY 5
-#define MINUTE_TENS_DELAY 3
+#define MINUTE_TENS_DELAY 2
 #define MINUTE_ONES_DELAY 1
 
 // typs for init_particle

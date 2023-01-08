@@ -182,8 +182,8 @@ void led_matrix_render(uint32_t* data) {
       const uint32_t pixel_in = data[y * LED_MATRIX_WIDTH + x]; 
       const uint32_t br = pixel_in >> 24;
       const uint32_t r = (pixel_in >> 16) & 0xFF;
-      const uint32_t g = (pixel_in >> 8) & 0xFF;
-      const uint32_t b = pixel_in & 0xFF;
+      const uint32_t b = (pixel_in >> 8) & 0xFF;
+      const uint32_t g = pixel_in & 0xFF;
       const uint32_t pixel_out =
         ((r * br / 0xFF) << 16) |
         ((b * br / 0xFF) << 8) |

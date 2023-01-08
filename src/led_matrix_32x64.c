@@ -61,6 +61,7 @@
 
 static struct LEDMatrixFrame {
   mutex_t mut;
+  uint8_t running; // used to stop rendering
   uint32_t value;  // current value for on/off comparisons
   uint32_t step;
   uint32_t frame_a[LED_ROWS * LED_COLUMNS];
@@ -150,6 +151,10 @@ void led_matrix_frame_update() {
 static void start_core1(void) {
   while (1) {
     mutex_enter_blocking(&led.mut);
+    if (!led.running) {
+      mutex_exit(&led.mut);
+      return;
+    }
     led_matrix_frame_update(); 
     mutex_exit(&led.mut);
   }
@@ -166,7 +171,6 @@ void led_matrix_init() {
   led.active_frame = led.frame_a;
   led.draw_frame = led.frame_b;
   mutex_init(&led.mut);
-  multicore_launch_core1(start_core1);    
 }
 
 void led_matrix_render(uint32_t* data) {
@@ -198,4 +202,18 @@ void led_matrix_render(uint32_t* data) {
   led.active_frame = led.draw_frame;
   led.draw_frame = tmp_frame;
   mutex_exit(&led.mut);
+
+  if (!led.running) {
+    led.running = 1;
+    multicore_launch_core1(start_core1);    
+  }
 }
+
+void led_matrix_stop(void) {
+  mutex_enter_blocking(&led.mut);
+  led.running = 0;
+  mutex_exit(&led.mut);
+  sleep_ms(20);
+  multicore_reset_core1();
+}
+

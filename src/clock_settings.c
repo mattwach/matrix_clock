@@ -5,6 +5,7 @@
 #include "colors.h"
 #include "clock.h"
 #include "clock_render.h"
+#include "led_matrix.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -47,6 +48,7 @@ static void clock_settings_save(const struct ClockSettings* cs) {
   settings->eyecatcher[2] = 'L';
   settings->eyecatcher[3] = 'K';
   settings->checksum = calc_checksum(settings);
+  led_matrix_stop();
   uint32_t ints = save_and_disable_interrupts();
   flash_range_erase(FLASH_OFFSET, FLASH_SECTOR_SIZE);
   flash_range_program(FLASH_OFFSET, buff, FLASH_PAGE_SIZE);

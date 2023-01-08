@@ -28,6 +28,13 @@ void led_matrix_init();
 // sent is the southwest corner of the matrix.
 void led_matrix_render(uint32_t* data);
 
+// stop any background operations.  This is needed to
+// safely write settings to flash.  Some drivers will
+// not need to do anything here. Another call to
+// led_matrix_render would be expected to start things
+// back up.
+void led_matrix_stop(void);
+
 // converts a x,y coordinate to a pixel index
 static inline uint32_t get_pixel_idx(uint8_t x, uint8_t y) {
   return (y * LED_MATRIX_WIDTH) + x;

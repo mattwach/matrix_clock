@@ -39,3 +39,6 @@ void led_matrix_render(uint32_t* data) {
     color(data[i]);
   }
 }
+
+void led_matrix_stop(void) { }
+

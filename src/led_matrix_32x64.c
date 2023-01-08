@@ -97,14 +97,14 @@ static void program_rows(
   uint16_t value,
   const uint32_t* row0,
   const uint32_t* row1) {
-  for (uint8_t column = 0; column < LED_COLUMNS; ++column) {
+  for (int column = 0; column < LED_COLUMNS; ++column) {
     const uint16_t idx = LED_COLUMNS - column - 1;
     set_rgb(value, row0[idx], GPIO_R1, GPIO_G1, GPIO_B1);
     set_rgb(value, row1[idx], GPIO_R2, GPIO_G2, GPIO_B2);
     // strobe the clock
     wait_ns();
     gpio_put(GPIO_CLK, 1);
-    //wait_ns();
+    wait_ns();
     gpio_put(GPIO_CLK, 0);
   }
 

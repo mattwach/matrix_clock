@@ -161,7 +161,7 @@ void led_matrix_init() {
   gpio_put(GPIO_OE, 1); // disable by default
   led.value = 0;
   led.step = BRIGHTNESS_STEP;
-  memset(led.frame_a, 0, sizeof(led.frame_a));
+  memset(led.frame_a, 80, sizeof(led.frame_a));
   memset(led.frame_b, 0, sizeof(led.frame_b));
   led.active_frame = led.frame_a;
   led.draw_frame = led.frame_b;
@@ -188,7 +188,7 @@ void led_matrix_render(uint32_t* data) {
         ((r * br / 0xFF) << 16) |
         ((b * br / 0xFF) << 8) |
         (g * br / 0xFF);
-      led.draw_frame[x * LED_ROWS + y] = pixel_out;
+      led.draw_frame[x * LED_COLUMNS + (LED_COLUMNS - y - 1)] = pixel_out;
     }
   }
 

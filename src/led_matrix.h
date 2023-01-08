@@ -29,7 +29,7 @@ void led_matrix_init();
 void led_matrix_render(uint32_t* data);
 
 // converts a x,y coordinate to a pixel index
-static inline uint8_t get_pixel_idx(uint8_t x, uint8_t y) {
+static inline uint32_t get_pixel_idx(uint8_t x, uint8_t y) {
   return (y * LED_MATRIX_WIDTH) + x;
 }
 

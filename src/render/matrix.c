@@ -3,12 +3,12 @@
 #include "../colors.h"
 #include "../led_matrix.h"
 
-#define PARTICLE_COUNT 15
+#define PARTICLE_COUNT 128
 
 // maximum frames to wait before recycling a particle
 #define START_DELAY_MAX 60
 // How fast to move particles, based on their represented clock position
-#define HOUR_DELAY 14
+#define HOUR_DELAY 5
 #define MINUTE_TENS_DELAY 3
 #define MINUTE_ONES_DELAY 1
 

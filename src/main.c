@@ -56,14 +56,15 @@ static uint32_t render(uint32_t frame_idx) {
     toggle_setting_time = clock_render(
           led, buttons_get(), frame_idx, time_hhmm, clock_settings());
   }
+  ++frame_idx;
   if (toggle_setting_time) {
     setting_time = !setting_time;
     frame_idx = 0;
-  } else {
-    ++frame_idx;
   }
   led_matrix_render(led);
-  clock_settings_poll(time_hhmm);
+  if (clock_settings_poll(time_hhmm)) {
+    frame_idx = 0;
+  }
   // calculate tdelta to get a smooth frame rate, even if the loop time
   // varies.
   uint32_t tdelta = uptime_ms() - t1;

@@ -32,7 +32,8 @@ struct ClockSettings {
 void clock_settings_init(void);
 
 // Call this regularly to give the user a responsive USB shell.
-void clock_settings_poll(uint16_t time_hhmm);
+// returns a 1 if the frame_index needs to be reset
+uint8_t clock_settings_poll(uint16_t time_hhmm);
 
 // Get a read-only copy of the settings.
 const struct ClockSettings* clock_settings(void);

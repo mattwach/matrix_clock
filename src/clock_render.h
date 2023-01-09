@@ -16,5 +16,8 @@ uint8_t clock_render(
 uint8_t clock_render_num_display_modes(void);
 // maps a display mode index to a name.
 const char* clock_render_display_mode_name(uint8_t mode);
+// change current display mode
+void clock_render_set_display_mode(uint8_t mode);
+uint8_t clock_render_get_display_mode(void);
 
 #endif

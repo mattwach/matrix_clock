@@ -155,6 +155,19 @@ static void list_display_modes_cmd(uint8_t argc, char* argv[]) {
   }
 }
 
+// callback for the "display_mode" shell command
+static void display_mode_cmd(uint8_t argc, char* argv[]) {
+  const char* mode = argv[0];
+  const uint8_t num_modes = clock_render_num_display_modes();
+  for (uint8_t i=0; i < num_modes; ++i) {
+    if (!strcmp(clock_render_display_mode_name(i), mode)) {
+      clock_render_set_display_mode(i);
+      return;
+    }
+  }
+  printf("Unknown display mode: %s.  Try list_display_modes\n", mode);
+}
+
 // callback for the "startup_display_mode" shell command
 static void startup_display_mode_cmd(uint8_t argc, char* argv[]) {
   const char* mode = argv[0];
@@ -175,6 +188,7 @@ static void startup_display_mode_cmd(uint8_t argc, char* argv[]) {
 struct ConsoleCallback callbacks[] = {
   {"brightness", "Change brightness from 0-10", 1, brightness_cmd},
   {"get", "Get current settings", 0, get_cmd},
+  {"display_mode", "Sets the current display mode.", 1, display_mode_cmd},
   {"list_display_modes", "List display modes", 0, list_display_modes_cmd},
   {"time", "Sets the time as HHMM.  example: time 1307.", 1, time_cmd},
   {"sleep_time", "Sets the sleep (screen off) time as HHMM.  "
@@ -223,16 +237,19 @@ void clock_settings_init() {
   }
 }
 
-void clock_settings_poll(uint16_t time_hhmm) {
+uint8_t clock_settings_poll(uint16_t time_hhmm) {
   char prompt[80];
-  sprintf(prompt, "%02d:%02d (%s,%s,%s)> ",
+  const uint8_t old_display_mode = clock_render_get_display_mode();
+  sprintf(prompt, "%02d:%02d %s (%s,%s,%s)> ",
        time_hhmm / 100,
        time_hhmm % 100,
+       clock_render_display_mode_name(old_display_mode),
        get_color_name((time_hhmm / 100) % 10),
        get_color_name((time_hhmm / 10) % 10),
        get_color_name(time_hhmm % 10)
   );
   uart_console_poll(&console, prompt);
+  return old_display_mode != clock_render_get_display_mode();
 }
 
 const struct ClockSettings* clock_settings(void) {

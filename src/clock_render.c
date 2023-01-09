@@ -50,16 +50,27 @@ struct DisplayMode {
 #define NUM_DISPLAY_MODES (sizeof(display_modes) / sizeof(display_modes[0]))
 #define OFF_DISPLAY_MODE_INDEX (NUM_DISPLAY_MODES - 1)
 
-uint16_t last_sleep_or_wake_hhmm;  // used to create an edge trigger
+static uint16_t last_sleep_or_wake_hhmm;  // used to create an edge trigger
 // this is so initilization can happen when switching modes
-uint32_t frame_index_delta = 0;
-uint8_t display_mode; // currently active index
-uint8_t wake_display_mode; // what mode to wake up to
-uint8_t display_mode_intitialized = 0;
+static uint32_t frame_index_delta = 0;
+static uint8_t display_mode; // currently active index
+static uint8_t wake_display_mode; // what mode to wake up to
+static uint8_t display_mode_intitialized = 0;
 
 // interface for display modes
 uint8_t clock_render_num_display_modes(void) {
   return NUM_DISPLAY_MODES;
+}
+
+void clock_render_set_display_mode(uint8_t mode) {
+  if (mode >= NUM_DISPLAY_MODES) {
+    return;
+  }
+  display_mode = mode;
+}
+
+uint8_t clock_render_get_display_mode(void) {
+  return display_mode;
 }
 
 // interface for getting names.  Used by clock_settings.c

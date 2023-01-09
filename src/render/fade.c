@@ -12,7 +12,7 @@
 // Contains the order in which the fade should happen
 // each value is an offset into the matrix.  The array order determines
 // the order.
-static uint8_t fade_order[LED_MATRIX_COUNT];
+static uint16_t fade_order[LED_MATRIX_COUNT];
 
 // we need to hold our data becuase it is added to each frame
 static uint32_t data[LED_MATRIX_COUNT];
@@ -34,22 +34,22 @@ static uint8_t minutes;
 #define SHOW_BLANK (BLANK_OUT + 50)
 #define STATE_MODULUS SHOW_BLANK
 
-static void swap_with_random_fade_slot(uint8_t i) {
-  const uint8_t j = (uint8_t)(random() % LED_MATRIX_COUNT);
-  const uint8_t tmp = fade_order[i];
+static void swap_with_random_fade_slot(uint16_t i) {
+  const uint16_t j = (uint8_t)(random() % LED_MATRIX_COUNT);
+  const uint16_t tmp = fade_order[i];
   fade_order[i] = fade_order[j];
   fade_order[j] = tmp;
 }
 
 static void shuffle_fade_order(void) {
-  for (uint8_t i=0; i < LED_MATRIX_COUNT; ++i) {
+  for (uint16_t i=0; i < LED_MATRIX_COUNT; ++i) {
     swap_with_random_fade_slot(i);
   }
 }
 
 static void init(void) {
   memset(data, 0, sizeof(data));
-  for (uint8_t i=0; i<LED_MATRIX_COUNT; ++i) {
+  for (uint16_t i=0; i<LED_MATRIX_COUNT; ++i) {
     fade_order[i] = i;
   }
 }
@@ -61,7 +61,7 @@ static void hour_digits(uint32_t* led, uint32_t fade_index, uint8_t br, uint16_t
     minutes = time_hhmm % 100;
     draw_numbers(target, time_hhmm / 100, 1, 0, br, FONT3X7);
   }
-  const uint8_t led_index = fade_order[fade_index / FRAMES_PER_FADE_PIXEL];
+  const uint16_t led_index = fade_order[fade_index / FRAMES_PER_FADE_PIXEL];
   data[led_index] = target[led_index];
 }
 
@@ -71,7 +71,7 @@ static void minute_digits(uint32_t* led, uint32_t fade_index, uint8_t br) {
     memset(target, 0, sizeof(target));
     draw_numbers(target, minutes, 0, 0, br, FONT3X7);
   }
-  const uint8_t led_index = fade_order[fade_index / FRAMES_PER_FADE_PIXEL];
+  const uint16_t led_index = fade_order[fade_index / FRAMES_PER_FADE_PIXEL];
   data[led_index] = target[led_index];
 }
 
@@ -80,7 +80,7 @@ static void blank_out(uint32_t* led, uint32_t fade_index) {
     shuffle_fade_order();
     memset(target, 0, sizeof(target));
   }
-  const uint8_t led_index = fade_order[fade_index / FRAMES_PER_FADE_PIXEL];
+  const uint16_t led_index = fade_order[fade_index / FRAMES_PER_FADE_PIXEL];
   data[led_index] = target[led_index];
 }
 

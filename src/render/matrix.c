@@ -3,14 +3,24 @@
 #include "../colors.h"
 #include "../led_matrix.h"
 
-#define PARTICLE_COUNT 128
+#if LED_MATRIX_SOURCE == led_matrix_dotstar
+  #define PARTICLE_COUNT 15
+  // How fast to move particles, based on their represented clock position
+  #define HOUR_DELAY 14
+  #define MINUTE_TENS_DELAY 3
+  #define MINUTE_ONES_DELAY 1
+#elif LED_MATRIX_SOURCE == led_matrix_32x64
+  #define PARTICLE_COUNT 128
+  // How fast to move particles, based on their represented clock position
+  #define HOUR_DELAY 3
+  #define MINUTE_TENS_DELAY 2
+  #define MINUTE_ONES_DELAY 1
+#else
+  #error Unknown LED_MATRIX_SOURCE
+#endif
 
 // maximum frames to wait before recycling a particle
 #define START_DELAY_MAX 60
-// How fast to move particles, based on their represented clock position
-#define HOUR_DELAY 3
-#define MINUTE_TENS_DELAY 2
-#define MINUTE_ONES_DELAY 1
 
 // typs for init_particle
 #define HOUR_ONES_TYPE 0

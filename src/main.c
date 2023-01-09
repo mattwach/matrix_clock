@@ -12,7 +12,6 @@
 #include "set_time.h"
 #include <stdio.h>
 
-#define FRAME_DELAY_MS 10
 #define TIME_UPDATE_FRAMES (1000/FRAME_DELAY_MS)
 
 // set to 1 if the user is setting the time

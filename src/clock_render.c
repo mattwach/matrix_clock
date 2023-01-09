@@ -32,13 +32,23 @@ struct DisplayMode {
       const struct ClockSettings* settings);
 };
 
-struct DisplayMode display_modes[] = {
-  {"normal", matrix_render},  // This entry will be the default power-on mode
-  {"number_cascade", number_cascade_render},
-  {"number_fade", fade_render},
-  {"binary_grid", binary_grid_render},
-  {"off", blank_render},  // always put this entry at the end of the list
-};
+#if LED_MATRIX_SOURCE == led_matrix_dotstar
+  struct DisplayMode display_modes[] = {
+    {"normal", matrix_render},  // This entry will be the default power-on mode
+    {"number_cascade", number_cascade_render},
+    {"number_fade", fade_render},
+    {"binary_grid", binary_grid_render},
+    {"off", blank_render},  // always put this entry at the end of the list
+  };
+#elif LED_MATRIX_SOURCE == led_matrix_32x64
+  struct DisplayMode display_modes[] = {
+    {"normal", matrix_render},  // This entry will be the default power-on mode
+    {"off", blank_render},  // always put this entry at the end of the list
+  };
+#else
+  #error Unknown LED_MATRIX_SOURCE
+#endif
+
 #define NUM_DISPLAY_MODES (sizeof(display_modes) / sizeof(display_modes[0]))
 #define OFF_DISPLAY_MODE_INDEX (NUM_DISPLAY_MODES - 1)
 

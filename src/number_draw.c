@@ -3,221 +3,113 @@
 #include "led_matrix.h"
 #include <pico/platform.h>
 
-struct FontData {
-  uint8_t width;
-  uint8_t height;
-  const char* data;
+// numbers are made of lines
+// Each line is on a coordinate system from 0x00 to 0x10
+// end with all -1
+struct Line {
+  int8_t x0;
+  int8_t y0;
+  int8_t x1;
+  int8_t y1;
 };
 
-// Here I am using string to represent the number pixels.
-// using a bit array is more space-efficient but harder to read
-// and we are not anywhere close to using the Picos flash at this point
-const char font3x7[] __in_flash() =
-"###"
-"# #"
-"# #"
-"# #"
-"# #"
-"# #"
-"###"
-
-" # "
-" # "
-" # "
-" # "
-" # "
-" # "
-" # "
-
-"###"
-"  #"
-"  #"
-"###"
-"#  "
-"#  "
-"###"
-
-"###"
-"  #"
-"  #"
-"###"
-"  #"
-"  #"
-"###"
-
-"# #"
-"# #"
-"# #"
-"###"
-"  #"
-"  #"
-"  #"
-
-"###"
-"#  "
-"#  "
-"###"
-"  #"
-"  #"
-"###"
-
-"###"
-"#  "
-"#  "
-"###"
-"# #"
-"# #"
-"###"
-
-"###"
-"  #"
-"  #"
-"  #"
-"  #"
-"  #"
-"  #"
-
-"###"
-"# #"
-"# #"
-"###"
-"# #"
-"# #"
-"###"
-
-"###"
-"# #"
-"# #"
-"###"
-"  #"
-"  #"
-"###";
-
-const char font3x5[] __in_flash() =
-"###"
-"# #"
-"# #"
-"# #"
-"###"
-
-" # "
-" # "
-" # "
-" # "
-" # "
-
-"###"
-"  #"
-"###"
-"#  "
-"###"
-
-"###"
-"  #"
-"###"
-"  #"
-"###"
-
-"# #"
-"# #"
-"###"
-"  #"
-"  #"
-
-"###"
-"#  "
-"###"
-"  #"
-"###"
-
-"###"
-"#  "
-"###"
-"# #"
-"###"
-
-"###"
-"  #"
-"  #"
-"  #"
-"  #"
-
-"###"
-"# #"
-"###"
-"# #"
-"###"
-
-"###"
-"# #"
-"###"
-"  #"
-"###";
-
-const char binary4x4[] __in_flash() =
-"####"
-"    "
-"    "
-"####"
-
-"### "
-"   #"
-"   #"
-"### "
-
-"## #"
-"  # "
-"  # "
-"## #"
-
-"##  "
-"  ##"
-"  ##"
-"##  "
-
-"# ##"
-" #  "
-" #  "
-"# ##"
-
-"# # "
-" # #"
-" # #"
-"# # "
-
-"#  #"
-" ## "
-" ## "
-"#  #"
-
-"#   "
-" ###"
-" ###"
-"#   "
-
-" ###"
-"#   "
-"#   "
-" ###"
-
-" ## "
-"#  #"
-"#  #"
-" ## ";
-
-
-static struct FontData fonts[] = {
-  {3, 7, font3x7},
-  {3, 5, font3x5},
-  {4, 4, binary4x4},
+struct Line zero[] = {
+  {0, 0, 16, 0},
+  {0, 0, 0, 16},
+  {0, 16, 16, 16},
+  {16, 0, 16, 16},
+  {-1, -1, -1, -1},
 };
 
+struct Line one[] = {
+  {8, 0, 8, 16},
+  {-1, -1, -1, -1},
+};
 
-// draws a single pixel to the set matrix, if 
+struct Line two[] = {
+  {0, 0, 16, 0},
+  {16, 0, 16, 8},
+  {0, 8, 16, 8},
+  {0, 8, 0, 16},
+  {0, 16, 16, 16},
+  {-1, -1, -1, -1},
+};
+
+struct Line three[] = {
+  {0, 0, 16, 0},
+  {0, 8, 16, 8},
+  {0, 16, 16, 16},
+  {16, 0, 16, 16},
+  {-1, -1, -1, -1},
+};
+
+struct Line four[] = {
+  {0, 0, 0, 8},
+  {16, 0, 16, 16},
+  {0, 8, 16, 8},
+  {-1, -1, -1, -1},
+};
+
+struct Line five[] = {
+  {0, 0, 16, 0},
+  {0, 0, 0, 8},
+  {0, 8, 16, 8},
+  {16, 8, 16, 16},
+  {0, 16, 16, 16},
+  {-1, -1, -1, -1},
+};
+
+struct Line six[] = {
+  {0, 0, 16, 0},
+  {0, 0, 0, 16},
+  {0, 8, 16, 8},
+  {0, 16, 16, 16},
+  {16, 8, 16, 16},
+  {-1, -1, -1, -1},
+};
+
+struct Line seven[] = {
+  {0, 0, 16, 0},
+  {16, 0, 16, 16},
+  {-1, -1, -1, -1},
+};
+
+struct Line eight[] = {
+  {0, 0, 16, 0},
+  {0, 8, 16, 8},
+  {0, 16, 16, 16},
+  {0, 0, 0, 16},
+  {16, 0, 16, 16},
+  {-1, -1, -1, -1},
+};
+
+struct Line nine[] = {
+  {0, 0, 16, 0},
+  {0, 0, 0, 8},
+  {0, 8, 16, 8},
+  {16, 0, 16, 16},
+  {0, 16, 16, 16},
+  {-1, -1, -1, -1},
+};
+
+struct Line* font_lines[] = {
+  zero,
+  one,
+  two,
+  three,
+  four,
+  five,
+  six,
+  seven,
+  eight,
+  nine,
+};
+
+// draws a single pixel to the set matrix
 static void pixel(
   uint32_t* led,
-  int8_t x,
-  int8_t y,
+  int16_t x,
+  int16_t y,
   uint32_t color_with_brightness
 ) {
   if ((x < 0) || (x >= LED_MATRIX_WIDTH)) {
@@ -229,50 +121,99 @@ static void pixel(
   led[get_pixel_idx(x, y)] = color_with_brightness;
 }
 
+void number_font_init(
+    struct NumberFont* font,
+    uint8_t brightness,
+    uint8_t char_width,
+    uint8_t char_height,
+    uint8_t char_spacing) {
+  if (char_width & 1) {
+    --char_width;
+  }
+  if (char_height & 1) {
+    --char_height;
+  }
+  font->x = 0;
+  font->y = 0;
+  font->brightness = brightness;
+  font->char_width = char_width;
+  font->char_height = char_height;
+  font->char_spacing = char_spacing;
+}
+
+static inline void draw_line(
+    struct NumberFont* font,
+    uint32_t* led,
+    const struct Line* line,
+    uint32_t color) {
+  // scale from the 0-16 scale to the provided width/height values
+  const int16_t x0 = font->x + ((line->x0 * font->char_width) >> 4);
+  const int16_t y0 = font->y + ((line->y0 * font->char_height) >> 4);
+  const int16_t x1 = font->x + ((line->x1 * font->char_width) >> 4);
+  const int16_t y1 = font->y + ((line->y1 * font->char_height) >> 4);
+
+  const int8_t xdir = x1 > x0 ? 1 : -1;
+  const int8_t ydir = y1 > y0 ? 1 : -1;
+
+  const int16_t dx = (x1 - x0) * xdir;
+  const int16_t dy = (y1 - y0) * ydir;
+
+  int16_t D = 2 * dy - dx;
+  int16_t x = x0;
+  int16_t y = y0;
+
+  pixel(led, x, y, color);
+
+  while (x != x1 || y != y1) {
+    if (D > 0) {
+      y += ydir;
+      D -= 2 * dx;
+    } 
+    
+    if (D <= 0) {
+      x += xdir;
+      D += 2 * dy;
+    }
+
+    pixel(led, x, y, color);
+  }
+}
+
 // Draws a number 0-9 at the specified cordinates
 void number_draw(
+    struct NumberFont* font,
     uint32_t* led,
-    uint8_t digit,
-    int8_t x,
-    int8_t y,
-    uint8_t brightness,
-    uint8_t font) {
+    uint8_t digit) {
   if (digit > 9) {
     return;
   }
-  const struct FontData* font_data = fonts + font;
-  const uint32_t color = ((uint32_t)brightness << 24) | get_color(digit);
-  const char* data = font_data->data + (font_data->width * font_data->height * digit);
-  for (int8_t yd = 0; yd < font_data->height; ++yd) {
-    for (int8_t xd = 0; xd < font_data->width; ++xd) {
-      // need to scan from the bottom of the font becuase the matrix
-      // defines Y from bottom up.
-      if (data[((font_data->height - 1) - yd) * font_data->width + xd] != ' ') {
-        pixel(led, x + xd, y + yd, color);
-      }
-    }
+  const struct Line* lines = font_lines[digit];
+  const uint32_t color = ((uint32_t)font->brightness << 24) | get_color(digit);
+
+  for (; lines[0].x0 >= 0; ++lines) {
+    draw_line(font, led, lines, color);
   }
+  font->x += font->char_spacing;
+}
+
+void number_draw_dash(struct NumberFont* font, uint32_t* led) {
+  ++font->x;
+  const uint32_t color = ((uint32_t)font->brightness << 24) | 0xFFFFFF; // white
+  const struct Line dash1 = {0, 5, 0, 7};
+  draw_line(font, led, &dash1, color);
+  const struct Line dash2 = {0, 10, 0, 12};
+  draw_line(font, led, &dash2, color);
+  font->x += 2;
 }
 
 // Draws val to led memory.  val must be 0-99.
 void draw_numbers(
+    struct NumberFont* font,
     uint32_t* led,
-    uint8_t val,
-    int8_t x,
-    int8_t y,
-    int8_t brightness,
-    uint8_t font) {
+    uint8_t val) {
   const uint8_t tens = val / 10;
-  number_draw(led, tens, x, y, brightness, font);
+  number_draw(font, led, tens);
   const uint8_t ones = val % 10; 
-  number_draw(led, ones, x + fonts[font].width, y, brightness, font);
-}
-
-uint8_t font_width(uint8_t font) {
-  return fonts[font].width;
-}
-
-uint8_t font_height(uint8_t font) {
-  return fonts[font].height;
+  number_draw(font, led, ones);
 }
 

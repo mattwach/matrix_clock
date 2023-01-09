@@ -4,31 +4,38 @@
 
 #include <inttypes.h>
 
-// Font definitions which must align with the font[] structure defined in number_draw.c
-#define FONT3X7        0
-#define FONT3X5        1
-#define BINARY_FONT4X4 2
+struct NumberFont {
+  int16_t x;
+  int16_t y;
+  uint8_t brightness;
+  uint8_t char_width;
+  uint8_t char_height;
+  uint8_t char_spacing;
+};
+
+// initialize a font
+// char spacing does not include char_width
+// char width and height will be made odd for better rendering
+void number_font_init(
+    struct NumberFont* font,
+    uint8_t brightness,
+    uint8_t char_width,
+    uint8_t char_height,
+    uint8_t char_spacing);
+
+// draws dashes between numbers
+void number_draw_dash(struct NumberFont* font, uint32_t* led);
 
 // draws a digit with an indexed color.  Off screen for x,y  is OK
 void number_draw(
+    struct NumberFont* font,
     uint32_t* led,
-    uint8_t digit,
-    int8_t x,
-    int8_t y,
-    uint8_t brightness,
-    uint8_t font);
+    uint8_t digit);
 
 // draws two digits with an indexed color
 void draw_numbers(
+    struct NumberFont* font,
     uint32_t* led,
-    uint8_t val,
-    int8_t x,
-    int8_t y,
-    int8_t brightness,
-    uint8_t font);
-
-// introspection, mainly for render functions
-uint8_t font_width(uint8_t font);
-uint8_t font_height(uint8_t font);
+    uint8_t val);
 
 #endif

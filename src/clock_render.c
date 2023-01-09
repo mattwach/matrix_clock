@@ -3,6 +3,7 @@
 #include "render/blank.h"
 #include "render/fade.h"
 #include "render/matrix.h"
+#include "render/matrix_with_numbers.h"
 #include "render/number_cascade.h"
 
 // This is the "render multiplexer" file.  It registers a table
@@ -33,14 +34,15 @@ struct DisplayMode {
 
 #if LED_MATRIX_SOURCE == led_matrix_dotstar
   struct DisplayMode display_modes[] = {
-    {"normal", matrix_render},  // This entry will be the default power-on mode
+    {"matrix", matrix_render},  // This entry will be the default power-on mode
     {"number_cascade", number_cascade_render},
     {"number_fade", fade_render},
     {"off", blank_render},  // always put this entry at the end of the list
   };
 #elif LED_MATRIX_SOURCE == led_matrix_32x64
   struct DisplayMode display_modes[] = {
-    {"normal", matrix_render},  // This entry will be the default power-on mode
+    {"matrix", matrix_render},  // This entry will be the default power-on mode
+    ("matrix_with_numbers", matrix_with_numbers},
     {"off", blank_render},  // always put this entry at the end of the list
   };
 #else

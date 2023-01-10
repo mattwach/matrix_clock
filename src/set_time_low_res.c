@@ -1,4 +1,4 @@
-#include "set_time.h"
+#include "set_time_low_res.h"
 
 #include "buttons.h"
 #include "clock.h"
@@ -18,61 +18,6 @@ static uint8_t minutes;
 static uint8_t showing_minutes;
 
 static struct NumberFont font;
-
-#define BLINK_FRAMES (1000 / FRAME_DELAY_MS / 2)
-
-// The display is different between the 8x8 and 32x64 matrix
-// 8x8 -> HH or MM, whatever the current choice happens to be.
-// 32x64 -> HH:MM with the current choice blinking at BLINK_FRAMES
-#if defined(led_matrix_dotstar)
-  static void init_number_font(uint8_t brightness) {
-      number_font_init(
-          &font,
-          brightness,
-          LED_MATRIX_WIDTH / 2 - 1,
-          LED_MATRIX_HEIGHT,
-          LED_MATRIX_WIDTH / 4);
-  }
-
-  static void draw_time(uint32_t* led, uint32_t unused_frame_idx) {
-    draw_numbers(
-      &font,
-      led,
-      showing_minutes ? minutes : hours);
-  }
-#elif defined(led_matrix_32x64)
-  static void init_number_font(uint8_t brightness) {
-      number_font_init(
-          &font,
-          brightness,
-          (LED_MATRIX_WIDTH - 3) / 4 - 1,
-          LED_MATRIX_HEIGHT - 1,
-          (LED_MATRIX_WIDTH - 3) / 4);
-  }
-
-  static void draw_time(uint32_t* led, uint32_t frame_idx) {
-    if (showing_minutes || ((frame_idx % BLINK_FRAMES) > (BLINK_FRAMES / 2))) {
-      draw_numbers(
-        &font,
-        led,
-        hours);
-    } else {
-      font.x += font.char_spacing * 2;
-    }
-
-    number_draw_dash(&font, led);
-
-    if (!showing_minutes || ((frame_idx % BLINK_FRAMES) > (BLINK_FRAMES / 2))) {
-      draw_numbers(
-        &font,
-        led,
-        minutes);
-    }
-  }
-#else
-  #error Unknown LED_MATRIX_SOURCE
-#endif
-
 
 // Increments minutes
 static void increment_minutes(void) {
@@ -100,7 +45,7 @@ static void increment_current(void) {
 }
 
 // public interface.  Called to show and allow changing of the time
-uint8_t set_time_render(
+uint8_t set_time_lowres_render(
     uint32_t* led,
     uint8_t button_pressed,
     uint32_t frame_index,
@@ -111,11 +56,19 @@ uint8_t set_time_render(
     hours = time_hhmm / 100;
     minutes = time_hhmm % 100;
     showing_minutes = 0;
-    init_number_font(brightness_step_to_brightness(settings));
-  }
+    number_font_init(
+        &font,
+        brightness_step_to_brightness(settings),
+        LED_MATRIX_WIDTH / 2 - 1,
+        LED_MATRIX_HEIGHT,
+        LED_MATRIX_WIDTH / 4);
+    }
   font.x = 0;
   font.y = 0;
-  draw_time(led, frame_index);
+  draw_numbers(
+      &font,
+      led,
+      showing_minutes ? minutes : hours);
   if (button_pressed & INCREMENT_BUTTON) {
     increment_current();
   }

@@ -67,7 +67,8 @@ add_executable(matrix_clock
         debug.c
         main.c
         number_draw.c
-        set_time.c
+        set_time_low_res.c
+        set_time_high_res.c
         render/blank.c
         render/fade.c
         render/matrix.c

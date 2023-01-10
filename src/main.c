@@ -9,8 +9,17 @@
 #include "clock_settings.h"
 #include "led_matrix.h"
 #include "buttons.h"
-#include "set_time.h"
+#include "set_time_low_res.h"
+#include "set_time_high_res.h"
 #include <stdio.h>
+
+#if defined(led_matrix_dotstar)
+  #define SET_TIME_RENDER set_time_lowres_render
+#elif defined(led_matrix_32x64)
+  #define SET_TIME_RENDER set_time_highres_render
+#else
+  #error Unknown LED_MATRIX_SOURCE
+#endif
 
 #define TIME_UPDATE_FRAMES (1000/FRAME_DELAY_MS)
 
@@ -52,7 +61,7 @@ static uint32_t render(uint32_t frame_idx) {
   uint8_t buttons = buttons_get();
   buttons |= clock_settings_poll(time_hhmm);
   if (setting_time) {
-    toggle_setting_time = set_time_render(
+    toggle_setting_time = SET_TIME_RENDER(
           led, buttons, frame_idx, time_hhmm, clock_settings());
   } else {
     toggle_setting_time = clock_render(

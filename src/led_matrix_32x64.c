@@ -192,7 +192,7 @@ void led_matrix_render(uint32_t* data) {
         ((r * br / 0xFF) << 16) |
         ((b * br / 0xFF) << 8) |
         (g * br / 0xFF);
-      led.draw_frame[x * LED_COLUMNS + (LED_COLUMNS - y - 1)] = pixel_out;
+      led.draw_frame[(LED_ROWS - x - 1) * LED_COLUMNS + (LED_COLUMNS - y - 1)] = pixel_out;
     }
   }
 

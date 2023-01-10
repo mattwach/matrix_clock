@@ -19,7 +19,7 @@ static uint8_t showing_minutes;
 
 static struct NumberFont font;
 
-#define BLINK_FRAMES (FRAME_DELAY_MS / 2)
+#define BLINK_FRAMES (1000 / FRAME_DELAY_MS / 2)
 
 // The display is different between the 8x8 and 32x64 matrix
 // 8x8 -> HH or MM, whatever the current choice happens to be.
@@ -46,7 +46,7 @@ static struct NumberFont font;
           &font,
           brightness,
           (LED_MATRIX_WIDTH - 3) / 4 - 1,
-          LED_MATRIX_HEIGHT,
+          LED_MATRIX_HEIGHT - 1,
           (LED_MATRIX_WIDTH - 3) / 4);
   }
 

@@ -72,8 +72,8 @@ struct Line six[] = {
 };
 
 struct Line seven[] = {
-  {0, 0, 16, 0},
-  {0, 0, 16, 0},
+  {0, 16, 16, 16},
+  {16, 0, 16, 16},
   {-1, -1, -1, -1},
 };
 
@@ -200,11 +200,10 @@ void number_draw(
 }
 
 void number_draw_dash(struct NumberFont* font, uint32_t* led) {
-  ++font->x;
   const uint32_t color = ((uint32_t)font->brightness << 24) | 0xFFFFFF; // white
-  const struct Line dash1 = {0, 5, 0, 7};
+  const struct Line dash1 = {0, 4, 0, 5};
   draw_line(font, led, &dash1, color);
-  const struct Line dash2 = {0, 10, 0, 12};
+  const struct Line dash2 = {0, 12, 0, 13};
   draw_line(font, led, &dash2, color);
   font->x += 2;
 }

@@ -159,20 +159,6 @@ static void list_display_modes_cmd(uint8_t argc, char* argv[]) {
   }
 }
 
-// callback for the "display_mode" shell command
-static void display_mode_cmd(uint8_t argc, char* argv[]) {
-  const char* mode = argv[0];
-  const uint8_t num_modes = clock_render_num_display_modes();
-  for (uint8_t i=0; i < num_modes; ++i) {
-    if (!strcmp(clock_render_display_mode_name(i), mode)) {
-      clock_render_set_display_mode(i);
-      return;
-    }
-  }
-  buttons |= RESET_FRAME_BUTTON;
-  printf("Unknown display mode: %s.  Try list_display_modes\n", mode);
-}
-
 // callback for the "startup_display_mode" shell command
 static void startup_display_mode_cmd(uint8_t argc, char* argv[]) {
   const char* mode = argv[0];
@@ -203,7 +189,6 @@ struct ConsoleCallback callbacks[] = {
   {"s", "Same effect as pressing the select button", 0, select_cmd},
   {"brightness", "Change brightness from 0-10", 1, brightness_cmd},
   {"get", "Get current settings", 0, get_cmd},
-  {"display_mode", "Sets the current display mode.", 1, display_mode_cmd},
   {"list_display_modes", "List display modes", 0, list_display_modes_cmd},
   {"time", "Sets the time as HHMM.  example: time 1307.", 1, time_cmd},
   {"sleep_time", "Sets the sleep (screen off) time as HHMM.  "

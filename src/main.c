@@ -59,11 +59,9 @@ static uint32_t render(uint32_t frame_idx) {
           led, buttons, frame_idx, time_hhmm, clock_settings());
   }
   ++frame_idx;
-  if (buttons) {
-    frame_idx = 0;
-  }
   if (toggle_setting_time) {
     setting_time = !setting_time;
+    frame_idx = 0;
   }
   led_matrix_render(led);
   // calculate tdelta to get a smooth frame rate, even if the loop time

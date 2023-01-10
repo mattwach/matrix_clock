@@ -49,22 +49,23 @@ static uint32_t render(uint32_t frame_idx) {
   maybe_update_time(frame_idx);
   memset(led, 0, sizeof(led));
   uint8_t toggle_setting_time = 0;
+  uint8_t buttons = buttons_get();
+  buttons |= clock_settings_poll(time_hhmm);
   if (setting_time) {
     toggle_setting_time = set_time_render(
-          led, buttons_get(), frame_idx, time_hhmm, clock_settings());
+          led, buttons, frame_idx, time_hhmm, clock_settings());
   } else {
     toggle_setting_time = clock_render(
-          led, buttons_get(), frame_idx, time_hhmm, clock_settings());
+          led, buttons, frame_idx, time_hhmm, clock_settings());
   }
   ++frame_idx;
+  if (buttons) {
+    frame_idx = 0;
+  }
   if (toggle_setting_time) {
     setting_time = !setting_time;
-    frame_idx = 0;
   }
   led_matrix_render(led);
-  if (clock_settings_poll(time_hhmm)) {
-    frame_idx = 0;
-  }
   // calculate tdelta to get a smooth frame rate, even if the loop time
   // varies.
   uint32_t tdelta = uptime_ms() - t1;

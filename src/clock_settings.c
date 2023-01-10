@@ -2,6 +2,7 @@
 #include "hardware/flash.h"
 #include "hardware/sync.h"
 #include "uart_console/console.h"
+#include "buttons.h"
 #include "colors.h"
 #include "clock.h"
 #include "clock_render.h"
@@ -20,8 +21,11 @@
 
 // Most of the USB-console logic is offloaded into the uart_console
 // library.
-struct ConsoleConfig console;
-struct ClockSettings settings;
+static struct ConsoleConfig console;
+static struct ClockSettings settings;
+
+// next button press
+static uint8_t buttons;
 
 // A simple checksum calculation that also incorporates
 // CLOCK_SETTINGS_VERSION.  If CLOCK_SETTINGS_VERSION is changed
@@ -165,6 +169,7 @@ static void display_mode_cmd(uint8_t argc, char* argv[]) {
       return;
     }
   }
+  buttons |= RESET_FRAME_BUTTON;
   printf("Unknown display mode: %s.  Try list_display_modes\n", mode);
 }
 
@@ -183,9 +188,19 @@ static void startup_display_mode_cmd(uint8_t argc, char* argv[]) {
   printf("Unknown display mode: %s.  Try list_display_modes\n", mode);
 }
 
+static void increment_cmd(uint8_t argc, char* argv[]) {
+  buttons |= INCREMENT_BUTTON;
+}
+
+static void select_cmd(uint8_t argc, char* argv[]) {
+  buttons |= SELECT_BUTTON;
+}
+
 // The list of supported shell commands, along with a short description and
 // function callback.
 struct ConsoleCallback callbacks[] = {
+  {"i", "Same effect as pressing the increment button", 0, increment_cmd},
+  {"s", "Same effect as pressing the select button", 0, select_cmd},
   {"brightness", "Change brightness from 0-10", 1, brightness_cmd},
   {"get", "Get current settings", 0, get_cmd},
   {"display_mode", "Sets the current display mode.", 1, display_mode_cmd},
@@ -238,6 +253,7 @@ void clock_settings_init() {
 }
 
 uint8_t clock_settings_poll(uint16_t time_hhmm) {
+  buttons = 0x00;
   char prompt[80];
   const uint8_t old_display_mode = clock_render_get_display_mode();
   sprintf(prompt, "%02d:%02d %s (%s,%s,%s)> ",
@@ -249,7 +265,7 @@ uint8_t clock_settings_poll(uint16_t time_hhmm) {
        get_color_name(time_hhmm % 10)
   );
   uart_console_poll(&console, prompt);
-  return old_display_mode != clock_render_get_display_mode();
+  return buttons;
 }
 
 const struct ClockSettings* clock_settings(void) {

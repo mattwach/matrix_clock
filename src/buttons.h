@@ -7,6 +7,7 @@
 // These define bits in the return array.  Sequence should be 1, 2, 4, 8, ...
 #define SELECT_BUTTON 1
 #define INCREMENT_BUTTON 2
+#define RESET_FRAME_BUTTON 4  // no actually connected, used by clock_settings
 
 void buttons_init(void);
 

@@ -24,7 +24,7 @@ static struct NumberFont font;
 // The display is different between the 8x8 and 32x64 matrix
 // 8x8 -> HH or MM, whatever the current choice happens to be.
 // 32x64 -> HH:MM with the current choice blinking at BLINK_FRAMES
-#if LED_MATRIX_SOURCE == led_matrix_dotstar
+#if defined(led_matrix_dotstar)
   static void init_number_font(uint8_t brightness) {
       number_font_init(
           &font,
@@ -40,7 +40,7 @@ static struct NumberFont font;
       led,
       showing_minutes ? minutes : hours);
   }
-#elif LED_MATRIX_SOURCE == led_matrix_32x64
+#elif defined(led_matrix_32x64)
   static void init_number_font(uint8_t brightness) {
       number_font_init(
           &font,

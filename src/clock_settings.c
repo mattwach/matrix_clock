@@ -11,7 +11,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-// brightness is 0-255 and changed to 0-31 in led_matrix_dotstar.c
+// brightness is 0-255
 #define MIN_BRIGHTNESS 40   // 0-255
 #define BRIGHTNESS_STEP_SIZE 20   // 0-255
 #define BRIGHTNESS_STEPS 10   // 0-255

@@ -45,7 +45,7 @@ add_compile_options(-Wall
         -Wno-unused-function # we have some for the docs that aren't called
         -Wno-maybe-uninitialized
         -DFRAME_DELAY_MS=${FRAME_DELAY_MS}
-        -DLED_MATRIX_SOURCE=${LED_MATRIX_SOURCE}
+        -D${LED_MATRIX_SOURCE}
         -DLED_MATRIX_WIDTH=${LED_MATRIX_WIDTH}
         -DLED_MATRIX_HEIGHT=${LED_MATRIX_HEIGHT}
         -DDEFAULT_BRIGHTNESS_STEP=${DEFAULT_BRIGHTNESS_STEP}

@@ -8,7 +8,7 @@
   #define SELECT_BUTTON_GPIO 14
 #elif defined(led_matrix_32x64)
   #define INCREMENT_BUTTON_GPIO 7
-  #define SELECT_BUTTON_GPIO 16
+  #define SELECT_BUTTON_GPIO 6
 #else
   #error Unknown LED_MATRIX_SOURCE
 #endif

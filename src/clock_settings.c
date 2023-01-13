@@ -11,6 +11,14 @@
 #include <string.h>
 #include <stdlib.h>
 
+#if defined(led_matrix_dotstar)
+#define DEFAULT_BRIGHTNESS_STEP 3
+#elif defined(led_matrix_32x64)
+#define DEFAULT_BRIGHTNESS_STEP 10
+#else
+#error Unknown LED_MATRIX_SOURCE
+#endif
+
 // brightness is 0-255
 #define MIN_BRIGHTNESS 40   // 0-255
 #define BRIGHTNESS_STEP_SIZE 20   // 0-255

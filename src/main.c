@@ -15,8 +15,10 @@
 
 #if defined(led_matrix_dotstar)
   #define SET_TIME_RENDER set_time_lowres_render
+  #define FRAME_DELAY_MS 25  // 40FPS
 #elif defined(led_matrix_32x64)
   #define SET_TIME_RENDER set_time_highres_render
+  #define FRAME_DELAY_MS 10  // 100FPS
 #else
   #error Unknown LED_MATRIX_SOURCE
 #endif

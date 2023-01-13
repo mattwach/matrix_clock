@@ -8,6 +8,16 @@
 
 #include <inttypes.h>
 
+#if defined(led_matrix_dotstar)
+#define LED_MATRIX_WIDTH 8
+#define LED_MATRIX_HEIGHT 8
+#elif defined(led_matrix_32x64)
+#define LED_MATRIX_WIDTH 32
+#define LED_MATRIX_HEIGHT 64
+#else
+#error Unknown LED_MATRIX_SOURCE
+#endif
+
 // Matrix dimensions.  You may need to change these if your's
 // is different as well as attend to code that might not
 // like your chosen numbers.

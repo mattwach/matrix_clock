@@ -24,37 +24,12 @@ set(LED_MATRIX_SOURCE led_matrix_32x64)
 # Initialize the SDK
 pico_sdk_init()
 
-if(LED_MATRIX_SOURCE STREQUAL led_matrix_dotstar)
-  set(DEFAULT_BRIGHTNESS_STEP 3)
-  set(FRAME_DELAY_MS 25)  # 40FPS
-  set(LED_MATRIX_HEIGHT 8)
-  set(LED_MATRIX_WIDTH 8)
-  set(INCREMENT_BUTTON_GPIO 15)
-  set(SELECT_BUTTON_GPIO 14)
-elseif(LED_MATRIX_SOURCE STREQUAL led_matrix_32x64)
-  set(DEFAULT_BRIGHTNESS_STEP 10)
-  set(FRAME_DELAY_MS 10)  # 100FPS
-  set(LED_MATRIX_HEIGHT 64)
-  set(LED_MATRIX_WIDTH 32)
-  set(INCREMENT_BUTTON_GPIO 7)
-  set(SELECT_BUTTON_GPIO 6)
-endif()
-
 add_compile_options(-Wall
         -Wno-format          # int != int32_t as far as the compiler is concerned because gcc has int32_t as long int
         -Wno-unused-function # we have some for the docs that aren't called
         -Wno-maybe-uninitialized
-        -DFRAME_DELAY_MS=${FRAME_DELAY_MS}
         -D${LED_MATRIX_SOURCE}
-        -DLED_MATRIX_WIDTH=${LED_MATRIX_WIDTH}
-        -DLED_MATRIX_HEIGHT=${LED_MATRIX_HEIGHT}
-        -DDEFAULT_BRIGHTNESS_STEP=${DEFAULT_BRIGHTNESS_STEP}
-        -DSELECT_BUTTON_GPIO=${SELECT_BUTTON_GPIO}
-        -DINCREMENT_BUTTON_GPIO=${INCREMENT_BUTTON_GPIO}
         )
-
-
-
 
 add_executable(matrix_clock
         ${CLOCK_SOURCE}.c

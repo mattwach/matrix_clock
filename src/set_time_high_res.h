@@ -6,7 +6,7 @@
 
 // provides a common interface for rendering a clock
 
-uint8_t set_time_hires_render(
+uint8_t set_time_highres_render(
   uint32_t* led,
   uint8_t button_pressed,
   uint32_t frame_index,

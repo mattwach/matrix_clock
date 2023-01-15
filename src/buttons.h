@@ -21,4 +21,7 @@ void buttons_init(void);
 //    is pressed again.
 uint8_t buttons_get(void);
 
+// returns a 1 if there is a recent current overload event.
+uint8_t is_current_over(void);
+
 #endif

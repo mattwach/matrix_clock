@@ -1,5 +1,6 @@
 #include "buttons.h"
 #include "debounce.h"
+#include "led_matrix.h"
 #include "hardware/gpio.h"
 #include "pico/stdlib.h"
 
@@ -7,17 +8,20 @@
   #define INCREMENT_BUTTON_GPIO 15
   #define SELECT_BUTTON_GPIO 14
 #elif defined(led_matrix_32x64)
-  #define INCREMENT_BUTTON_GPIO 7
-  #define SELECT_BUTTON_GPIO 6
+  #define INCREMENT_BUTTON_GPIO 26
+  #define SELECT_BUTTON_GPIO 27
 #else
   #error Unknown LED_MATRIX_SOURCE
 #endif
 
+#define CURRENT_OVER_GPIO 7
+#define CURRENT_OVER_FRAMES (5000 / FRAME_DELAY_MS)
 #define DEBOUNCE_MS 10
 
 struct Debounce select_db;
 struct Debounce increment_db;
 uint8_t button_bit_array;
+uint32_t current_over_frames;
 
 static inline uint32_t uptime_ms() {
   return to_ms_since_boot(get_absolute_time());
@@ -43,6 +47,9 @@ static void button_pressed_callback(uint gpio, uint32_t events) {
         button_bit_array |= INCREMENT_BUTTON;
       }
       break;
+    case CURRENT_OVER_GPIO:
+      current_over_frames = CURRENT_OVER_FRAMES;
+      break;
   }
 }
 
@@ -64,12 +71,24 @@ void buttons_init(void) {
   // is then configured to use internal pullup resistors.
   setup_gpio(SELECT_BUTTON_GPIO);
   setup_gpio(INCREMENT_BUTTON_GPIO);
+
+  // current over is for detecting if the current was limited
+  setup_gpio(CURRENT_OVER_GPIO);
+
   gpio_set_irq_callback(button_pressed_callback);
   irq_set_enabled(IO_IRQ_BANK0, true);
 
   debounce_init(&select_db, DEBOUNCE_MS);
   debounce_init(&increment_db, DEBOUNCE_MS);
   button_bit_array = 0x00;
+}
+
+uint8_t is_current_over(void) {
+  if (current_over_frames > 0) {
+    --current_over_frames;
+    return 1;
+  }
+  return 0;
 }
 
 uint8_t buttons_get(void) {

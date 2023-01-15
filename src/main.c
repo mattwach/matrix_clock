@@ -15,15 +15,14 @@
 
 #if defined(led_matrix_dotstar)
   #define SET_TIME_RENDER set_time_lowres_render
-  #define FRAME_DELAY_MS 25  // 40FPS
 #elif defined(led_matrix_32x64)
   #define SET_TIME_RENDER set_time_highres_render
-  #define FRAME_DELAY_MS 10  // 100FPS
 #else
   #error Unknown LED_MATRIX_SOURCE
 #endif
 
 #define TIME_UPDATE_FRAMES (1000/FRAME_DELAY_MS)
+#define LED_PIN PICO_DEFAULT_LED_PIN
 
 // set to 1 if the user is setting the time
 uint8_t setting_time;
@@ -39,6 +38,8 @@ static inline uint32_t uptime_ms() {
 // Initialization function
 static void init(void) {
   setting_time = 0;
+  gpio_init(LED_PIN);
+  gpio_set_dir(LED_PIN, GPIO_OUT);
   clock_settings_init();
   led_matrix_init();
   clock_init();
@@ -90,5 +91,6 @@ int main() {
   uint32_t frame_idx = 0;
   while (1) {
     frame_idx = render(frame_idx);
+    gpio_put(LED_PIN, is_current_over());
   }
 }

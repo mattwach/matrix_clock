@@ -1,7 +1,7 @@
 (export (version "E")
   (design
     (source "/home/mattwach/git/matrix_clock/schematic/led_matrix_32x64_kicad/led_matrix_32x64_kicad.kicad_sch")
-    (date "Sat 14 Jan 2023 08:07:33 PM PST")
+    (date "Sun 15 Jan 2023 09:37:49 AM PST")
     (tool "Eeschema 6.0.10")
     (sheet (number "1") (name "/") (tstamps "/")
       (title_block
@@ -332,7 +332,7 @@
       (node (ref "J1") (pin "11") (pinfunction "Pin_11") (pintype "passive"))
       (node (ref "U1") (pin "16") (pinfunction "GPIO12") (pintype "bidirectional")))
     (net (code "13") (name "/INC")
-      (node (ref "J3") (pin "2") (pinfunction "Pin_2") (pintype "passive"))
+      (node (ref "J3") (pin "3") (pinfunction "Pin_3") (pintype "passive"))
       (node (ref "U1") (pin "31") (pinfunction "GPIO26_ADC0") (pintype "bidirectional")))
     (net (code "14") (name "/LAT")
       (node (ref "J1") (pin "13") (pinfunction "Pin_13") (pintype "passive"))
@@ -364,7 +364,7 @@
       (node (ref "J2") (pin "3") (pinfunction "Pin_3") (pintype "passive"))
       (node (ref "U1") (pin "6") (pinfunction "GPIO4") (pintype "bidirectional")))
     (net (code "23") (name "/SEL")
-      (node (ref "J3") (pin "3") (pinfunction "Pin_3") (pintype "passive"))
+      (node (ref "J3") (pin "2") (pinfunction "Pin_2") (pintype "passive"))
       (node (ref "U1") (pin "32") (pinfunction "GPIO27_ADC1") (pintype "bidirectional")))
     (net (code "24") (name "GND")
       (node (ref "C1") (pin "2") (pintype "passive"))

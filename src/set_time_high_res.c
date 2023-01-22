@@ -7,9 +7,8 @@
 #include <stdlib.h>
 
 #define DIGIT_CURRENT_BRIGHTNESS 0xFF
-#define DIGIT_SELECTED_BRIGHTNESS 0x40
-#define DIGIT_OTHER_BRIGHTNESS 0x10
-
+#define DIGIT_SELECTED_BRIGHTNESS 0xFF
+#define DIGIT_OTHER_BRIGHTNESS 0x50
 // hold the time when the state was first entered.  This
 // is used to avoid setting the clock (which changes seconds
 // to zero) if the user just scrolls through the time without
@@ -36,9 +35,9 @@ static void init(uint16_t time_hhmm) {
   number_font_init(
     &font,
     0xFF,
+    6,
     5,
-    5,
-    4
+    7
   );
 }
 
@@ -49,7 +48,7 @@ static void render_digits(
   int16_t x,
   uint8_t is_current) {
   font.y = LED_MATRIX_HEIGHT - font.char_height - 1;
-  for (uint8_t v=0; v <= max_val; ++v, font.y -= (font.char_height + 1)) {
+  for (uint8_t v=0; v <= max_val; ++v, font.y -= (font.char_height + 2)) {
     font.x = x;
     if (v != val) {
       font.brightness = DIGIT_OTHER_BRIGHTNESS;
@@ -131,19 +130,19 @@ uint8_t set_time_highres_render(
     led,
     digits[1],
     digits[0] == 2 ? 3 : 9,
-    font.char_width,
+    font.char_spacing + 1,
     place == 1);
   render_digits(
     led,
     digits[2],
     5,
-    LED_MATRIX_WIDTH - font.char_width * 2,
+    LED_MATRIX_WIDTH - 2 - font.char_spacing * 2,
     place == 2);
   render_digits(
     led,
     digits[3],
     9,
-    LED_MATRIX_WIDTH - font.char_width,
+    LED_MATRIX_WIDTH - 1 - font.char_spacing,
     place == 3);
   return 0;
 }

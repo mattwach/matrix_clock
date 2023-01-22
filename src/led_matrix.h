@@ -48,22 +48,34 @@ void led_matrix_render(uint32_t* data);
 void led_matrix_stop(void);
 
 // converts a x,y coordinate to a pixel index
-static inline uint32_t get_pixel_idx(uint8_t x, uint8_t y) {
+static inline uint32_t get_pixel_idx(uint16_t x, uint16_t y) {
   return (y * LED_MATRIX_WIDTH) + x;
 }
 
 // sets a pixel
 static inline void set_pixel(
   uint32_t* led,  // matrix
-  uint8_t x,
-  int8_t y,
+  uint16_t x,
+  uint16_t y,
   uint8_t br,  // brightness
   uint8_t r,   // red
   uint8_t g,   // green
   uint8_t b    // blue
   ) {
   const uint32_t pixel = (br << 24) | (r << 16) | (g << 8) | b;
-  const uint8_t idx = get_pixel_idx(x, y);
+  const uint16_t idx = get_pixel_idx(x, y);
   led[idx] = pixel;
 }
+
+// sets a pixel from a color
+static inline void set_pixel2(
+  uint32_t* led,  // matrix
+  uint16_t x,
+  uint16_t y,
+  uint32_t pixel
+  ) {
+  const uint16_t idx = get_pixel_idx(x, y);
+  led[idx] = pixel;
+}
+
 #endif

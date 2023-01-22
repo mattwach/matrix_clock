@@ -2,13 +2,14 @@
 
 #include "buttons.h"
 #include "clock.h"
+#include "colors.h"
 #include "led_matrix.h"
 #include "number_draw.h"
 #include <stdlib.h>
 
 #define DIGIT_CURRENT_BRIGHTNESS 0xFF
 #define DIGIT_SELECTED_BRIGHTNESS 0xFF
-#define DIGIT_OTHER_BRIGHTNESS 0x50
+#define DIGIT_OTHER_BRIGHTNESS 0x80
 // hold the time when the state was first entered.  This
 // is used to avoid setting the clock (which changes seconds
 // to zero) if the user just scrolls through the time without
@@ -47,18 +48,35 @@ static void render_digits(
   uint8_t max_val,
   int16_t x,
   uint8_t is_current) {
-  font.y = LED_MATRIX_HEIGHT - font.char_height - 1;
+  font.y = LED_MATRIX_HEIGHT - font.char_height - 3;
   for (uint8_t v=0; v <= max_val; ++v, font.y -= (font.char_height + 2)) {
     font.x = x;
     if (v != val) {
+      font.char_width -= 2;
+      font.x += 1;
       font.brightness = DIGIT_OTHER_BRIGHTNESS;
+      number_draw(&font, led, v);
+      font.char_width += 2;
+      font.x -= 1;
     } else if (is_current) {
       font.brightness = DIGIT_CURRENT_BRIGHTNESS;
+      number_draw(&font, led, v);
     } else {
       font.brightness = DIGIT_SELECTED_BRIGHTNESS;
+      number_draw(&font, led, v);
     }
-    number_draw(&font, led, v);
   }
+
+  if (is_current) {
+    // draw a line on the top and bottom to indicate the
+    // current slot
+    const uint32_t color = 0xFF000000 | get_color(val);
+    for (uint16_t cx=0; cx<font.char_width; ++cx) {
+      set_pixel2(led, x + cx, 0,  color);
+      set_pixel2(led, x + cx, LED_MATRIX_HEIGHT - 1,  color);
+    }
+  }
+
 }  
 
 static void maybe_set_time(void) {

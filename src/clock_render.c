@@ -5,6 +5,7 @@
 #include "render/matrix.h"
 #include "render/matrix_with_numbers.h"
 #include "render/number_cascade.h"
+#include "render/number_cascade_hires.h"
 
 // This is the "render multiplexer" file.  It registers a table
 // of rendering options (called DisplayMode) and provides logic to
@@ -43,6 +44,7 @@ struct DisplayMode {
   struct DisplayMode display_modes[] = {
     {"matrix", matrix_render},  // This entry will be the default power-on mode
     {"matrix_with_numbers", matrix_with_numbers_render},
+    {"number_cascade", number_cascade_hires_render},
     {"off", blank_render},  // always put this entry at the end of the list
   };
 #else

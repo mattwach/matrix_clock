@@ -2,6 +2,7 @@
 #include "../led_matrix.h"
 #include "../number_draw.h"
 #include <stdlib.h>
+#include <stdio.h>
 
 #define MINUTES_ONES 0
 #define MINUTES_TENS 1
@@ -169,7 +170,7 @@ static void render(uint32_t* led) {
   for (uint8_t type = 0; type < 4; ++type) {
     for (uint16_t i=0; i<NUM_DIGITS; ++i) {
       const struct Digit* d = digits + i;
-      if ((d->wait_frames > 0) && (d->type == type)) {
+      if ((d->wait_frames == 0) && (d->type == type)) {
         render_digit(led, d);
       }
     }
@@ -185,7 +186,7 @@ static inline void advance_active_frames2(uint32_t frame_index, struct Digit* d)
   if ((frame_index % frame_mod) != 0) {
     return;
   }
-  const uint16_t min_y = 0 - (int16_t)(digit_props[d->type].height);
+  const int16_t min_y = 0 - (int16_t)(digit_props[d->type].height);
   --d->y;
   if (d->y < min_y) {
     reset_digit(d);

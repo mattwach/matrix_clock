@@ -15,7 +15,7 @@
 #elif defined(led_matrix_32x64)
 #define LED_MATRIX_WIDTH 32
 #define LED_MATRIX_HEIGHT 64
-#define FRAME_DELAY_MS 10  // 100FPS
+#define FRAME_DELAY_MS 5  // 200FPS
 #else
 #error Unknown LED_MATRIX_SOURCE
 #endif

@@ -12,15 +12,15 @@
 #elif defined(led_matrix_32x64)
   #define PARTICLE_COUNT 128
   // How fast to move particles, based on their represented clock position
-  #define HOUR_DELAY 3
-  #define MINUTE_TENS_DELAY 2
-  #define MINUTE_ONES_DELAY 1
+  #define HOUR_DELAY 6
+  #define MINUTE_TENS_DELAY 4
+  #define MINUTE_ONES_DELAY 2
 #else
   #error Unknown LED_MATRIX_SOURCE
 #endif
 
 // maximum frames to wait before recycling a particle
-#define START_DELAY_MAX 60
+#define START_DELAY_MAX 120
 
 // typs for init_particle
 #define HOUR_ONES_TYPE 0
@@ -29,8 +29,8 @@
 #define NUM_PARTICLE_TYPES (MINUTE_ONES_TYPE + 1)
 
 // Color decay is 0-255 how much to decay color intensity per frame
-#define COLOR_DECAY_PERCENT 80
-#define BRIGHTNESS_DECAY_PERCENT 80
+#define COLOR_DECAY_PERCENT 90
+#define BRIGHTNESS_DECAY_PERCENT 90
 
 // Tracks current state of each active particle
 struct Particle {

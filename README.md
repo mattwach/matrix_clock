@@ -3,13 +3,55 @@
 
 ![matrix clock](images/matrix_clock.jpg)
 
-Shown above is a clock that presents the current time on an 8x8 RGB LED matrix.  It's not readable to a passer-by but one can learn to read it with practice.
+Shown above is a clock that presents the current time on an 64x32 RGB LED
+matrix.  The clock has other selectable modes, including these:
 
-Here I explain how to build the clock above.  I also explain how to modify the design in different ways.
+![matrix clock](images/matrix_clock2.jpg)
+![matrix clock](images/matrix_clock3.jpg)
+
+The firware also support different hardware configurations (different LED and
+clock hardware), included is a 8x8 "dotstar" model which I used originally.
+I prefer the 64x32 model although the dotstar version would be easier to
+wire up by hand.
+
+In the upcoming sections, I explain how to build the clock above.  I also explain how to modify the design in different ways.
 
 # Parts List
 
 Here are the parts I used to build the pictured version.  You can of course modify the design to use different ones:
+
+   * Microcontroller: [Raspberry PI Pico ($4)](https://www.adafruit.com/product/4864)
+   * [LED Matrix 62x32: ($30)](https://www.amazon.com/waveshare-Displaying-Animation-Adjustable-Brightness/dp/B0B3W1PFY6)  Note there are many variants available.
+   * Clock: [DS3231-based RTC module ($4)](https://www.amazon.com/HiLetgo-AT24C32-Arduino-Without-Battery/dp/B00LX3V7F0)
+   * Buttons: [2 12x12 pushbuttons for control (<$1)](https://www.amazon.com/WOWOONE-12x12x7-3-Tactile-Momentary-Assortment/dp/B08JLWTQ3C), 1 6x3 SMD reset button (optional)
+   * Connectors:
+     * One 8x2 female pin header to interface the Pico PCB with the matrix.  Most displays include an interface cable that I am not using in the PCB design.
+     * A couple of angled male pin headers to connect to buttons and power.
+   * 1 220uF capacitor to reduce 5V noise
+   * PCB for assembly (however you want to build it.  maybe something like [this](https://www.amazon.com/DEYUE-Double-sided-Prototyping-Solder-able-Protoboards/dp/B07FFDFLZ3))
+
+Optional:
+
+The LED display as-designed is powered directly from the Pico USB power pin
+(VDD).  This reduces part count and complexity.  The downside is that the LED
+can pull a lot of current if every pixel is set to white (around 3A).  The
+firmware included never does this and thus pulls between 100-400 MA (measured).
+The optional part is a current protection device (the NCP380) which will limit
+the max current to the LED to 500 mA, protecting the Pico and potentially the
+USB power source from being overloaded.  In my opinion this is important if you
+are experimenting with your own custom firmware modifications.  If you are just
+sticking with the stock ones, I have already checked that the current draw is
+not excessive and you can skip the protection hardware and save a bit of money.
+Here are the needed parts:
+
+   * NCP380
+   * Two additional 1uf capacitors for stability.  I am using SMD but ceramic through-hole
+     are also an option.
+   * A 50k pullup resistor for the FLAG pin of the NCP380.  This allows the NCP380 to
+     tell the Pico that it is limiting current which the pico will then report to you
+     by flashing a light.
+
+Switching gears: If you want to build the 8x8 dotstar version, use these parts instead:
 
    * Microcontroller: [Raspberry PI Pico ($4)](https://www.adafruit.com/product/4864)
    * LED Matrix: [Adafruit Dotstar 8x8 ($25)](https://www.adafruit.com/product/3444)
@@ -19,6 +61,8 @@ Here are the parts I used to build the pictured version.  You can of course modi
    * 1 220uF capacitor to reduce 5V noise
    * PCB for assembly (however you want to build it.  maybe something like [this](https://www.amazon.com/DEYUE-Double-sided-Prototyping-Solder-able-Protoboards/dp/B07FFDFLZ3))
 
+No current limiting chips are needed for the 8x8 design.
+
 # Reading the clock
 
 Here is my scheme for showing the time, which you can easily modify to your preference.
@@ -26,8 +70,6 @@ Here is my scheme for showing the time, which you can easily modify to your pref
 Numbers are represented by colors.  At the time of writing, they are as follows:
 
 ![numbers](images/numbers.jpg)
-
-
 
 > Colors are defined in [src/colors.c](src/colors.c) if you would like to edit them.
 
@@ -49,11 +91,10 @@ Here are some examples:
 | 1:37 PM  | 13:37    | yellow     | yellow       | magenta    |
 | 11:37 PM | 23:37    | yellow     | yellow       | magenta    |
 
-
-If you are wondering about the hour's tens place, the clock doesn't show it.  I thought it made the clock easier to read but you'll have
-to be aware of the time-of-day enough to determine in the tens place yourself.
-
-> Note that the clock has other easier-to-read modes that show actual numbers,  More on that later.
+The falling points do not show the tens place of the hor becuase I thought it
+made the clock harder to read.  Also there are not many options in the tens
+place (0, 1 or 2).  If you want the tens place, you can select one of the
+available display modes that shows it.
 
 # Feature Overview
 
@@ -63,15 +104,15 @@ This is a quick tour of the built in-features
 
 When you plug in the clock via any USB power source you will get a matrix clock display that indicates the current time as-reported by the internal clock module.
 
-![matrix clock 2](images/matrix_clock2.jpg)
+![matrix clock 2](images/matrix_clock4.jpg)
 
 ## Setting the Time
 
-The clock has two buttons on it's side: "set" and "increment".
+The clock has two buttons on it's side: "set" and "increment". Pressing "set"
+goes into time change mode where you can use "set" and "increment" to change
+each time digit.
 
-   * If you press the *set* button once, the clock will show the current hours as numbers.  You can use the *increment* button to change the hour.
-   * If you press the *set* button again, the clock will show the current minutes.  You can use the *increment* button to change the minute.
-   * If you press the *set* button a third time, the clock will return to showing the matrix display
+![numbers](images/numbers.jpg)
 
 > You can also set the clock via the USB connection.
 
@@ -80,10 +121,9 @@ The clock has two buttons on it's side: "set" and "increment".
 If you press the "increment" button while the matrix is showing, the clock will
 cycle through display modes.  Currently defined modes include:
 
-* **Matrix -** The default
-* **Time scroll -**, similar to matrix mode but uses numbers so it's easier to read
-* **Time fade -**.  Uses bigger numbers so even easier to read
-* **Binary digits -**  Uses binary symbols in place of digits. Unfortunately my plastic case diffuses the pixels too much for this mode to work well for me, but it would work better with alternate case designs.
+* **Matrix With Time** The default
+* **Matrix Without Time** For those who want a challenge
+* **Number cascade**, Numbers fall instead of points with hours being "closer" (larger/faster) than minutes.
 * **Off -**  Useful if you want a darkened room.
 
 ## Console Configuration
@@ -107,30 +147,50 @@ Type `help` or `?` for help.  Basic options include:
 
    * Changing LED brightness
    * Changing the time
+   * Changing the poweron display mode
+   * Simulating hardware button presses
    * Setting a sleep/wake time where the clock LEDs will automatically turn off.
 
 # Build Instructions
 
 ## Electronics
 
-Here is the schematic:
+Here is the schematic for the 32x64 version:
 
 ![schematic](images/schematic.png)
 
-In terms of an electronic project, the schematic is simple.
+and the schematic for the 8x8 dotstar version:
 
-Outside of the obvious parts (LED Matrix, PI Pico, RTC, buttons, connectors), there
-is a single capacitor.  This capacitor exists to help out the 5V power supply
-connected to the clock.  Basically the LED matrix can be a very "noisy load"
-drawing almost zero current one instant and quite a bit more the next (depending
-on how many LEDs are lit).  The presents a challenge to the 5V regulator.  It
-can also lead to voltage spikes due to natural induction properties in the power
-wires.  Since the exact properties of the voltage regulator and connection wires
-are unknown and variable, it's hard to say how much capacitance (if any) is
-needed but adding some capacitance wont hurt anything and could resolve issues
-(like random resets) in otherwise-marginal cases.  The size you choose for the
-capacitor is up to you but bigger is a bit better you want to to play it extra
-safe.
+![schematic](images/schematic.png)
+
+Here is a description on major components and their purpose:
+
+  - Pi Pico (common): This is the main controller
+  - RTC Clock: This provides time to the Pico via an I2C connection.  You could use other
+    solutions here, including attempting to use the PI Pico to track time but also
+    GPS, radio-based time, or internet time using a Pico W.  In terms of the I2C
+    connection, note that the RTC clock is powered by 3.3V instead of the specified 5V.
+    This is the easiest way to make the clock compatible with the 3.3V maximum voltage
+    of the PI Pico.  If your RTC really does need 5V, there are solutions but the details
+    will take this guide off track.  Thus I suggest doing a Google search for
+    "3.3 to 5V I2C" to learn more.
+  - 64x32 matrix (one option): This is also a 5V part but can usually be driven from
+    the 3.3V outputs of the PI Pico.   All connections are high-impedance passive inputs
+    so the pico does not have to concern itself with the 5V nature of the LED panel.
+    An easy way to tell is to see if any reviews are running the panel directly from
+    a 3.3V part, such as the PI Pico, Raspberry PI, ARM, or ESP series.
+  - Dotstar matrix (another option).  The story is similar to the 62x32 matrix: it's
+    a 5V part but many people drive it's high-impedance passive inputs (clock and data)
+    using 3.3V.
+  - 220u capacitor.  The actual value is not important other that "big".  The purpose
+    of the cap is to support the power requirements of the LED, which can be a "noisy"
+    load, needing near zero current one moment and 300 mA the next.
+  - Support for buttons.  Select, increment and reset as described earlier.
+  - NCP380 current limiting chip (62x32 matrix only).  This chip provides insurance
+    for the case where you one day decide to change the firmware to light up many LEDs
+    and draw too much current.  If you really want to do support high current draw,
+    you'll need to rework the power design so that the LED panel can be directly
+    powered from a capable (3A+) source.
 
 ![opened clock](images/opened_clock.jpg)
 
@@ -161,14 +221,22 @@ firmware.  You press reset while holding down the BOOTSEL button on the pico and
 it will be ready to accept new firmware.  Without a reset button, you can still
 load firmwre but will need to hold BOOTSEL on plugin.
 
-The other buttons are "set" and "increment" as-described in an earlier section.  These utilize the Pico's built in pullup resistor option to implement a button.  Press the button and the signal will be pull down from 3.3V (due to the internal pullup) to 0V and the press will be detected by the hardware/firmware.
+The other buttons are "set" and "increment" as-described in an earlier section.
+These utilize the Pico's built in pullup resistor option to implement a button.
+Press the button and the signal will be pull down from 3.3V (due to the
+    internal pullup) to 0V and the press will be detected by the
+hardware/firmware.
 
 ## Firmware
 
 > TLDR: If you don't want to build the firmware (`matrix_clock.uf2`) yourself, I
-have a precompiled version under the [firmware](firmware) directory.
+have a couple of precompiled versions under the [firmware](firmware) directory.
 
-Source files (written in C) are  provided in the [src/](src) directory.  If you have never built PI Pico firmware before, run through the official [Getting started with the Raspberry Pi PICO](https://datasheets.raspberrypi.com/pico/getting-started-with-pico.pdf) documentation first to get the needed tools up-and-running on your system.
+Source files (written in C) are  provided in the [src/](src) directory.  If you
+have never built PI Pico firmware before, run through the official [Getting
+started with the Raspberry Pi
+PICO](https://datasheets.raspberrypi.com/pico/getting-started-with-pico.pdf)
+documentation first to get the needed tools up-and-running on your system.
 
 The instructions for building the clock firmware are the same as the guide
 linked above, but I created a small/simple [bootstrap.sh](src/bootstrap.sh)

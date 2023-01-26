@@ -1,7 +1,7 @@
 # matrix_clock
 > "I DON’T EVEN SEE THE CODE ANYMORE" - The Matrix.  
 
-![matrix clock](images/matrix_clock.jpg)
+![matrix clock](images/ds8x8/matrix_clock.jpg)
 
 Shown above is a clock that presents the current time on an 8x8 RGB LED matrix.  It's not readable to a passer-by but one can learn to read it with practice.
 
@@ -25,7 +25,7 @@ Here is my scheme for showing the time, which you can easily modify to your pref
 
 Numbers are represented by colors.  At the time of writing, they are as follows:
 
-![numbers](images/numbers.jpg)
+![numbers](images/ds8x8/numbers.jpg)
 
 
 
@@ -63,7 +63,7 @@ This is a quick tour of the built in-features
 
 When you plug in the clock via any USB power source you will get a matrix clock display that indicates the current time as-reported by the internal clock module.
 
-![matrix clock 2](images/matrix_clock2.jpg)
+![matrix clock 2](images/ds8x8/matrix_clock2.jpg)
 
 ## Setting the Time
 
@@ -98,7 +98,7 @@ minicom -b 115200 -P /dev/ttyUSB0
 
 Once started, you will see something like this:
 
-![minicom](images/minicom.jpg)
+![minicom](images/ds8x8/minicom.jpg)
 
 By default, `minicom` turns on local echo, making my typed characters appear twice.
 `minicom` allows this to be turned off with `ctrl-a e`.
@@ -115,7 +115,7 @@ Type `help` or `?` for help.  Basic options include:
 
 Here is the schematic:
 
-![schematic](images/schematic.png)
+![schematic](images/ds8x8/schematic.png)
 
 In terms of an electronic project, the schematic is simple.
 
@@ -132,7 +132,7 @@ needed but adding some capacitance wont hurt anything and could resolve issues
 capacitor is up to you but bigger is a bit better you want to to play it extra
 safe.
 
-![opened clock](images/opened_clock.jpg)
+![opened clock](images/ds8x8/opened_clock.jpg)
 
 Talking a bit more about the schematic:
 
@@ -205,11 +205,11 @@ If all went well above, you will have a `build/matrix_clock.uf2` file available 
 
 The 3D printed case is available at [case/matrix_clock_case.scad](case/matrix_clock_case.scad)
 
-![3d printed case](images/3d_printed_case.png)
+![3d printed case](images/ds8x8/3d_printed_case.png)
 
 Looking at the underside, we can see the PICO.  There are also some access ports for the BOOTSEL and reset buttons (for convienent firmware reloading):
 
-![case underside](images/3d_case_underside.png)
+![case underside](images/ds8x8/3d_case_underside.png)
 
 If you don't want to mess around with OpenSCAD, you can look at the [case/3mf](case/3mf) directory for files you can load directly into your slicer program.  The same directory also has the file [3mf/prusa_slicer_project.3mf](3mf/prosa_slicer_project.3mf) which can be loaded into Prusa slicer if you happen to use that software.
 

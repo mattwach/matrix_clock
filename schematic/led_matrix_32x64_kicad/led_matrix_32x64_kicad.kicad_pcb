@@ -54,7 +54,7 @@
     (pad_to_mask_clearance 0)
     (aux_axis_origin 49.276 49.149)
     (pcbplotparams
-      (layerselection 0x0000088_7ffffffe)
+      (layerselection 0x0000008_7ffffffe)
       (disableapertmacros false)
       (usegerberextensions false)
       (usegerberattributes true)
@@ -62,7 +62,7 @@
       (creategerberjobfile true)
       (svguseinch false)
       (svgprecision 6)
-      (excludeedgelayer true)
+      (excludeedgelayer false)
       (plotframeref false)
       (viasonmask false)
       (mode 1)

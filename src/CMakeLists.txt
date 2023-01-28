@@ -14,8 +14,8 @@ endif()
 set(PICO_EXAMPLES_PATH ${PROJECT_SOURCE_DIR})
 
 # Choose a clock source
-#set(CLOCK_SOURCE clock_ds3231)
-set(CLOCK_SOURCE clock_pico_internal)
+set(CLOCK_SOURCE clock_ds3231)
+#set(CLOCK_SOURCE clock_pico_internal)
 
 # Choose an led matrix
 #set(LED_MATRIX_SOURCE led_matrix_dotstar)

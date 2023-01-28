@@ -60,6 +60,8 @@ static void button_pressed_callback(uint gpio, uint32_t events) {
 // to ground which is an event that the pico is configured to recognize
 // and raise an interrupt for.
 static void setup_gpio(uint gpio) {
+  gpio_init(gpio);
+  gpio_set_dir(gpio, GPIO_IN);
   gpio_pull_up(gpio);
   sleep_ms(1);  // give the pullup some time to do it's thing. Maybe not needed.
   gpio_set_irq_enabled(gpio, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true);

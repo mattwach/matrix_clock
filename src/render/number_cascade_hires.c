@@ -9,7 +9,8 @@
 #define HOURS_ONES 2
 #define HOURS_TENS 3
 
-#define NUM_DIGITS 32
+#define NUM_DIGITS 50
+#define START_DIGIT_COUNT 8
 #define DIGIT_INIT_ATTEMPTS 16
 #define WAIT_FRAMES_MIN (500 / FRAME_DELAY_MS)
 #define WAIT_FRAMES_MAX (2000 / FRAME_DELAY_MS)
@@ -53,6 +54,9 @@ static inline void reset_digit(struct Digit* d) {
 static void init(uint8_t brightness) {
   for (uint16_t i=0; i<NUM_DIGITS; ++i) {
     reset_digit(digits + i);
+  }
+  for (uint16_t j=0; j<START_DIGIT_COUNT; ++j) {
+    digits[j].wait_frames = 1; // so that the next decrement activates them
   }
   font.brightness = brightness;
 }

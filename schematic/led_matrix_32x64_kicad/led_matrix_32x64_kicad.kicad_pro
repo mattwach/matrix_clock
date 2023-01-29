@@ -383,7 +383,7 @@
       "idf": "",
       "netlist": "led_matrix_32x64_kicad.net",
       "specctra_dsn": "",
-      "step": "",
+      "step": "../../../../tmp/led_matrix_32x64_kicad.step",
       "vrml": ""
     },
     "page_layout_descr_file": ""

@@ -384,7 +384,7 @@
       "idf": "",
       "netlist": "",
       "specctra_dsn": "",
-      "step": "",
+      "step": "../../../../tmp/button_pcb_kicad.step",
       "vrml": ""
     },
     "page_layout_descr_file": ""

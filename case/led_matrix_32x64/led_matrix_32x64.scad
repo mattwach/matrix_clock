@@ -1,16 +1,19 @@
 use <mattwach/util.scad>
 include <mattwach/vitamins/electronics/led_panel_64x32.scad>
+include <mattwach/honeycomb.scad>
 include <dep/button_pcb.scad>
 include <dep/main_pcb.scad>
 
 overlap = 0.01;
+
 pcb_thickness = 1.6;
 pcb_clearance = pcb_thickness + 0.2;
-placed_button_pcb_inset = 3.4;
+placed_button_pcb_xoffset = 12.5;
+placed_button_pcb_yoffset = 3.4;
 
-
-support_zsize = 10;
-mesh_zsize = 4;
+back_grid_zsize = 2;
+support_zsize = 14;
+mesh_zsize = 6;
 support_side_thickness = 12;
 support_length =
   LED_PANEL_62_32_BOLT_HOLE_LOFFSET +
@@ -27,8 +30,8 @@ module placed_main_pcb() {
 
 module placed_button_pcb() {
   translate([
-      10,
-      placed_button_pcb_inset + pcb_thickness,
+      placed_button_pcb_xoffset,
+      placed_button_pcb_yoffset + pcb_thickness,
       9]) rz(-90) ry(90) button_pcb();
 }
 
@@ -45,6 +48,69 @@ module bolt_hole() {
 }
 
 module bottom_support() {
+  support_arm_yoffset = 66.7;
+  support_arm_ysize = 4;
+  module left_side() {
+    module left_side_main() {
+      module main() {
+        cube([
+            support_side_thickness,
+            support_length,
+            support_zsize]);
+      }
+
+      module pcb_support_arm() {
+        support_arm_xoffset = 80;
+        support_arm_xsize = 15;
+        module pcb_cutout() {
+          cutout_yinset = 1.5;
+          translate([
+              -overlap,
+              -overlap,
+              -overlap]) cube([
+                support_arm_xsize + overlap * 2,
+                cutout_yinset + overlap,
+                pcb_clearance + overlap]);
+        }
+        txy(
+            support_arm_xoffset,
+            support_arm_yoffset) difference() {
+          cube([
+              support_arm_xsize,
+              support_arm_ysize,
+              support_zsize]);
+          pcb_cutout();
+        }
+      }
+
+      union() {
+        main();
+        pcb_support_arm();
+      }
+    }
+
+    module mesh_cutout() {
+      translate([
+          -overlap,
+          support_length - support_side_thickness + overlap,
+          -overlap]) cube([
+            support_side_thickness + overlap * 2,
+            support_side_thickness + overlap,
+            mesh_zsize]);
+    }
+
+    module bolt_holes() {
+      bolt_hole();
+      ty(LED_PANEL_62_32_BOLT_HOLE_LSPAN) bolt_hole();
+    }
+
+    difference() {
+      left_side_main();
+      mesh_cutout();
+      bolt_holes();
+    }
+  }
+
   module right_side() {
     right_size_xoffset = LED_PANEL_64_32_BACK_WIDTH - support_side_thickness;
     module right_side_main() {
@@ -95,7 +161,49 @@ module bottom_support() {
     }
   }
 
-  right_side();
+  module back_grid() {
+    mesh_gap = 0.5;
+    module hex_grid() {
+      hex_grid_inset = 5;
+      hex_grid_size = 8;
+      hex_grid_thickness = 1.5;
+      tz(support_zsize - back_grid_zsize) intersection() {
+        translate([
+            LED_PANEL_64_32_BACK_WIDTH / 2,
+            LED_PANEL_64_32_BACK_WIDTH * 3 / 4,
+            -overlap * 2]) honeycomb([
+            LED_PANEL_64_32_BACK_WIDTH,
+            LED_PANEL_64_32_BACK_WIDTH,
+            back_grid_zsize + overlap * 4], hex_grid_size, hex_grid_thickness);
+        translate([
+            support_side_thickness + hex_grid_inset,
+            support_arm_yoffset + hex_grid_inset,
+            -overlap]) cube([
+              LED_PANEL_64_32_BACK_WIDTH - support_side_thickness * 2 - hex_grid_inset * 2,
+              support_length -support_arm_yoffset - mesh_gap - hex_grid_inset * 2,
+              back_grid_zsize + overlap * 2]);
+      }
+    }
+    module block() {
+      translate([
+          support_side_thickness - overlap,
+          support_arm_yoffset,
+          support_zsize - back_grid_zsize]) cube([
+            LED_PANEL_64_32_BACK_WIDTH - support_side_thickness * 2 + overlap * 2,
+            support_length -support_arm_yoffset - mesh_gap + overlap,
+            back_grid_zsize]);
+    }
+    difference() {
+      block();
+      hex_grid();
+    }
+  }
+
+  union() {
+    left_side();
+    right_side();
+    back_grid();
+  }
 }
 
 $fa=2;

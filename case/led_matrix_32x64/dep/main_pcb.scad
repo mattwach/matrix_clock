@@ -8,7 +8,7 @@ module main_pcb() {
   pcb_zsize = 1.6;
 
   module pcb() {
-    rz(90) color("#262") import("main_pcb.stl");
+    rz(90) color("#262") import("dep/main_pcb.stl");
   }
 
   module pico() {
@@ -69,6 +69,8 @@ module main_pcb() {
   power_pins();
 }
 
+/*
 $fa=2;
 $fs=0.2;
 main_pcb();
+*/

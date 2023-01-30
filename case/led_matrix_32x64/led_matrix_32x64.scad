@@ -9,7 +9,8 @@ overlap = 0.01;
 pcb_thickness = 1.6;
 pcb_clearance = pcb_thickness + 0.2;
 placed_button_pcb_xoffset = 12.5;
-placed_button_pcb_yoffset = 3.4;
+placed_button_pcb_yoffset = 3.5;
+placed_button_pcb_zoffset = 2;
 
 back_grid_zsize = 2;
 support_zsize = 14;
@@ -32,7 +33,7 @@ module placed_button_pcb() {
   translate([
       placed_button_pcb_xoffset,
       placed_button_pcb_yoffset + pcb_thickness,
-      9]) rz(-90) ry(90) button_pcb();
+      9 + placed_button_pcb_zoffset]) rz(-90) ry(90) button_pcb();
 }
 
 module bolt_hole() {

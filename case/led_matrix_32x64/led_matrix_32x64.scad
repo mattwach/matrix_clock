@@ -334,10 +334,65 @@ module bottom_support() {
   }
 }
 
+module top_support() {
+  module left_side() {
+    module left_side_main() {
+      cube([
+          support_side_thickness,
+          support_length,
+          support_zsize]);
+    }
+
+    module mesh_cutout() {
+      translate([
+          -overlap,
+          -overlap,
+          mesh_zsize]) cube([
+            support_side_thickness + overlap * 2,
+            support_side_thickness + overlap,
+            support_zsize - mesh_zsize + overlap]);
+    }
+
+    module bolt_holes() {
+      bolt_hole();
+      ty(LED_PANEL_62_32_BOLT_HOLE_LSPAN) bolt_hole();
+    }
+
+    difference() {
+      left_side_main();
+      mesh_cutout();
+      bolt_holes();
+    }
+  }
+
+  module top_side() {
+    top_ysize = 6;
+    translate([
+        support_side_thickness,
+        support_length - top_ysize,
+        0]) cube([
+          LED_PANEL_64_32_BACK_WIDTH - support_side_thickness * 2 + overlap * 2,
+          top_ysize,
+          support_zsize]);
+  }
+
+  top_support_yoffset =
+    LED_PANEL_62_32_BOLT_HOLE_LOFFSET +
+    LED_PANEL_62_32_BOLT_HOLE_LSPAN - 
+    support_side_thickness / 2;
+  ty(top_support_yoffset) union() {
+    left_side();
+    tx(LED_PANEL_64_32_BACK_WIDTH - support_side_thickness) left_side();
+    top_side();
+    //back_grid();
+  }
+}
+
 $fa=2;
 $fs=0.2;
-*led_panel();
-placed_main_pcb();
-placed_button_pcb();
-bottom_support();
+led_panel();
+*placed_main_pcb();
+*placed_button_pcb();
+*color("#855") bottom_support();
+color("#558") top_support();
 

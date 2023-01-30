@@ -54,11 +54,19 @@ module main_pcb() {
         pcb_zsize]) pin_header(2p54header, 3, 1, right_angle=true);
   }
 
+  module power_pins() {
+    translate([
+        18.65,
+        64.65,
+        pcb_zsize]) rz(-90) pin_header(2p54header, 2, 1, right_angle=true);
+  }
+
   pcb();
   pico();
   rtc();
   led_interface_pins();
   button_pins();
+  power_pins();
 }
 
 $fa=2;

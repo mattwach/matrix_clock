@@ -197,9 +197,36 @@ module bottom_support() {
             pcb_clearance + overlap]);
     }
 
+    module usb_cutout() {
+      usb_cutout_width = 17;
+      usb_cutout_height = support_zsize - 2;
+      usb_cutout_xoffset = 80;
+      usb_cutout_fillet = 5;
+
+      module top_corner() {
+        translate([
+            usb_cutout_fillet,
+            0,
+            usb_cutout_height - usb_cutout_fillet]) rx(-90) cylinder(r=usb_cutout_fillet, h=bottom_side_thickness + overlap * 2);
+      }
+
+      translate([
+          usb_cutout_xoffset,
+          -overlap,
+          -overlap]) hull() {
+        cube([
+            usb_cutout_width,
+            bottom_side_thickness + overlap * 2,
+            1]);
+        top_corner();
+        tx(usb_cutout_width - usb_cutout_fillet * 2) top_corner();
+      }
+    }
+
     difference() {
       main();
       main_pcb_cutout();
+      usb_cutout();
     }
   }
 

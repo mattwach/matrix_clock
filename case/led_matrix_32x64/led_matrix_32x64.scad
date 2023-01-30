@@ -379,7 +379,7 @@ module top_support() {
 
   module hanging_mount() {
     notch_offset = top_ysize + 2;
-    notch_width = 3;
+    notch_width = 4;
     notch_depth = 5;
     mount_zsize = 2;
 

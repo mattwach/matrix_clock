@@ -336,6 +336,7 @@ module bottom_support() {
 }
 
 module top_support() {
+  top_ysize = 6;
   module left_side() {
     module left_side_main() {
       cube([
@@ -367,7 +368,6 @@ module top_support() {
   }
 
   module top_side() {
-    top_ysize = 6;
     translate([
         support_side_thickness,
         support_length - top_ysize,
@@ -375,6 +375,53 @@ module top_support() {
           LED_PANEL_64_32_BACK_WIDTH - support_side_thickness * 2 + overlap * 2,
           top_ysize,
           support_zsize]);
+  }
+
+  module hanging_mount() {
+    notch_offset = top_ysize + 2;
+    notch_width = 3;
+    notch_depth = 5;
+    mount_zsize = 2;
+
+    module support() {
+      lead_in_ysize = 25;
+      xwest = support_side_thickness - overlap;
+      xeast = LED_PANEL_64_32_BACK_WIDTH - support_side_thickness + overlap;
+      ynorth = support_length - top_ysize + overlap;
+      ysouth = ynorth - lead_in_ysize;
+      xcenter_west = LED_PANEL_64_32_BACK_WIDTH / 2 - notch_width / 2;
+      xcenter_east = xcenter_west + notch_width;
+      ycenter = support_length - notch_offset + overlap - notch_depth;
+
+      tz(support_zsize - mount_zsize) linear_extrude(mount_zsize) polygon([
+          [xwest, ynorth],
+          [xwest, ysouth],
+          [xcenter_west, ycenter],
+          [xcenter_east, ycenter],
+          [xeast, ysouth],
+          [xeast, ynorth],
+          [xwest, ynorth],
+      ]);
+    }
+
+    module hanging_hole() {
+      translate([
+          LED_PANEL_64_32_BACK_WIDTH / 2,
+          support_length - notch_offset - notch_width / 2,
+          support_zsize - mount_zsize - overlap]) union() {
+        cylinder(d=notch_width, h=mount_zsize + overlap * 2);
+        txy(-notch_width / 2, -notch_depth + notch_width / 2 - overlap)
+          cube([
+              notch_width,
+              notch_depth - notch_width / 2 + overlap,
+              mount_zsize + overlap * 2]);
+      }
+    }
+
+    difference() {
+      support();
+      hanging_hole();
+    }
   }
 
   top_support_yoffset =
@@ -386,14 +433,15 @@ module top_support() {
     tx(LED_PANEL_64_32_BACK_WIDTH - support_side_thickness) left_side();
     top_side();
     ty(support_side_thickness) back_grid();
+    hanging_mount();
   }
 }
 
 $fa=2;
 $fs=0.2;
 led_panel();
-*placed_main_pcb();
-*placed_button_pcb();
+placed_main_pcb();
+placed_button_pcb();
 color("#855") bottom_support();
 color("#558") top_support();
 

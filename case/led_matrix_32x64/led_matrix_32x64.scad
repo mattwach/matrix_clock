@@ -10,7 +10,7 @@ pcb_thickness = 1.6;
 pcb_clearance = pcb_thickness + 0.2;
 placed_button_pcb_xoffset = 12.5;
 placed_button_pcb_yoffset = 3.5;
-placed_button_pcb_zoffset = 2;
+placed_button_pcb_zoffset = 4;
 
 back_grid_zsize = 2;
 support_zsize = 14;
@@ -176,6 +176,33 @@ module bottom_support() {
     }
   }
 
+  module bottom_side() {
+    bottom_side_thickness = 7;
+    module main() {
+      tx(support_side_thickness - overlap) cube([
+            LED_PANEL_64_32_BACK_WIDTH - support_side_thickness * 2 + overlap * 2,
+            bottom_side_thickness,
+            support_zsize]);
+    }
+
+    module main_pcb_cutout() {
+      pcb_width = 69.2;
+      pcb_inset = 1.2;
+      translate([
+          LED_PANEL_64_32_BACK_WIDTH - pcb_width - support_side_thickness,
+          bottom_side_thickness - pcb_inset,
+          -overlap]) cube([
+            pcb_width + overlap * 2,
+            pcb_inset + overlap,
+            pcb_clearance + overlap]);
+    }
+
+    difference() {
+      main();
+      main_pcb_cutout();
+    }
+  }
+
   module back_grid() {
     mesh_gap = 0.5;
     module hex_grid() {
@@ -217,13 +244,14 @@ module bottom_support() {
   union() {
     left_side();
     right_side();
+    color("#008", 0.5) bottom_side();
     back_grid();
   }
 }
 
 $fa=2;
 $fs=0.2;
-led_panel();
+*led_panel();
 placed_main_pcb();
 placed_button_pcb();
 bottom_support();

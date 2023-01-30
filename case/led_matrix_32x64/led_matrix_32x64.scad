@@ -8,9 +8,9 @@ overlap = 0.01;
 
 pcb_thickness = 1.6;
 pcb_clearance = pcb_thickness + 0.2;
-placed_button_pcb_xoffset = 12.5;
+placed_button_pcb_xoffset = 13;
 placed_button_pcb_yoffset = 3.5;
-placed_button_pcb_zoffset = 4;
+placed_button_pcb_zoffset = 3;
 
 back_grid_zsize = 2;
 support_zsize = 14;
@@ -223,10 +223,68 @@ module bottom_support() {
       }
     }
 
+    module button_front_cutout() {
+      button_cutout_width = 20.5;
+      button_cutout_height = support_zsize - 2;
+      button_cutout_xoffset = placed_button_pcb_xoffset + 14;
+      button_cutout_fillet = 3;
+
+      module top_corner() {
+        translate([
+            button_cutout_fillet,
+            0,
+            button_cutout_height - button_cutout_fillet]) rx(-90) cylinder(r=button_cutout_fillet, h=bottom_side_thickness + overlap * 2);
+      }
+
+      translate([
+          button_cutout_xoffset,
+          -overlap,
+          -overlap]) hull() {
+        cube([
+            button_cutout_width,
+            bottom_side_thickness + overlap * 2,
+            1]);
+        top_corner();
+        tx(button_cutout_width - button_cutout_fillet * 2) top_corner();
+      }
+    }
+
+    module button_back_cutout() {
+      pcb_padding = 1;
+      pcb_width = 42;
+      pcb_height = 9;
+      pcb_yoffset = placed_button_pcb_yoffset;
+      translate([
+          placed_button_pcb_xoffset - pcb_padding,
+          pcb_yoffset,
+          -overlap]) cube([
+            pcb_width + pcb_padding * 2,
+            bottom_side_thickness - pcb_yoffset + overlap,
+            placed_button_pcb_zoffset + pcb_height + pcb_padding + overlap]);
+    }
+
+    module button_bolt_holes() {
+      bolt_hole_span = 36;
+      module bolt_hole() {
+        bolt_hole_xoffset = 3;
+        bolt_hole_zoffset = 4;
+        translate([
+            placed_button_pcb_xoffset + bolt_hole_xoffset,
+            -overlap,
+            placed_button_pcb_zoffset + bolt_hole_zoffset]) rx(-90) cylinder(d=1.85, h=bottom_side_thickness + overlap * 2);
+      }
+
+      bolt_hole();
+      tx(bolt_hole_span) bolt_hole();
+    }
+
     difference() {
       main();
       main_pcb_cutout();
       usb_cutout();
+      button_front_cutout();
+      button_back_cutout();
+      button_bolt_holes();
     }
   }
 
@@ -271,7 +329,7 @@ module bottom_support() {
   union() {
     left_side();
     right_side();
-    color("#008", 0.5) bottom_side();
+    bottom_side();
     back_grid();
   }
 }

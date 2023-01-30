@@ -40,10 +40,17 @@ module main_pcb() {
     clock_module();
   }
 
+  module led_interface_pins() {
+    translate([
+        23.25,
+        13.35,
+        pcb_zsize]) rz(-90) pin_header(2p54header, 8, 2, right_angle=true);
+  }
 
   pcb();
   pico();
   rtc();
+  led_interface_pins();
 }
 
 $fa=2;

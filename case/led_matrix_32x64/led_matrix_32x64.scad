@@ -59,6 +59,19 @@ module bottom_support() {
             support_zsize]);
       }
 
+      module pcb_anti_slide_arm() {
+        arm_inset = 2;
+        xsize = 15;
+        xoffset = 44.6;
+        translate([
+            xoffset - xsize,
+            support_arm_yoffset - arm_inset,
+            0]) cube([
+              xsize,
+              support_arm_ysize + arm_inset,
+              support_zsize]);
+      }
+
       module pcb_support_arm() {
         support_arm_xoffset = 80;
         support_arm_xsize = 15;
@@ -85,6 +98,7 @@ module bottom_support() {
 
       union() {
         main();
+        pcb_anti_slide_arm();
         pcb_support_arm();
       }
     }

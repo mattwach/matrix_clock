@@ -7,7 +7,7 @@ module button_pcb() {
   pcb_zsize = 1.6;
 
   module pcb() {
-    rz(90) color("#262") import("button_pcb_kicad.stl");
+    rz(90) color("#262") import("dep/button_pcb_kicad.stl");
   }
 
   module buttons() {
@@ -35,6 +35,9 @@ module button_pcb() {
   pins();
 }
 
+/*
 $fa=2;
 $fs=0.2;
 button_pcb();
+*/
+

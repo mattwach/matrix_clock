@@ -1,8 +1,8 @@
-use <mattwach/util.scad>
-use <mattwach/vitamins/electronics/pi_pico.scad>
-include <mattwach/vitamins/electronics/ds3231_rtc.scad>
-include <NopSCADlib/core.scad>
-include <NopSCADlib/vitamins/pin_headers.scad>
+use <../lib/mattwach/util.scad>
+use <../lib/mattwach/vitamins/electronics/pi_pico.scad>
+include <../lib/mattwach/vitamins/electronics/ds3231_rtc.scad>
+include <../lib/NopSCADlib/core.scad>
+include <../lib/NopSCADlib/vitamins/pin_headers.scad>
 
 module main_pcb() {
   pcb_zsize = 1.6;

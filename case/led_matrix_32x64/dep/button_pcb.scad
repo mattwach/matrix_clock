@@ -1,7 +1,7 @@
-use <mattwach/util.scad>
-include <NopSCADlib/core.scad>
-include <NopSCADlib/vitamins/buttons.scad>
-include <NopSCADlib/vitamins/pin_headers.scad>
+use <../lib/mattwach/util.scad>
+include <../lib/NopSCADlib/core.scad>
+include <../lib/NopSCADlib/vitamins/buttons.scad>
+include <../lib/NopSCADlib/vitamins/pin_headers.scad>
 
 module button_pcb() {
   pcb_zsize = 1.6;

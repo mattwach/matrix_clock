@@ -1,6 +1,6 @@
-use <mattwach/util.scad>
-include <mattwach/vitamins/electronics/led_panel_64x32.scad>
-include <mattwach/honeycomb.scad>
+use <lib/mattwach/util.scad>
+include <lib/mattwach/vitamins/electronics/led_panel_64x32.scad>
+include <lib/mattwach/honeycomb.scad>
 include <dep/button_pcb.scad>
 include <dep/main_pcb.scad>
 

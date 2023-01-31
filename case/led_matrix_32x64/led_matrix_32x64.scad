@@ -20,8 +20,8 @@ support_zsize = 14;
 mesh_zsize = 6;
 support_side_thickness = 12;
 support_length =
-  LED_PANEL_62_32_BOLT_HOLE_LOFFSET +
-  LED_PANEL_62_32_BOLT_HOLE_LSPAN +
+  LED_PANEL_64_32_BOLT_HOLE_LOFFSET +
+  LED_PANEL_64_32_BOLT_HOLE_LSPAN +
   support_side_thickness / 2; 
 
 module led_panel() {
@@ -42,8 +42,8 @@ module placed_button_pcb() {
 module bolt_hole() {
   bolt_hole_inset = 4;
   translate([
-      LED_PANEL_62_32_BOLT_HOLE_WOFFSET,
-      LED_PANEL_62_32_BOLT_HOLE_LOFFSET,
+      LED_PANEL_64_32_BOLT_HOLE_WOFFSET,
+      LED_PANEL_64_32_BOLT_HOLE_LOFFSET,
       -overlap]) union() {
     cylinder(d=3.2, h=support_zsize - bolt_hole_inset + overlap);
     tz(support_zsize - bolt_hole_inset)
@@ -155,7 +155,7 @@ module bottom_support() {
 
     module bolt_holes() {
       bolt_hole();
-      ty(LED_PANEL_62_32_BOLT_HOLE_LSPAN) bolt_hole();
+      ty(LED_PANEL_64_32_BOLT_HOLE_LSPAN) bolt_hole();
     }
 
     difference() {
@@ -201,9 +201,9 @@ module bottom_support() {
     }
 
     module bolt_holes() {
-      tx(LED_PANEL_62_32_BOLT_HOLE_WSPAN) {
+      tx(LED_PANEL_64_32_BOLT_HOLE_WSPAN) {
         bolt_hole();
-        ty(LED_PANEL_62_32_BOLT_HOLE_LSPAN) bolt_hole();
+        ty(LED_PANEL_64_32_BOLT_HOLE_LSPAN) bolt_hole();
       }
     }
 
@@ -358,7 +358,7 @@ module top_support() {
     module bolt_holes() {
       tx(bolt_hole_xoffset) {
         bolt_hole();
-        ty(LED_PANEL_62_32_BOLT_HOLE_LSPAN) bolt_hole();
+        ty(LED_PANEL_64_32_BOLT_HOLE_LSPAN) bolt_hole();
       }
     }
 
@@ -427,8 +427,8 @@ module top_support() {
   }
 
   top_support_yoffset =
-    LED_PANEL_62_32_BOLT_HOLE_LOFFSET +
-    LED_PANEL_62_32_BOLT_HOLE_LSPAN - 
+    LED_PANEL_64_32_BOLT_HOLE_LOFFSET +
+    LED_PANEL_64_32_BOLT_HOLE_LSPAN - 
     support_side_thickness / 2;
   ty(top_support_yoffset) union() {
     left_side(0);
@@ -437,7 +437,7 @@ module top_support() {
     tx(LED_PANEL_64_32_BACK_WIDTH - support_side_thickness) left_side(
         -LED_PANEL_64_32_BACK_WIDTH +
         support_side_thickness +
-        LED_PANEL_62_32_BOLT_HOLE_WSPAN);
+        LED_PANEL_64_32_BOLT_HOLE_WSPAN);
     top_side();
     ty(support_side_thickness) back_grid();
     hanging_mount();
@@ -450,5 +450,5 @@ led_panel();
 placed_main_pcb();
 placed_button_pcb();
 color("#855") bottom_support();
-!color("#558") top_support();
+color("#558") top_support();
 

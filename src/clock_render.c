@@ -42,8 +42,8 @@ struct DisplayMode {
   };
 #elif defined(led_matrix_64x32)
   struct DisplayMode display_modes[] = {
-    {"matrix", matrix_render},  // This entry will be the default power-on mode
-    {"matrix_with_numbers", matrix_with_numbers_render},
+    {"matrix_with_numbers", matrix_with_numbers_render},  // This entry will be the default power-on mode
+    {"matrix", matrix_render},
     {"number_cascade", number_cascade_hires_render},
     {"off", blank_render},  // always put this entry at the end of the list
   };

@@ -10,21 +10,22 @@ matrix.  The clock has other selectable modes, including these:
 ![matrix clock](images/matrix_clock3.jpg)
 
 The firware also support different hardware configurations (different LED and
-clock hardware), included is a 8x8 "dotstar" model which I used originally:
+clock hardware), included with the project is a 8x8 "dotstar" model which I
+used originally:
 
 ![matrix clock](images/ds8x8/matrix_clock.jpg)
 
-This document focuses on the 62x32-based model, which I prefer.  If you
+This document focuses on the newer 62x32-based model, which I prefer.  If you
 want to learn more details on the 8x8 build, I have a separate document
 for it [here](README_dotstar_8x8.md).
 
-In the upcoming sections, I explain how to build the clock.  I also
+In the upcoming sections, I explain how I built the clock.  I also
 explain how to modify the design in different ways.
 
 # Parts List
 
-Here are the parts I used to build the 64x32 version.  You can of course modify
-the design to use different ones:
+Here are the parts I used.  You can of course modify the design to use
+different ones.  Prices are "at time of writing":
 
    * Microcontroller: [Raspberry PI Pico ($4)](https://www.adafruit.com/product/4864)
    * [LED Matrix 62x32: ($30)](https://www.amazon.com/waveshare-Displaying-Animation-Adjustable-Brightness/dp/B0B3W1PFY6)
@@ -33,34 +34,37 @@ the design to use different ones:
    * Buttons: [2 12x12 pushbuttons for control (<$1)](https://www.amazon.com/WOWOONE-12x12x7-3-Tactile-Momentary-Assortment/dp/B08JLWTQ3C),
      1 6x3 SMD reset button (optional)
    * Connectors:
-     * One 8x2 female pin header to interface the Pico PCB with the matrix.
-       Most displays include an interface cable that I am not using in the PCB
-       design.
+     * One 8x2 2.54 pitch male pin header to interface the Pico PCB with the
+       matrix (using the usually-included interface cable)
      * A couple of angled male pin headers to connect to buttons and power.
-   * 1 220uF capacitor to reduce 5V noise
-   * PCB for assembly (however you want to build it.  maybe something like
-     [this](https://www.amazon.com/DEYUE-Double-sided-Prototyping-Solder-able-Protoboards/dp/B07FFDFLZ3))
+   * 1 220uF capacitor to reduce 5V noise.  Somewhat larger or smaller values
+     values should also work fine.
+   * PCB for assembly.
+     * Many options.  Below is what I went with.
+     * I ended up ordering a PCB from http://oshpark.com for the main board
+       becuase it is a two-layer board with many connections - doable on
+       a perf board but somewhat laborious and tricky to make a clean result.
+     * There is a separate PCB for the buttons.  This board is very simple so
+       any build technique should be straight-forward.  I used my CNC
+       machine to get the hardware quickly. 
 
 Optional:
 
 The LED display as-designed is powered directly from the Pico USB power pin
 (VDD).  This reduces part count and complexity.  The downside is that the LED
-can pull a lot of current if every pixel is set to white (around 3A).  The
-firmware included never does this and thus pulls between 100-400 MA (measured).
-The optional part is a current protection device (the NCP380) which will limit
-the max current to the LED to 500 mA, protecting the Pico and potentially the
-USB power source from being overloaded.  In my opinion this is important if you
-are experimenting with your own custom firmware modifications.  If you are just
-sticking with the stock ones, I have already checked that the current draw is
-not excessive and you can skip the protection hardware and save a bit of money.
-Here are the needed parts:
+hardware can pull a lot of current if every pixel is set to white (around 3A).
+The firmware included never does this and thus pulls between 100-400 MA
+(measured).  The optional part is a current protection IC (the NCP380)
+which will limit the max current to the LED to 500 mA, protecting the Pico
+and potentially the USB power source from sourcing excessive current.  In my opinion
+this is important if you are experimenting with your own custom firmware
+modifications.  If you are just sticking with the stock ones, I have already
+checked that the current draw is not excessive and you can skip the
+protection hardware and save a bit of money.  Here are the needed parts:
 
    * NCP380
    * Two additional 1uf capacitors for stability.  I am using SMD but ceramic
      through-hole are also an option.
-   * A 50k pullup resistor for the FLAG pin of the NCP380.  This allows the
-     NCP380 to tell the Pico that it is limiting current which the pico will
-     then report to you by activating its onboard LED.
 
 # Reading the clock
 
@@ -91,7 +95,7 @@ Here are some examples:
 | 1:37 PM  | 13:37    | yellow     | yellow       | magenta    |
 | 11:37 PM | 23:37    | yellow     | yellow       | magenta    |
 
-The falling points do not show the tens place of the hor becuase I thought it
+The falling points do not show the tens place of the hour becuase I thought it
 made the clock harder to read.  Also there are not many options in the tens
 place (0, 1 or 2).  If you want the tens place, you can select one of the
 available display modes that shows it.
@@ -103,7 +107,7 @@ This is a quick tour of the built in-features
 ## Power On
 
 When you plug in the clock via any USB power source you will get a matrix clock
-display that indicates the current time as-reported by the internal clock module.
+display that indicates the current time as-reported by the RTC clock hardware.
 
 ![matrix clock 2](images/matrix_clock4.jpg)
 
@@ -122,9 +126,9 @@ each time digit.
 If you press the "increment" button while the matrix is showing, the clock will
 cycle through display modes.  Currently defined modes include:
 
-* **Matrix With Time** The default
-* **Matrix Without Time** For those who want a challenge
-* **Number cascade**, Numbers fall instead of points with hours being "closer"
+* **Matrix With Numbers** The default
+* **Matrix Only** For those who want a challenge
+* **Number Cascade**, Numbers fall instead of points with hours being "closer"
   (larger/faster) than minutes.
 * **Off -**  Useful if you want a darkened room.
 
@@ -145,8 +149,8 @@ Once started, you will see something like this:
 
 ![minicom](images/minicom.jpg)
 
-By default, `minicom` turns on local echo, making my typed characters appear
-twice.  `minicom` allows this to be turned off with `ctrl-a e`.
+> By default, `minicom` turns on local echo, making my typed characters appear
+> twice.  `minicom` allows this to be turned off with `ctrl-a e`.
 
 Type `help` or `?` for help.  Basic options include:
 
@@ -164,39 +168,39 @@ Here is the schematic for the 64x32 (rotated) version:
 
 ![schematic](images/schematic.png)
 
-and the schematic for the 8x8 dotstar version:
-
-![schematic](images/schematic.png)
-
 Here is a description on major components and their purpose:
 
   - Pi Pico: This is the main controller
   - RTC Clock: This provides time to the Pico via an I2C connection.  You
-    could use other solutions here, including attempting to use the PI Pico
+    could use other solutions here, including attempting to use the PI Pico itself
     to track time but also GPS, radio-based time, or internet time using a
-    Pico W.  In terms of the I2C connection, note that the RTC clock is powered
-    by 3.3V instead of the specified 5V.  This is the easiest way to make the
-    clock compatible with the 3.3V maximum voltage of the PI Pico.  If your RTC
-    really does need 5V, there are solutions but the details are not the focus
-    of this document.  Thus I suggest doing a Google search for
-    "3.3 to 5V I2C" to learn more.
+    Pico W.  PI Pico internal and RTC alrady have code, everythig else will
+    require code to be written.  In terms of the I2C connection, note that the
+    RTC clock is powered by 3.3V instead of the specified 5V.  This is the
+    easiest way to make the clock compatible with the 3.3V maximum voltage of
+    the PI Pico.  If your RTC really does need 5V, there are solutions but the
+    details are not the focus of this document.  Thus I suggest doing a Google
+    search for "3.3 to 5V I2C" to learn more.
   - 64x32 matrix: This is also a 5V part but can usually be
     controlled from the 3.3V outputs of the PI Pico, even though the LED is
-    being *powered* by 5V - mine definitely works in this configuration. All
+    being *powered* by 5V - mine works properly in this configuration. All
     connections are high-impedance passive inputs so the Pico does not have to
     concern itself with the 5V nature of the LED panel.  An easy way to tell is
     to see if any reviews are running the panel directly from a 3.3V part, such
-    as the PI Pico, Raspberry PI, ARM, or ESP series.
+    as the PI Pico, Raspberry PI, ARM, or ESP series.  If you have an LED matrix
+    that ignores 3.3V, the problem can be solved by adding "level shifter" ICs or
+    an equivilent circuit.
   - 220u capacitor.  The actual value is not important other that "big".  The
-    purpose of the cap is to support the power requirements of the LED, which
-    can be a "noisy" load, needing near zero current one moment and 300 mA the
-    next.
+    purpose of the capacitor is to support the power requirements of the LED, which
+    can be a "noisy" load, needing near zero current one moment and sevelral hundred
+    mA the next.
   - Support for buttons.  Select, increment and reset as described earlier.
   - NCP380 current limiting chip (optional).  This chip provides insurance for
     the case where you one day decide to change the firmware to light up many
     LEDs and draw too much current.  If you really want to do support high
     current draw, you'll need to rework the power design so that the LED panel
-    can be directly powered from a capable (3A+) source.
+    can be directly powered from a capable (3A+) source instead of VDD on the
+    Pico.
 
 > If you don't us use the NCP380, simply connect the 5V directly to the LED.
 > Keep the 220u capacitor for noise purposes.
@@ -246,12 +250,29 @@ cmake ..
 The two major things done here are getting some dependencies (submodules) and
 setting up a new build environment under `build/`
 
-If all went well above, you will have a `build/matrix_clock.uf2` file available
-to load onto a PI Pico.
+If all went well above, you will have a `src/build/matrix_clock.uf2` file available
+to load onto a PI Pico.  Note that `firmware/matrix_clock_led_64x32.uf2` will
+not be changed.
 
 # Hardware build
 
-TODO
+The hardware build is fairly minimalistic, solving the given problems:
+
+  * Securing the PI Pico, RTC hardware and buttons at the bottom of the panel
+  * Keeping the connection cables constrained so the clock can mount flat on the way
+  * Providing a wall mount
+
+I solved all of these problem by creating a couple of 3D models and printing them out.
+I used OpenSCAD for the modeling.  Here is an image of the model:
+
+This model is located at [case/led_matrix_64x32/led_matrix_64x32.scad](case/led_matrix_64x32/led_matrix_64x32.scad).
+If can be changed with any text editor and viewed in the free [OpenSCAD](http://openscad.org) software.
+
+If you don't want to mess around with OpenSCAD, I also have the models available for
+direct download at [case/led_matrix_64x32/export](case/led_matrix_64x32/export).  These
+are .3mf files (an improved .stl) that most modern slicer programs can directly load.
+
+To assemble, you ..... I AM HERE
 
 # Cusomization Guide
 

@@ -337,7 +337,7 @@ module bottom_support() {
 
 module top_support() {
   top_ysize = 6;
-  module left_side() {
+  module left_side(bolt_hole_xoffset) {
     module left_side_main() {
       cube([
           support_side_thickness,
@@ -356,8 +356,10 @@ module top_support() {
     }
 
     module bolt_holes() {
-      bolt_hole();
-      ty(LED_PANEL_62_32_BOLT_HOLE_LSPAN) bolt_hole();
+      tx(bolt_hole_xoffset) {
+        bolt_hole();
+        ty(LED_PANEL_62_32_BOLT_HOLE_LSPAN) bolt_hole();
+      }
     }
 
     difference() {
@@ -429,8 +431,13 @@ module top_support() {
     LED_PANEL_62_32_BOLT_HOLE_LSPAN - 
     support_side_thickness / 2;
   ty(top_support_yoffset) union() {
-    left_side();
-    tx(LED_PANEL_64_32_BACK_WIDTH - support_side_thickness) left_side();
+    left_side(0);
+    // Not a great fix for bolt offset - having to subract away the left_side offset
+    // just to get things in the right spot to add the bolt offset.
+    tx(LED_PANEL_64_32_BACK_WIDTH - support_side_thickness) left_side(
+        -LED_PANEL_64_32_BACK_WIDTH +
+        support_side_thickness +
+        LED_PANEL_62_32_BOLT_HOLE_WSPAN);
     top_side();
     ty(support_side_thickness) back_grid();
     hanging_mount();

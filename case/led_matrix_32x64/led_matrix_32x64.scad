@@ -450,5 +450,5 @@ led_panel();
 placed_main_pcb();
 placed_button_pcb();
 color("#855") bottom_support();
-color("#558") top_support();
+!color("#558") top_support();
 

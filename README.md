@@ -160,7 +160,7 @@ Type `help` or `?` for help.  Basic options include:
 
 ## Electronics
 
-Here is the schematic for the 32x64 version:
+Here is the schematic for the 64x32 (rotated) version:
 
 ![schematic](images/schematic.png)
 
@@ -205,7 +205,7 @@ Here is a description on major components and their purpose:
 
 ## Firmware
 
-> TLDR: If you don't want to build the firmware (`matrix_clock_led_32x64.uf2`) 
+> TLDR: If you don't want to build the firmware (`matrix_clock_led_64x32.uf2`) 
 yourself, I have a couple of precompiled versions under the
 [firmware](firmware) directory.
 

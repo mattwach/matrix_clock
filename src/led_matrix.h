@@ -12,7 +12,7 @@
 #define LED_MATRIX_WIDTH 8
 #define LED_MATRIX_HEIGHT 8
 #define FRAME_DELAY_MS 25  // 40FPS
-#elif defined(led_matrix_32x64)
+#elif defined(led_matrix_64x32)
 #define LED_MATRIX_WIDTH 32
 #define LED_MATRIX_HEIGHT 64
 #define FRAME_DELAY_MS 5  // 200FPS

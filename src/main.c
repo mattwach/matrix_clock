@@ -15,7 +15,7 @@
 
 #if defined(led_matrix_dotstar)
   #define SET_TIME_RENDER set_time_lowres_render
-#elif defined(led_matrix_32x64)
+#elif defined(led_matrix_64x32)
   #define SET_TIME_RENDER set_time_highres_render
 #else
   #error Unknown LED_MATRIX_SOURCE

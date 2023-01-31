@@ -13,7 +13,7 @@
 
 #if defined(led_matrix_dotstar)
 #define DEFAULT_BRIGHTNESS_STEP 3
-#elif defined(led_matrix_32x64)
+#elif defined(led_matrix_64x32)
 #define DEFAULT_BRIGHTNESS_STEP 10
 #else
 #error Unknown LED_MATRIX_SOURCE

@@ -349,7 +349,7 @@
     "pinned_symbol_libs": []
   },
   "meta": {
-    "filename": "led_matrix_32x64_kicad.kicad_pro",
+    "filename": "led_matrix_64x32_kicad.kicad_pro",
     "version": 1
   },
   "net_settings": {
@@ -381,9 +381,9 @@
     "last_paths": {
       "gencad": "",
       "idf": "",
-      "netlist": "led_matrix_32x64_kicad.net",
+      "netlist": "led_matrix_64x32_kicad.net",
       "specctra_dsn": "",
-      "step": "../../../../tmp/led_matrix_32x64_kicad.step",
+      "step": "../../../../tmp/led_matrix_64x32_kicad.step",
       "vrml": ""
     },
     "page_layout_descr_file": ""

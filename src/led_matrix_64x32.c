@@ -11,11 +11,11 @@
 #include <string.h>
 
 #if LED_MATRIX_WIDTH != 32
-#error led_matrix_32x64 requires LED_MATRIX_WIDTH be set to 32
+#error led_matrix_64x32 requires LED_MATRIX_WIDTH be set to 32
 #endif
 
 #if LED_MATRIX_HEIGHT != 64
-#error led_matrix_32x64 requires LED_MATRIX_HEIGHT be set to 64
+#error led_matrix_64x32 requires LED_MATRIX_HEIGHT be set to 64
 #endif
 
 // The driver works in landscape mode.

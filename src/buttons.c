@@ -7,7 +7,7 @@
 #if defined(led_matrix_dotstar)
   #define INCREMENT_BUTTON_GPIO 15
   #define SELECT_BUTTON_GPIO 14
-#elif defined(led_matrix_32x64)
+#elif defined(led_matrix_64x32)
   #define INCREMENT_BUTTON_GPIO 26
   #define SELECT_BUTTON_GPIO 27
 #else

@@ -9,7 +9,7 @@
   },
   "GeneralSpecs": {
     "ProjectId": {
-      "Name": "led_matrix_32x64_kicad",
+      "Name": "led_matrix_64x32_kicad",
       "GUID": "6c65645f-6d61-4747-9269-785f33327836",
       "Revision": "rev?"
     },
@@ -34,7 +34,7 @@
   ],
   "FilesAttributes": [
     {
-      "Path": "led_matrix_32x64_kicad-F_Paste.gbr",
+      "Path": "led_matrix_64x32_kicad-F_Paste.gbr",
       "FileFunction": "SolderPaste,Top",
       "FilePolarity": "Positive"
     }

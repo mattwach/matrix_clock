@@ -32,7 +32,7 @@ static void init(uint16_t time_hhmm) {
   digits[2] = (time_hhmm / 10) % 10;
   digits[3] = time_hhmm % 10;
   place = PLACE_HOUR_TENS;
-  // assuming a 32x64 display for the font sizes
+  // assuming a 64x32 display for the font sizes
   number_font_init(
     &font,
     0xFF,

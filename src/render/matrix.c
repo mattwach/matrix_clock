@@ -9,7 +9,7 @@
   #define HOUR_DELAY 14
   #define MINUTE_TENS_DELAY 3
   #define MINUTE_ONES_DELAY 1
-#elif defined(led_matrix_32x64)
+#elif defined(led_matrix_64x32)
   #define PARTICLE_COUNT 128
   // How fast to move particles, based on their represented clock position
   #define HOUR_DELAY 6

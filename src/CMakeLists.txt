@@ -19,7 +19,7 @@ set(CLOCK_SOURCE clock_ds3231)
 
 # Choose an led matrix
 #set(LED_MATRIX_SOURCE led_matrix_dotstar)
-set(LED_MATRIX_SOURCE led_matrix_32x64)
+set(LED_MATRIX_SOURCE led_matrix_64x32)
 
 # Initialize the SDK
 pico_sdk_init()
@@ -76,7 +76,7 @@ target_link_libraries(matrix_clock
 )
 endif()
 
-if(LED_MATRIX_SOURCE STREQUAL led_matrix_32x64)
+if(LED_MATRIX_SOURCE STREQUAL led_matrix_64x32)
 target_link_libraries(matrix_clock
     pico_multicore
 )

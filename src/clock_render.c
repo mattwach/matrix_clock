@@ -7,6 +7,7 @@
 #include "render/number_cascade.h"
 #include "render/number_cascade_hires.h"
 #include "render/waveform.h"
+#include <stdlib.h>
 
 // This is the "render multiplexer" file.  It registers a table
 // of rendering options (called DisplayMode) and provides logic to
@@ -57,6 +58,7 @@ struct DisplayMode {
 #define OFF_DISPLAY_MODE_INDEX (NUM_DISPLAY_MODES - 1)
 
 static uint16_t last_sleep_or_wake_hhmm;  // used to create an edge trigger
+static uint16_t next_mode_change_hhmm;
 // this is so initilization can happen when switching modes
 static uint32_t frame_index_delta = 0;
 static uint8_t display_mode; // currently active index
@@ -117,6 +119,7 @@ static void maybe_clock_init(
     display_mode = settings->startup_display_mode;
     wake_display_mode = display_mode;
     display_mode_intitialized = 1;
+    next_mode_change_hhmm = 0;
   }
   if (frame_index == 0) {
     // reset the delta so that display_modes that need to
@@ -149,6 +152,37 @@ static void check_for_sleep_and_wake(
     last_sleep_or_wake_hhmm = time_hhmm;
   }
 }
+
+static void increment_display_mode(const struct ClockSettings* settings) {
+  do {
+    ++display_mode;
+    if (display_mode >= NUM_DISPLAY_MODES) {
+      display_mode = 0;
+    }
+  } while ((settings->enabled_modes & (1 << display_mode)) == 0);
+}
+
+static void check_for_auto_mode_change(
+  uint16_t time_hhmm,
+  const struct ClockSettings* settings) {
+  if (settings->mode_change_min_minutes == 0) {
+    // disabled
+    return;
+  }
+  if (display_mode == OFF_DISPLAY_MODE_INDEX) {
+    return;
+  }
+  if (time_hhmm == next_mode_change_hhmm) {
+    increment_display_mode(settings);
+  }
+  if (time_hhmm >= next_mode_change_hhmm) {
+    next_mode_change_hhmm =
+      time_hhmm +
+      settings->mode_change_min_minutes +
+      (random() % (settings->mode_change_max_minutes -
+                   settings->mode_change_min_minutes));
+  }
+}
   
 // public interface.  Called to render all particles and update their state.
 uint8_t clock_render(
@@ -159,6 +193,7 @@ uint8_t clock_render(
     const struct ClockSettings* settings) {
   maybe_clock_init(frame_index, time_hhmm, settings);
   check_for_sleep_and_wake(time_hhmm, settings);
+  check_for_auto_mode_change(time_hhmm, settings);
   display_modes[display_mode].render(
       led,
       frame_index - frame_index_delta,

@@ -76,6 +76,25 @@ static void output_sleep_data(void) {
   printf("wake_time = %d (%s)\n", settings.wake_time, sleep_enabled);
 }
 
+static void print_enabled_modes(void) {
+  printf("auto_mode_change: ");
+  if (settings.mode_change_min_minutes == 0) {
+    printf("disabled\n");  
+  } else {
+    printf(
+        "%d-%d min\n",
+        settings.mode_change_min_minutes,
+        settings.mode_change_max_minutes);
+  }
+  printf("auto_mode_include: ");
+  const uint8_t num_modes = clock_render_num_display_modes() - 1;
+  for (uint8_t i=0; i < num_modes; ++i) {
+    const uint8_t enabled = settings.enabled_modes & (1 << i);
+    printf("%c%s ", enabled ? '+' : '-', clock_render_display_mode_name(i));
+  }
+  printf("\n");
+}
+
 // callback for the "get" shell command
 static void get_cmd(uint8_t argc, char* argv[]) {
   printf("brightness = %d\n", settings.brightness_step);
@@ -83,6 +102,7 @@ static void get_cmd(uint8_t argc, char* argv[]) {
       "startup_display_mode = %s\n",
       clock_render_display_mode_name(settings.startup_display_mode));
   output_sleep_data();
+  print_enabled_modes();
 }
 
 // callback for the "brightness" shell command
@@ -99,6 +119,23 @@ static void brightness_cmd(uint8_t argc, char* argv[]) {
     settings.brightness_step = brightness;
     clock_settings_save(&settings);
   }
+}
+
+// helper function to parse an integer, returns -1 on failure
+static int parse_uint(const char* s) {
+  if (*s == '\0') {
+    printf("Empty argument\n");
+    return -1;
+  }
+  if ((s[0] == '0') && (s[1] == '\0')) {
+    return 0;
+  }
+  int val = atoi(s);
+  if (val <= 0) {
+    printf("Invalid value: %d\n", val);
+    return -1;
+  }
+  return val;
 }
 
 // helper function to convert a string to hhmm format
@@ -182,6 +219,75 @@ static void startup_display_mode_cmd(uint8_t argc, char* argv[]) {
   printf("Unknown display mode: %s.  Try list_display_modes\n", mode);
 }
 
+static void auto_mode_change_cmd(uint8_t argc, char* argv[]) {
+  int min_minutes = parse_uint(argv[0]);
+  if (min_minutes < 0) {
+    return;
+  }
+  int max_minutes = parse_uint(argv[1]);
+  if (max_minutes < 0) {
+    return;
+  }
+  if (min_minutes > max_minutes) {
+    printf("Invalid min max specification: min >= max\n");
+    return;
+  }
+  settings.mode_change_min_minutes = min_minutes;
+  settings.mode_change_max_minutes = max_minutes;
+  clock_settings_save(&settings);
+}
+
+// returns 0 on error
+static uint8_t try_change_mode(uint16_t* current_modes, const char* arg) {
+  const char mode = arg[0];
+  if ((mode != '+') && (mode != '-')) {
+    printf("Please prefix each mdoe with a + or -\n");
+    return 0;
+  }
+  ++arg;
+
+  const uint8_t num_modes = clock_render_num_display_modes();
+  for (uint8_t i=0; i < num_modes; ++i) {
+    if (!strcmp(clock_render_display_mode_name(i), arg)) {
+      if (i == (num_modes - 1)) {
+        printf("Can not select %d display mode\n", arg);
+        return 0;
+      }
+      if (mode == '+') {
+        *current_modes |= (1 << i);
+      } else {
+        *current_modes &= ~(1 << i);
+      }
+      return 1;
+    }
+  }
+  printf("Unknown display mode: %s.  Try list_display_modes\n", arg);
+  return 0;
+}
+
+static void auto_mode_include(uint8_t argc, char* argv[]) {
+  if (argc == 0) {
+    printf("At least one argument is needed, e.g. +waveform, -matrix\n");
+    return;
+  }
+
+  uint16_t current_modes = settings.enabled_modes;
+  for (uint8_t i=0; i<argc; ++i) {
+    if (!try_change_mode(&current_modes, argv[i])) {
+      return;
+    }
+  }
+
+  if (current_modes == 0) {
+    printf("At least one mode must be enabled\n");
+    return;
+  }
+
+  settings.enabled_modes = current_modes;
+  clock_settings_save(&settings);
+  print_enabled_modes();
+}
+
 static void increment_cmd(uint8_t argc, char* argv[]) {
   buttons |= INCREMENT_BUTTON;
 }
@@ -195,6 +301,8 @@ static void select_cmd(uint8_t argc, char* argv[]) {
 struct ConsoleCallback callbacks[] = {
   {"i", "Same effect as pressing the increment button", 0, increment_cmd},
   {"s", "Same effect as pressing the select button", 0, select_cmd},
+  {"auto_mode_change", "Set min and max minutes for an automatic mode change. e.g. 5 60", 2, auto_mode_change_cmd},
+  {"auto_mode_include", "Modify which modes to include. e.g. +matrix -waveform", -1, auto_mode_include},
   {"brightness", "Change brightness from 0-10", 1, brightness_cmd},
   {"get", "Get current settings", 0, get_cmd},
   {"list_display_modes", "List display modes", 0, list_display_modes_cmd},
@@ -232,6 +340,10 @@ static uint8_t validate_settings(const struct ClockSettings* cs) {
 static void init_default_settings(void) {
   memset(&settings, 0, sizeof(struct ClockSettings));
   settings.brightness_step = DEFAULT_BRIGHTNESS_STEP;
+  const uint8_t max_mode = clock_render_num_display_modes() - 1;  // dont include the off mode
+  for (uint8_t i=0; i<max_mode; ++i) {
+    settings.enabled_modes |= (1 << i);
+  }
 }
 
 void clock_settings_init() {

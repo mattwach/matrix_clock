@@ -8,7 +8,7 @@
 #include <inttypes.h>
 
 //Change this when adding fields.  It will cause all settings to reset
-#define CLOCK_SETTINGS_VERSION 2
+#define CLOCK_SETTINGS_VERSION 3
 
 // Here are the settings.  The checksum, eyecatcher and version fields
 // are there to detect the cases where setting have not ever been written
@@ -27,6 +27,11 @@ struct ClockSettings {
   // sleep settings in hhmm format.  If they are equal, then sleep is OFF
   uint16_t sleep_time;
   uint16_t wake_time;
+
+  // mode change settings
+  uint16_t enabled_modes;
+  uint16_t mode_change_min_minutes;
+  uint16_t mode_change_max_minutes;
 };
 
 void clock_settings_init(void);

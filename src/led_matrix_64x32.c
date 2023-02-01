@@ -183,7 +183,7 @@ void led_matrix_render(uint32_t* data) {
   // one.
   for (uint16_t y=0; y<LED_MATRIX_HEIGHT; ++y) {
     for (uint16_t x=0; x<LED_MATRIX_WIDTH; ++x) {
-      const uint32_t pixel_in = data[(LED_MATRIX_HEIGHT - y - 1) * LED_MATRIX_WIDTH + x]; 
+      const uint32_t pixel_in = data[y * LED_MATRIX_WIDTH + x]; 
       const uint32_t br = pixel_in >> 24;
       const uint32_t r = (pixel_in >> 16) & 0xFF;
       const uint32_t b = (pixel_in >> 8) & 0xFF;
@@ -192,7 +192,7 @@ void led_matrix_render(uint32_t* data) {
         ((r * br / 0xFF) << 16) |
         ((b * br / 0xFF) << 8) |
         (g * br / 0xFF);
-      led.draw_frame[x * LED_COLUMNS + (LED_COLUMNS - y - 1)] = pixel_out;
+      led.draw_frame[(LED_ROWS - x - 1) * LED_COLUMNS + (LED_COLUMNS - y - 1)] = pixel_out;
     }
   }
 

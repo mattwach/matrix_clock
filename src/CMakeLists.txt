@@ -50,6 +50,7 @@ add_executable(matrix_clock
         render/matrix_with_numbers.c
         render/number_cascade.c
         render/number_cascade_hires.c
+        render/waveform.c
         )
 
 # pull in common dependencies

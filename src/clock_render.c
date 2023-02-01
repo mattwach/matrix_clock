@@ -6,6 +6,7 @@
 #include "render/matrix_with_numbers.h"
 #include "render/number_cascade.h"
 #include "render/number_cascade_hires.h"
+#include "render/waveform.h"
 
 // This is the "render multiplexer" file.  It registers a table
 // of rendering options (called DisplayMode) and provides logic to
@@ -45,6 +46,7 @@ struct DisplayMode {
     {"matrix_with_numbers", matrix_with_numbers_render},  // This entry will be the default power-on mode
     {"matrix", matrix_render},
     {"number_cascade", number_cascade_hires_render},
+    {"waveform", waveform_render},
     {"off", blank_render},  // always put this entry at the end of the list
   };
 #else

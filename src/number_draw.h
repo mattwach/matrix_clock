@@ -4,6 +4,9 @@
 
 #include <inttypes.h>
 
+#define DRAW_MODE_OVERLAY 0
+#define DRAW_MODE_INTERSECT 1
+
 struct NumberFont {
   int16_t x;
   int16_t y;
@@ -26,11 +29,19 @@ void number_font_init(
 // draws dashes between numbers
 void number_draw_dash(struct NumberFont* font, uint32_t* led);
 
-// draws a digit with an indexed color.  Off screen for x,y  is OK
-void number_draw(
+void number_draw_mode(
     struct NumberFont* font,
     uint32_t* led,
-    uint8_t digit);
+    uint8_t digit,
+    uint8_t mode);
+
+// draws a digit with an indexed color.  Off screen for x,y  is OK
+static inline void number_draw(
+    struct NumberFont* font,
+    uint32_t* led,
+    uint8_t digit) {
+  number_draw_mode(font, led, digit, DRAW_MODE_OVERLAY);
+}
 
 // draws two digits with an indexed color
 void draw_numbers(

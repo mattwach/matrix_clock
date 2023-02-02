@@ -2,16 +2,17 @@
 
 #include "../led_matrix.h"
 #include "../number_draw.h"
+#include "../colors.h"
 #include <string.h>
 #include <stdlib.h>
 
-#define MIN_DIRECTION_WEIGHT 0xA0
+#define MIN_DIRECTION_WEIGHT 0x85
 #define MAX_DIRECTION_WEIGHT 0xFF
 #define MAX_DELTA 4
 #define WAVEFORM_COUNT 3
 
 #define FONT_WIDTH 15
-#define FONT_HEIGHT 15
+#define FONT_HEIGHT 13
 #define FONT_XOFFSET ((LED_MATRIX_WIDTH - FONT_WIDTH) >> 1)
 #define FONT_YSPACING 16
 
@@ -91,17 +92,20 @@ static void render_wave(uint32_t* led, struct Waveform* w, uint8_t head_idx) {
   }
 }
 
-static void render_waves(uint32_t* led, uint32_t frame_index) {
+static void render_waves(uint32_t* led, uint32_t frame_index, uint16_t time_hhmm, uint8_t br) {
   for (uint8_t i=0; i<WAVEFORM_COUNT; ++i) {
     const uint8_t head_idx = (frame_index / (i + 1)) % LED_MATRIX_HEIGHT;
-    render_wave(led, waves + i, head_idx);
+    struct Waveform* w = waves + i;
+    w->color = ((uint32_t)br) << 24 | get_color(time_hhmm % 10);
+    render_wave(led, w, head_idx);
+    time_hhmm /= 10;
   }
 }
 
 static void overlay_time(uint32_t* led, uint16_t time_hhmm) {
   for (uint8_t i=0; i<4; ++i) {
     font.x = FONT_XOFFSET;
-    font.y = i * FONT_YSPACING;
+    font.y = 1 + i * FONT_YSPACING;
     number_draw_mode(&font, led, time_hhmm % 10, DRAW_MODE_WHITE);
     time_hhmm = time_hhmm / 10;
   }
@@ -113,18 +117,7 @@ static void init_wave(struct Waveform* w, uint8_t idx, uint8_t brightness) {
   for (uint8_t i = 0; i < LED_MATRIX_HEIGHT; ++i) {
     w->xpos[i] = -1;
   }
-
-  switch (idx) {
-    case 0:
-      w->color = ((uint32_t)brightness << 24) | 0x00202080;
-      break;
-    case 1:
-      w->color = ((uint32_t)brightness << 24) | 0x00208020;
-      break;
-    default:
-      w->color = ((uint32_t)brightness << 24) | 0x00802020;
-      break;
-  }
+  w->color = 0;
 }
 
 static void init(const uint8_t brightness) {
@@ -139,11 +132,11 @@ void waveform_render(
     uint32_t frame_index,
     uint16_t time_hhmm,
     const struct ClockSettings* settings) {
+  const uint8_t br = brightness_step_to_brightness(settings);
   if (frame_index == 0) {
-    const uint8_t br = brightness_step_to_brightness(settings);
     init(br);
   }
   add_wave_points(frame_index);
-  render_waves(led, frame_index);
+  render_waves(led, frame_index, time_hhmm, br);
   overlay_time(led, time_hhmm);
 }

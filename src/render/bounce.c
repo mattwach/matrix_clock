@@ -34,11 +34,13 @@ static struct Particle minute_ones[NUM_PARTICLES];
 static struct Particle minute_tens[NUM_PARTICLES];
 static struct Particle hour_ones[NUM_PARTICLES];
 
-static void overlay_time(uint32_t* led, uint16_t time_hhmm) {
+static void overlay_time(
+    uint32_t* led, uint16_t time_hhmm, uint32_t br_mask) {
   for (uint8_t i=0; i<4; ++i) {
     font.x = FONT_XOFFSET;
     font.y = 1 + i * FONT_YSPACING;
-    number_draw_mode(&font, led, time_hhmm % 10, DRAW_MODE_WHITE);
+    font.color = br_mask | 0x00FFFFFF; 
+    number_draw_mode(&font, led, time_hhmm % 10, DRAW_MODE_COLOR);
     time_hhmm = time_hhmm / 10;
   }
 }
@@ -215,12 +217,12 @@ void bounce_render(
   if (frame_index == 0) {
     init(br);
   }
-  overlay_time(led, time_hhmm);
+  const uint32_t br_mask = (uint32_t)br << 24;
+  overlay_time(led, time_hhmm, br_mask);
   advance_particles(led, minute_ones, MAX_MINUTE_ONE_VELOCITY);
   advance_particles(led, minute_tens, MAX_MINUTE_TEN_VELOCITY);
   advance_particles(led, hour_ones, MAX_HOUR_ONE_VELOCITY);
 
-  const uint32_t br_mask = (uint32_t)br << 24;
   render_particles(
       led, minute_ones, br_mask | get_color(time_hhmm % 10));
   render_particles(

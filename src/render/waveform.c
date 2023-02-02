@@ -92,21 +92,23 @@ static void render_wave(uint32_t* led, struct Waveform* w, uint8_t head_idx) {
   }
 }
 
-static void render_waves(uint32_t* led, uint32_t frame_index, uint16_t time_hhmm, uint8_t br) {
+static void render_waves(uint32_t* led, uint32_t frame_index, uint16_t time_hhmm, uint32_t br_mask) {
   for (uint8_t i=0; i<WAVEFORM_COUNT; ++i) {
     const uint8_t head_idx = (frame_index / (i + 1)) % LED_MATRIX_HEIGHT;
     struct Waveform* w = waves + i;
-    w->color = ((uint32_t)br) << 24 | get_color(time_hhmm % 10);
+    w->color = br_mask | get_color(time_hhmm % 10);
     render_wave(led, w, head_idx);
     time_hhmm /= 10;
   }
 }
 
-static void overlay_time(uint32_t* led, uint16_t time_hhmm) {
+static void overlay_time(
+    uint32_t* led, uint16_t time_hhmm, uint32_t br_mask) {
   for (uint8_t i=0; i<4; ++i) {
     font.x = FONT_XOFFSET;
     font.y = 1 + i * FONT_YSPACING;
-    number_draw_mode(&font, led, time_hhmm % 10, DRAW_MODE_WHITE);
+    font.color = br_mask | 0x00FFFFFF;
+    number_draw_mode(&font, led, time_hhmm % 10, DRAW_MODE_COLOR);
     time_hhmm = time_hhmm / 10;
   }
 }
@@ -136,7 +138,8 @@ void waveform_render(
   if (frame_index == 0) {
     init(br);
   }
+  const uint32_t br_mask = br << 24;
   add_wave_points(frame_index);
-  render_waves(led, frame_index, time_hhmm, br);
-  overlay_time(led, time_hhmm);
+  render_waves(led, frame_index, time_hhmm, br_mask);
+  overlay_time(led, time_hhmm, br_mask);
 }

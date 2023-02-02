@@ -156,10 +156,14 @@ static void check_for_sleep_and_wake(
   }
 }
 
-static inline uint16_t add_minutes(uint16_t time_hhmm, uint16_t delta) {
-  uint16_t minutes = (time_hhmm % 100) + (delta % 60);
-  uint16_t hours = ((time_hhmm / 100) + (delta / 60)) % 24;
-  return hours * 100 + minutes;
+static uint16_t add_minutes(uint16_t time_hhmm, uint16_t delta) {
+  uint16_t minutes = (time_hhmm % 100) + delta;
+  uint16_t hours = time_hhmm / 100;
+  while (minutes >= 60) {
+    ++hours;
+    minutes -= 60;
+  }
+  return (hours % 24) * 100 + minutes;
 }
 
 static void check_for_auto_mode_change(

@@ -46,6 +46,7 @@ add_executable(matrix_clock
         set_time_low_res.c
         set_time_high_res.c
         render/blank.c
+        render/bounce.c
         render/fade.c
         render/matrix.c
         render/matrix_with_numbers.c

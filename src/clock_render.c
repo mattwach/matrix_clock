@@ -1,6 +1,7 @@
 #include "clock_render.h"
 #include "buttons.h"
 #include "render/blank.h"
+#include "render/bounce.h"
 #include "render/fade.h"
 #include "render/matrix.h"
 #include "render/matrix_with_numbers.h"
@@ -45,6 +46,7 @@ struct DisplayMode {
   struct DisplayMode display_modes[] = {
     {"matrix_with_numbers", matrix_with_numbers_render},  // This entry will be the default power-on mode
     {"matrix", matrix_render},
+    {"bounce", bounce_render},
     {"number_cascade", number_cascade_hires_render},
     {"waveform", waveform_render},
     {"off", blank_render},  // always put this entry at the end of the list

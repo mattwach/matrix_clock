@@ -14,9 +14,9 @@
 #define NUM_PARTICLES 64
 
 // Note: >= 0x100 could end up going through a digit
-#define MAX_MINUTE_ONE_VELOCITY 0xFF
-#define MAX_MINUTE_TEN_VELOCITY 0xAA
-#define MAX_HOUR_ONE_VELOCITY 0x55
+#define MAX_MINUTE_ONE_VELOCITY 0x40
+#define MAX_MINUTE_TEN_VELOCITY 0x20
+#define MAX_HOUR_ONE_VELOCITY 0x10
 
 // used to range the max velocity
 #define MAX_VEL_MIN_PERCENT 75

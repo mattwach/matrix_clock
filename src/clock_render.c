@@ -112,6 +112,10 @@ static uint8_t check_buttons(uint8_t button_pressed, uint32_t frame_index) {
   return 0;
 }
 
+void clock_render_reset_mode_change(void) {
+  next_mode_change_hhmm = 0xFFFF;
+}
+
 // Initializes data the first time it is called.
 static void maybe_clock_init(
   uint32_t frame_index,
@@ -119,7 +123,7 @@ static void maybe_clock_init(
   const struct ClockSettings* settings) {
   if (!display_mode_intitialized) {
     last_sleep_or_wake_hhmm = 0xFFFF;
-    next_mode_change_hhmm = 0xFFFF;
+    clock_render_reset_mode_change();
     display_mode = settings->startup_display_mode;
     wake_display_mode = display_mode;
     display_mode_intitialized = 1;

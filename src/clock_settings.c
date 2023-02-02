@@ -226,8 +226,10 @@ static void auto_mode_change_cmd(uint8_t argc, char* argv[]) {
   }
   if (minutes > MAX_MINUTES) {
     printf("The maximum accepted value is %u\n", MAX_MINUTES);    
+    return;
   }
   settings.mode_change_minutes = minutes;
+  clock_render_reset_mode_change();
   clock_settings_save(&settings);
 }
 
@@ -295,7 +297,7 @@ static void select_cmd(uint8_t argc, char* argv[]) {
 struct ConsoleCallback callbacks[] = {
   {"i", "Same effect as pressing the increment button", 0, increment_cmd},
   {"s", "Same effect as pressing the select button", 0, select_cmd},
-  {"auto_mode_change", "Set minutes for an automatic mode change.", 2, auto_mode_change_cmd},
+  {"auto_mode_change", "Set minutes for an automatic mode change.", 1, auto_mode_change_cmd},
   {"auto_mode_include", "Modify which modes to include. e.g. +matrix -waveform", -1, auto_mode_include},
   {"brightness", "Change brightness from 0-10", 1, brightness_cmd},
   {"get", "Get current settings", 0, get_cmd},

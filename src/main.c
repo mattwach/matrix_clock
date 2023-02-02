@@ -8,6 +8,7 @@
 #include "clock_render.h"
 #include "clock_settings.h"
 #include "led_matrix.h"
+#include "monitor.h"
 #include "buttons.h"
 #include "set_time_low_res.h"
 #include "set_time_high_res.h"
@@ -20,7 +21,6 @@
   #error Unknown LED_MATRIX_SOURCE
 #endif
 
-#define FPS_SAMPLES 500
 #define TIME_UPDATE_FRAMES (1000/FRAME_DELAY_MS)
 #define LED_PIN PICO_DEFAULT_LED_PIN
 
@@ -30,6 +30,8 @@ uint8_t setting_time;
 // format is 0xIIRRGGBB  See led_matrix.h for mor details.
 uint32_t led[LED_MATRIX_COUNT];
 uint16_t time_hhmm;  // a cache of the time to avoid calling for it as much
+
+struct Monitor monitor;
 
 static inline uint32_t uptime_ms() {
   return to_ms_since_boot(get_absolute_time());
@@ -46,6 +48,7 @@ static void init(void) {
   buttons_init();
   sleep_ms(50);
   time_hhmm = clock_get_time();
+  monitor_init(&monitor);
 }
 
 // Updates time_hhmm periocially (based on TIME_UPDATE_FRAMES)
@@ -56,13 +59,13 @@ static void maybe_update_time(uint32_t frame_idx) {
 }
 
 // called repeatedly by main to render a frame
-static uint32_t render(uint32_t frame_idx, uint32_t last_fps) {
+static uint32_t render(uint32_t frame_idx) {
   uint32_t t1 = uptime_ms();
   maybe_update_time(frame_idx);
   memset(led, 0, sizeof(led));
   uint8_t toggle_setting_time = 0;
   uint8_t buttons = buttons_get();
-  buttons |= clock_settings_poll(time_hhmm, last_fps);
+  buttons |= clock_settings_poll(time_hhmm, monitor.last_fps);
   if (setting_time) {
     toggle_setting_time = SET_TIME_RENDER(
           led, buttons, frame_idx, time_hhmm, clock_settings());
@@ -89,18 +92,9 @@ static uint32_t render(uint32_t frame_idx, uint32_t last_fps) {
 int main() {
   init();
   uint32_t frame_idx = 0;
-  uint32_t fps_idx = 0;
-  uint32_t last_fps_sample = uptime_ms();
-  uint32_t last_fps = 0;
   while (1) {
-    frame_idx = render(frame_idx, last_fps);
+    frame_idx = render(frame_idx);
     gpio_put(LED_PIN, is_current_over());
-    ++fps_idx;
-    if (fps_idx == FPS_SAMPLES) {
-      const uint32_t new_fps_sample = uptime_ms();
-      last_fps = fps_idx * 1000 / (new_fps_sample - last_fps_sample);
-      last_fps_sample = new_fps_sample;
-      fps_idx = 0;
-    }
+    monitor_frame(&monitor);
   }
 }

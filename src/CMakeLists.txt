@@ -41,6 +41,7 @@ add_executable(matrix_clock
         debounce.c
         debug.c
         main.c
+        monitor.c
         number_draw.c
         set_time_low_res.c
         set_time_high_res.c

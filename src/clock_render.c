@@ -89,18 +89,22 @@ const char* clock_render_display_mode_name(uint8_t mode) {
   return "unknown";
 }
 
+static void increment_display_mode(uint32_t frame_index) {
+  ++display_mode;
+  if (display_mode >= NUM_DISPLAY_MODES) {
+    display_mode = 0;
+  }
+  // the mode to return to when waking up
+  wake_display_mode = display_mode;
+  // This is done to show numbers right away in DISPLAY_NUMBERS mode
+  // +1 because check_buttons is called at the end of the loop
+  frame_index_delta = frame_index + 1;
+}
+
 // logic that checks button state and changed the display mode if needed.
 static uint8_t check_buttons(uint8_t button_pressed, uint32_t frame_index) {
   if (button_pressed & INCREMENT_BUTTON) {
-    ++display_mode;
-    if (display_mode >= NUM_DISPLAY_MODES) {
-      display_mode = 0;
-    }
-    // the mode to return to when waking up
-    wake_display_mode = display_mode;
-    // This is done to show numbers right away in DISPLAY_NUMBERS mode
-    // +1 because check_buttons is called at the end of the loop
-    frame_index_delta = frame_index + 1;
+    increment_display_mode(frame_index);
   }
   if (button_pressed & SELECT_BUTTON) {
     // The user asked to go into set time mode (whether they realize it or not).
@@ -153,18 +157,10 @@ static void check_for_sleep_and_wake(
   }
 }
 
-static void increment_display_mode(const struct ClockSettings* settings) {
-  do {
-    ++display_mode;
-    if (display_mode >= NUM_DISPLAY_MODES) {
-      display_mode = 0;
-    }
-  } while ((settings->enabled_modes & (1 << display_mode)) == 0);
-}
-
 static void check_for_auto_mode_change(
   uint16_t time_hhmm,
-  const struct ClockSettings* settings) {
+  const struct ClockSettings* settings,
+  uint32_t frame_index) {
   if (settings->mode_change_min_minutes == 0) {
     // disabled
     return;
@@ -173,7 +169,9 @@ static void check_for_auto_mode_change(
     return;
   }
   if (time_hhmm == next_mode_change_hhmm) {
-    increment_display_mode(settings);
+    do {
+      increment_display_mode(frame_index);
+    } while ((settings->enabled_modes & (1 << display_mode)) == 0);
   }
   if (time_hhmm >= next_mode_change_hhmm) {
     next_mode_change_hhmm =
@@ -193,7 +191,7 @@ uint8_t clock_render(
     const struct ClockSettings* settings) {
   maybe_clock_init(frame_index, time_hhmm, settings);
   check_for_sleep_and_wake(time_hhmm, settings);
-  check_for_auto_mode_change(time_hhmm, settings);
+  check_for_auto_mode_change(time_hhmm, settings, frame_index);
   display_modes[display_mode].render(
       led,
       frame_index - frame_index_delta,

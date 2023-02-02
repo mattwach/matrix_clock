@@ -98,6 +98,7 @@ static void increment_display_mode(uint32_t frame_index) {
   // This is done to show numbers right away in DISPLAY_NUMBERS mode
   // +1 because check_buttons is called at the end of the loop
   frame_index_delta = frame_index + 1;
+  clock_render_reset_mode_change();
 }
 
 // logic that checks button state and changed the display mode if needed.
@@ -186,7 +187,7 @@ static void check_for_auto_mode_change(
       increment_display_mode(frame_index);
     } while ((settings->enabled_modes & (1 << display_mode)) == 0);
   }
-  if ((next_mode_change_hhmm == 0xFFFF) || (time_hhmm == next_mode_change_hhmm)) {
+  if (next_mode_change_hhmm == 0xFFFF) {
     next_mode_change_hhmm = add_minutes(time_hhmm, settings->mode_change_minutes);
     // Odd observation. With this previous code:
     // framerates took a huge hit on the matrix mode.  This

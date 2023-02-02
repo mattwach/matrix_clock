@@ -124,10 +124,14 @@ static void pixel(
     return;
   }
   uint16_t pixel_idx = get_pixel_idx(x, y);
-  if ((mode == DRAW_MODE_INTERSECT) && (led[pixel_idx] == 0x00000000)) {
-    return;
+  switch (mode) {
+    case DRAW_MODE_OVERLAY:
+      led[pixel_idx] = color_with_brightness;
+      break;
+    case DRAW_MODE_WHITE:
+      led[pixel_idx] = color_with_brightness | 0xFFFFFF;
+      break;
   }
-  led[pixel_idx] = color_with_brightness;
 }
 
 void number_font_init(

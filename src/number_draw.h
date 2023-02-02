@@ -5,7 +5,7 @@
 #include <inttypes.h>
 
 #define DRAW_MODE_OVERLAY 0
-#define DRAW_MODE_INTERSECT 1
+#define DRAW_MODE_WHITE 1
 
 struct NumberFont {
   int16_t x;

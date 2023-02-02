@@ -30,15 +30,14 @@ struct ClockSettings {
 
   // mode change settings
   uint16_t enabled_modes;
-  uint16_t mode_change_min_minutes;
-  uint16_t mode_change_max_minutes;
+  uint16_t mode_change_minutes;
 };
 
 void clock_settings_init(void);
 
 // Call this regularly to give the user a responsive USB shell.
 // returns a 1 if the frame_index needs to be reset
-uint8_t clock_settings_poll(uint16_t time_hhmm);
+uint8_t clock_settings_poll(uint16_t time_hhmm, uint32_t last_fps);
 
 // Get a read-only copy of the settings.
 const struct ClockSettings* clock_settings(void);

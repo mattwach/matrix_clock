@@ -7,7 +7,6 @@
 #include "render/number_cascade.h"
 #include "render/number_cascade_hires.h"
 #include "render/waveform.h"
-#include <stdlib.h>
 
 // This is the "render multiplexer" file.  It registers a table
 // of rendering options (called DisplayMode) and provides logic to
@@ -161,7 +160,7 @@ static void check_for_auto_mode_change(
   uint16_t time_hhmm,
   const struct ClockSettings* settings,
   uint32_t frame_index) {
-  if (settings->mode_change_min_minutes == 0) {
+  if (settings->mode_change_minutes == 0) {
     // disabled
     return;
   }
@@ -175,10 +174,19 @@ static void check_for_auto_mode_change(
   }
   if (time_hhmm >= next_mode_change_hhmm) {
     next_mode_change_hhmm =
+      time_hhmm + settings->mode_change_minutes;
+    // Odd obsertation. With this previous code:
+    // framerates took a huge hit on the matrix mode.  This
+    // happened even when this funtion was not called at all.
+    // It seems like having random() here is changing something
+    // fundamental with the build
+    /*
+    next_mode_change_hhmm =
       time_hhmm +
       settings->mode_change_min_minutes +
       (random() % (settings->mode_change_max_minutes -
                    settings->mode_change_min_minutes));
+    */
   }
 }
   

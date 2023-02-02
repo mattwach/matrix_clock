@@ -78,13 +78,12 @@ static void output_sleep_data(void) {
 
 static void print_enabled_modes(void) {
   printf("auto_mode_change: ");
-  if (settings.mode_change_min_minutes == 0) {
+  if (settings.mode_change_minutes == 0) {
     printf("disabled\n");  
   } else {
     printf(
-        "%d-%d min\n",
-        settings.mode_change_min_minutes,
-        settings.mode_change_max_minutes);
+        "%d min\n",
+        settings.mode_change_minutes);
   }
   printf("auto_mode_include: ");
   const uint8_t num_modes = clock_render_num_display_modes() - 1;
@@ -220,20 +219,11 @@ static void startup_display_mode_cmd(uint8_t argc, char* argv[]) {
 }
 
 static void auto_mode_change_cmd(uint8_t argc, char* argv[]) {
-  int min_minutes = parse_uint(argv[0]);
-  if (min_minutes < 0) {
+  int minutes = parse_uint(argv[0]);
+  if (minutes < 0) {
     return;
   }
-  int max_minutes = parse_uint(argv[1]);
-  if (max_minutes < 0) {
-    return;
-  }
-  if (min_minutes > max_minutes) {
-    printf("Invalid min max specification: min >= max\n");
-    return;
-  }
-  settings.mode_change_min_minutes = min_minutes;
-  settings.mode_change_max_minutes = max_minutes;
+  settings.mode_change_minutes = minutes;
   clock_settings_save(&settings);
 }
 
@@ -357,14 +347,15 @@ void clock_settings_init() {
   }
 }
 
-uint8_t clock_settings_poll(uint16_t time_hhmm) {
+uint8_t clock_settings_poll(uint16_t time_hhmm, uint32_t last_fps) {
   buttons = 0x00;
   char prompt[80];
   const uint8_t old_display_mode = clock_render_get_display_mode();
-  sprintf(prompt, "%02d:%02d %s (%s,%s,%s)> ",
+  sprintf(prompt, "%02d:%02d %s %uFPS (%s,%s,%s)> ",
        time_hhmm / 100,
        time_hhmm % 100,
        clock_render_display_mode_name(old_display_mode),
+       last_fps,
        get_color_name((time_hhmm / 100) % 10),
        get_color_name((time_hhmm / 10) % 10),
        get_color_name(time_hhmm % 10)

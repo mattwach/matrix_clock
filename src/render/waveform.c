@@ -64,8 +64,9 @@ static void add_wave_point(struct Waveform* w, uint8_t head_idx) {
   w->xpos[head_idx] = new_x;
 }
 
-static void add_wave_points(uint8_t head_idx) {
+static void add_wave_points(uint32_t frame_index) {
   for (uint8_t i=0; i<WAVEFORM_COUNT; ++i) {
+    const uint8_t head_idx = (frame_index / (i + 1)) % LED_MATRIX_HEIGHT;
     add_wave_point(waves + i, head_idx);
   }
 }
@@ -90,8 +91,9 @@ static void render_wave(uint32_t* led, struct Waveform* w, uint8_t head_idx) {
   }
 }
 
-static void render_waves(uint32_t* led, uint8_t head_idx) {
+static void render_waves(uint32_t* led, uint32_t frame_index) {
   for (uint8_t i=0; i<WAVEFORM_COUNT; ++i) {
+    const uint8_t head_idx = (frame_index / (i + 1)) % LED_MATRIX_HEIGHT;
     render_wave(led, waves + i, head_idx);
   }
 }
@@ -141,8 +143,7 @@ void waveform_render(
     const uint8_t br = brightness_step_to_brightness(settings);
     init(br);
   }
-  const uint8_t head_idx = frame_index % LED_MATRIX_HEIGHT;
-  add_wave_points(head_idx);
-  render_waves(led, head_idx);
+  add_wave_points(frame_index);
+  render_waves(led, frame_index);
   overlay_time(led, time_hhmm);
 }

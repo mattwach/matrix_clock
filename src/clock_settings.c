@@ -218,10 +218,14 @@ static void startup_display_mode_cmd(uint8_t argc, char* argv[]) {
   printf("Unknown display mode: %s.  Try list_display_modes\n", mode);
 }
 
+#define MAX_MINUTES (60 * 24 - 1)
 static void auto_mode_change_cmd(uint8_t argc, char* argv[]) {
   int minutes = parse_uint(argv[0]);
   if (minutes < 0) {
     return;
+  }
+  if (minutes > MAX_MINUTES) {
+    printf("The maximum accepted value is %u\n", MAX_MINUTES);    
   }
   settings.mode_change_minutes = minutes;
   clock_settings_save(&settings);
@@ -291,7 +295,7 @@ static void select_cmd(uint8_t argc, char* argv[]) {
 struct ConsoleCallback callbacks[] = {
   {"i", "Same effect as pressing the increment button", 0, increment_cmd},
   {"s", "Same effect as pressing the select button", 0, select_cmd},
-  {"auto_mode_change", "Set min and max minutes for an automatic mode change. e.g. 5 60", 2, auto_mode_change_cmd},
+  {"auto_mode_change", "Set minutes for an automatic mode change.", 2, auto_mode_change_cmd},
   {"auto_mode_include", "Modify which modes to include. e.g. +matrix -waveform", -1, auto_mode_include},
   {"brightness", "Change brightness from 0-10", 1, brightness_cmd},
   {"get", "Get current settings", 0, get_cmd},

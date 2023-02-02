@@ -119,10 +119,10 @@ static void maybe_clock_init(
   const struct ClockSettings* settings) {
   if (!display_mode_intitialized) {
     last_sleep_or_wake_hhmm = 0xFFFF;
+    next_mode_change_hhmm = 0xFFFF;
     display_mode = settings->startup_display_mode;
     wake_display_mode = display_mode;
     display_mode_intitialized = 1;
-    next_mode_change_hhmm = 0;
   }
   if (frame_index == 0) {
     // reset the delta so that display_modes that need to
@@ -156,6 +156,12 @@ static void check_for_sleep_and_wake(
   }
 }
 
+static inline uint16_t add_minutes(uint16_t time_hhmm, uint16_t delta) {
+  uint16_t minutes = (time_hhmm % 100) + (delta % 60);
+  uint16_t hours = ((time_hhmm / 100) + (delta / 60)) % 24;
+  return hours * 100 + minutes;
+}
+
 static void check_for_auto_mode_change(
   uint16_t time_hhmm,
   const struct ClockSettings* settings,
@@ -172,12 +178,11 @@ static void check_for_auto_mode_change(
       increment_display_mode(frame_index);
     } while ((settings->enabled_modes & (1 << display_mode)) == 0);
   }
-  if (time_hhmm >= next_mode_change_hhmm) {
-    next_mode_change_hhmm =
-      time_hhmm + settings->mode_change_minutes;
-    // Odd obsertation. With this previous code:
+  if ((next_mode_change_hhmm == 0xFFFF) || (time_hhmm == next_mode_change_hhmm)) {
+    next_mode_change_hhmm = add_minutes(time_hhmm, settings->mode_change_minutes);
+    // Odd observation. With this previous code:
     // framerates took a huge hit on the matrix mode.  This
-    // happened even when this funtion was not called at all.
+    // happened even when this function was not called at all.
     // It seems like having random() here is changing something
     // fundamental with the build
     /*

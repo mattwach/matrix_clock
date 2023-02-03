@@ -48,6 +48,7 @@ add_executable(matrix_clock
         render/blank.c
         render/bounce.c
         render/fade.c
+        render/glow.c
         render/matrix.c
         render/matrix_with_numbers.c
         render/number_cascade.c

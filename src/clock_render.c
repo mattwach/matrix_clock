@@ -3,6 +3,7 @@
 #include "render/blank.h"
 #include "render/bounce.h"
 #include "render/fade.h"
+#include "render/glow.h"
 #include "render/matrix.h"
 #include "render/matrix_with_numbers.h"
 #include "render/number_cascade.h"
@@ -49,6 +50,7 @@ struct DisplayMode {
     {"bounce", bounce_render},
     {"number_cascade", number_cascade_hires_render},
     {"waveform", waveform_render},
+    {"glow", glow_render},
     {"off", blank_render},  // always put this entry at the end of the list
   };
 #else

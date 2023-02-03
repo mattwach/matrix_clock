@@ -4,10 +4,11 @@
 
 #include <inttypes.h>
 
-#define DRAW_MODE_OVERLAY 0
-#define DRAW_MODE_WHITE 1
+#define DRAW_MODE_NUMBER 0
+#define DRAW_MODE_COLOR 1
 
 struct NumberFont {
+  uint32_t color;
   int16_t x;
   int16_t y;
   uint8_t brightness;
@@ -40,7 +41,7 @@ static inline void number_draw(
     struct NumberFont* font,
     uint32_t* led,
     uint8_t digit) {
-  number_draw_mode(font, led, digit, DRAW_MODE_OVERLAY);
+  number_draw_mode(font, led, digit, DRAW_MODE_NUMBER);
 }
 
 // draws two digits with an indexed color

@@ -115,8 +115,7 @@ static void pixel(
   uint32_t* led,
   int16_t x,
   int16_t y,
-  uint32_t color_with_brightness,
-  uint8_t mode) {
+  uint32_t color_with_brightness) {
   if ((x < 0) || (x >= LED_MATRIX_WIDTH)) {
     return;
   }
@@ -124,14 +123,7 @@ static void pixel(
     return;
   }
   uint16_t pixel_idx = get_pixel_idx(x, y);
-  switch (mode) {
-    case DRAW_MODE_OVERLAY:
-      led[pixel_idx] = color_with_brightness;
-      break;
-    case DRAW_MODE_WHITE:
-      led[pixel_idx] = color_with_brightness | 0xFFFFFF;
-      break;
-  }
+  led[pixel_idx] = color_with_brightness;
 }
 
 void number_font_init(
@@ -157,9 +149,7 @@ void number_font_init(
 static inline void draw_line(
     struct NumberFont* font,
     uint32_t* led,
-    const struct Line* line,
-    uint32_t color,
-    uint8_t mode) {
+    const struct Line* line) {
   // scale from the 0-16 scale to the provided width/height values
   const int16_t x0 = font->x + ((line->x0 * font->char_width) >> 4);
   const int16_t y0 = font->y + ((line->y0 * font->char_height) >> 4);
@@ -176,7 +166,7 @@ static inline void draw_line(
   int16_t x = x0;
   int16_t y = y0;
 
-  pixel(led, x, y, color, mode);
+  pixel(led, x, y, font->color);
 
   while (x != x1 || y != y1) {
     if (D > 0) {
@@ -189,7 +179,7 @@ static inline void draw_line(
       D += 2 * dy;
     }
 
-    pixel(led, x, y, color, mode);
+    pixel(led, x, y, font->color);
   }
 }
 
@@ -203,20 +193,22 @@ void number_draw_mode(
     return;
   }
   const struct Line* lines = font_lines[digit];
-  const uint32_t color = ((uint32_t)font->brightness << 24) | get_color(digit);
+  if (mode == DRAW_MODE_NUMBER) {
+    font->color = ((uint32_t)font->brightness << 24) | get_color(digit);
+  }
 
   for (; lines[0].x0 >= 0; ++lines) {
-    draw_line(font, led, lines, color, mode);
+    draw_line(font, led, lines);
   }
   font->x += font->char_spacing;
 }
 
 void number_draw_dash(struct NumberFont* font, uint32_t* led) {
-  const uint32_t color = ((uint32_t)font->brightness << 24) | 0xFFFFFF; // white
+  font->color = ((uint32_t)font->brightness << 24) | 0xFFFFFF; // white
   const struct Line dash1 = {0, 4, 0, 5};
-  draw_line(font, led, &dash1, color, DRAW_MODE_OVERLAY);
+  draw_line(font, led, &dash1);
   const struct Line dash2 = {0, 12, 0, 13};
-  draw_line(font, led, &dash2, color, DRAW_MODE_OVERLAY);
+  draw_line(font, led, &dash2);
   font->x += 2;
 }
 

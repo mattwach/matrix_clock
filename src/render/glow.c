@@ -5,6 +5,9 @@
 #include "../colors.h"
 #include <string.h>
 #include <stdlib.h>
+#include "pico/platform.h"
+
+#include "distances.inc"
 
 #define FONT_WIDTH 15
 #define FONT_HEIGHT 13

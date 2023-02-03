@@ -9,8 +9,26 @@
 import math
 from typing import TextIO
 
-MAX_DISTANCE = 8
+DISTANCE_SCALE = 0.2
+MIN_WEIGHT = 0x10
 ANGLE_INCREMENT = math.pi / 1800
+
+def get_weight(distance: int) -> int:
+  if distance == 0:
+    return 255
+  cir = 2.0 * math.pi * float(distance) * DISTANCE_SCALE
+  return round(255.0 / cir)
+
+
+def calc_weights() -> list[int]:
+  weights = []
+  distance = 0
+  while True:
+    w = get_weight(distance)
+    if w < MIN_WEIGHT:
+      return weights
+    weights.append(w)
+    distance = distance + 1.0
 
 def gen_points(distance: int) -> list[tuple[int, int]]:
   """Format is (x, y)"""
@@ -34,15 +52,28 @@ def generate_header() -> None:
   )
   print('\n'.join(output))
 
+def generate_weights(weights: list[int]) -> None:
+  data = (
+      f'#define NUM_DISTANCES {len(weights) + 1}  // MAX is -1 this val',
+      '',
+      '// Each number below is the weight to apply to a color at a given ',
+      '// distance.  The range is 0x00-0xFF.',
+      '',
+      'uint8_t distance_weights[NUM_DISTANCES] __in_flash() = {',
+  )
+  print('\n'.join(data))
+  for w in weights:
+    print('    0x%02X,' % w)
+  print('};\n')
+
 def generate_offsets(distances: list[list[tuple[int, int]]]) -> None:
   data = (
-      f'#define NUM_DISTANCES {MAX_DISTANCE + 1}  // MAX is -1 this val',
       '',
       '// Each number below is the offset into the array for the given ',
       '// distance.  The next element is used to calculate the length.',
       '// The final element is used only for the length calculation',
       '',
-      'uint16_t distance_offsets[NUM_DISTANCES + 1] = {',
+      'uint16_t distance_offsets[NUM_DISTANCES + 1] __in_flash() = {',
   )
   print('\n'.join(data))
   offset = 0;
@@ -70,7 +101,7 @@ def generate_data(distances: list[list[tuple[int, int]]]) -> None:
   num_points = sum(len(pl) for pl in distances)
   data = (
       '// each element is of the format 0xXXYY',
-      'uint16_t distance_points[%u] = {' % num_points,
+      'uint16_t distance_points[%u] __in_flash() = {' % num_points,
   )
   print('\n'.join(data))
   for idx, point_list in enumerate(distances):
@@ -78,14 +109,18 @@ def generate_data(distances: list[list[tuple[int, int]]]) -> None:
   print('};\n')
 
 
-def generate_output(distances: list[list[tuple[int, int]]]) -> None:
+def generate_output(
+  weights: list[int], distances: list[list[tuple[int, int]]]) -> None:
   generate_header()
+  generate_weights(weights)
   generate_offsets(distances)
   generate_data(distances)
 
 def main() -> None:
-  distances = [gen_points(d) for d in range(MAX_DISTANCE + 1)]
-  generate_output(distances)
+  weights = calc_weights()
+  max_distance = len(weights) + 1
+  distances = [gen_points(d) for d in range(max_distance + 1)]
+  generate_output(weights, distances)
 
 if __name__ == '__main__':
   main()

@@ -20,5 +20,7 @@ const char* clock_render_display_mode_name(uint8_t mode);
 void clock_render_set_display_mode(uint8_t mode);
 uint8_t clock_render_get_display_mode(void);
 void clock_render_reset_mode_change(void);
+// returns the next mode change time in hhmm
+uint16_t clock_render_next_mode_change(void);
 
 #endif

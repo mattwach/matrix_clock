@@ -15,7 +15,7 @@
 #define FONT_YSPACING 16
 
 #define NUM_PARTICLES 16
-#define MAX_WAIT_FRAMES 200
+#define MAX_WAIT_FRAMES 10
 
 struct Particle {
   uint8_t x;
@@ -30,11 +30,11 @@ struct Particle {
 struct NumberFont font;
 struct Particle particles[NUM_PARTICLES];
 
-static void overlay_time(uint32_t* led, uint16_t time_hhmm) {
+static void overlay_time(uint32_t* led, uint16_t time_hhmm, uint8_t mode) {
   for (uint8_t i=0; i<4; ++i) {
     font.x = FONT_XOFFSET;
     font.y = 1 + i * FONT_YSPACING;
-    number_draw_mode(&font, led, time_hhmm % 10, DRAW_MODE_NUMBER);
+    number_draw_mode(&font, led, time_hhmm % 10, mode);
     time_hhmm = time_hhmm / 10;
   }
 }
@@ -74,10 +74,8 @@ static void activate_particle(const uint32_t* led, struct Particle* p) {
     }
     // bounds checks
     p->x += dir;
-    if (p->x < FONT_XOFFSET) {
-      return;
-    }
-    if (p->x > (FONT_XOFFSET + FONT_WIDTH)) {
+    if ((p->x < FONT_XOFFSET) || (p->x > (FONT_XOFFSET + FONT_WIDTH))) {
+      reset_particle(p);
       return;
     }
   }
@@ -85,8 +83,7 @@ static void activate_particle(const uint32_t* led, struct Particle* p) {
 
 static void advance_particle(const uint32_t* led, struct Particle* p) {
   ++p->frame;
-  if (p->frame < 0) {
-  } else if (p->frame == 0) {
+  if (p->frame == 0) {
     activate_particle(led, p);
   } else if (p->frame >= NUM_DISTANCES) {
     reset_particle(p);
@@ -131,7 +128,7 @@ static void try_merge_point(uint32_t* led, int8_t x, int8_t y, uint32_t color) {
   }
 
   // need to add channels to the found channels
-  const uint32_t br_mask = color & 0x00FFFFFF;
+  const uint32_t br_mask = color & 0xFF000000;
   uint32_t r = ((existing_color >> 16) & 0xFF) + ((color >> 16) & 0xFF);
   uint32_t g = ((existing_color >> 8) & 0xFF) + ((color >> 8) & 0xFF);
   uint32_t b = (existing_color & 0xFF) + (color & 0xFF);
@@ -159,10 +156,18 @@ static void overlay_active_particle(uint32_t* led, const struct Particle* p, uin
     const int8_t yc = p->y;
     // distance_point is only a 90 degree arc, thus we need to mirror it on
     // both x and y
-    try_merge_point(led, xc + xd, yc + yd, color);
-    try_merge_point(led, xc - xd, yc + yd, color);
-    try_merge_point(led, xc - xd, yc - yd, color);
-    try_merge_point(led, xc + xd, yc - yd, color);
+    if (xd == 0) {
+      try_merge_point(led, xc, yc + yd, color);
+      try_merge_point(led, xc, yc - yd, color);
+    } else if (yd == 0) {
+      try_merge_point(led, xc + xd, yc, color);
+      try_merge_point(led, xc - xd, yc, color);
+    } else {
+      try_merge_point(led, xc + xd, yc + yd, color);
+      try_merge_point(led, xc - xd, yc + yd, color);
+      try_merge_point(led, xc - xd, yc - yd, color);
+      try_merge_point(led, xc + xd, yc - yd, color);
+    }
   } 
 }
 
@@ -191,12 +196,16 @@ void glow_render(
     uint32_t frame_index,
     uint16_t time_hhmm,
     const struct ClockSettings* settings) {
-  const uint8_t br = brightness_step_to_brightness(settings);
+  const uint32_t br = brightness_step_to_brightness(settings);
   if (frame_index == 0) {
     init(br);
   }
-  overlay_time(led, time_hhmm);
-  advance_particles(led);
+  overlay_time(led, time_hhmm, DRAW_MODE_NUMBER);
+  if ((frame_index & 0x07) == 0) {
+    advance_particles(led);
+  }
   overlay_active_particles(led, br << 24);
+  //font.color = (br << 24) | 0x00FFFFFF;
+  //overlay_time(led, time_hhmm, DRAW_MODE_COLOR);
 }
 

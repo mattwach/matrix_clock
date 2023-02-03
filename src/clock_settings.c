@@ -82,8 +82,8 @@ static void print_enabled_modes(void) {
     printf("disabled\n");  
   } else {
     printf(
-        "%d min\n",
-        settings.mode_change_minutes);
+        "%d min  next:%04d\n",
+        settings.mode_change_minutes, clock_render_next_mode_change());
   }
   printf("auto_mode_include: ");
   const uint8_t num_modes = clock_render_num_display_modes() - 1;

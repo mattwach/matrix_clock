@@ -9,15 +9,15 @@
 import math
 from typing import TextIO
 
-DISTANCE_SCALE = 0.2
-MIN_WEIGHT = 0x10
+DISTANCE_SCALE = 1.5
+MIN_WEIGHT = 0x20
 ANGLE_INCREMENT = math.pi / 1800
 
 def get_weight(distance: int) -> int:
   if distance == 0:
     return 255
-  cir = 2.0 * math.pi * float(distance) * DISTANCE_SCALE
-  return round(255.0 / cir)
+  scale = float(distance) / DISTANCE_SCALE
+  return round(255.0 / (1 + scale))
 
 
 def calc_weights() -> list[int]:

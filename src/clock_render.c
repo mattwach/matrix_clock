@@ -84,6 +84,10 @@ uint8_t clock_render_get_display_mode(void) {
   return display_mode;
 }
 
+uint16_t clock_render_next_mode_change(void) {
+  return next_mode_change_hhmm;
+}
+
 // interface for getting names.  Used by clock_settings.c
 const char* clock_render_display_mode_name(uint8_t mode) {
   if (mode < NUM_DISPLAY_MODES) {

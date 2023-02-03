@@ -54,7 +54,7 @@ def generate_header() -> None:
 
 def generate_weights(weights: list[int]) -> None:
   data = (
-      f'#define NUM_DISTANCES {len(weights) + 1}  // MAX is -1 this val',
+      f'#define NUM_DISTANCES {len(weights)}  // MAX is -1 this val',
       '',
       '// Each number below is the weight to apply to a color at a given ',
       '// distance.  The range is 0x00-0xFF.',
@@ -62,8 +62,8 @@ def generate_weights(weights: list[int]) -> None:
       'uint8_t distance_weights[NUM_DISTANCES] __in_flash() = {',
   )
   print('\n'.join(data))
-  for w in weights:
-    print('    0x%02X,' % w)
+  for idx, w in enumerate(weights):
+    print('    0x%02X,  // %d' % (w, idx))
   print('};\n')
 
 def generate_offsets(distances: list[list[tuple[int, int]]]) -> None:
@@ -77,10 +77,10 @@ def generate_offsets(distances: list[list[tuple[int, int]]]) -> None:
   )
   print('\n'.join(data))
   offset = 0;
-  for point_list in distances:
-    print(f'    {offset},')
+  for idx, point_list in enumerate(distances):
+    print(f'    0x%04X,  // %d' % (offset, idx))
     offset += len(point_list)
-  print(f'    {offset}')
+  print(f'    0x%04X,' % offset)
   print('};\n')
 
 def chunks(lst, n):
@@ -118,8 +118,7 @@ def generate_output(
 
 def main() -> None:
   weights = calc_weights()
-  max_distance = len(weights) + 1
-  distances = [gen_points(d) for d in range(max_distance + 1)]
+  distances = [gen_points(d) for d in range(len(weights))]
   generate_output(weights, distances)
 
 if __name__ == '__main__':

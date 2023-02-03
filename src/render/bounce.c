@@ -11,7 +11,7 @@
 #define FONT_XOFFSET ((LED_MATRIX_WIDTH - FONT_WIDTH) >> 1)
 #define FONT_YSPACING 16
 
-#define NUM_PARTICLES 64
+#define NUM_PARTICLES 32
 
 // Note: >= 0x100 could end up going through a digit
 #define MAX_MINUTE_ONE_VELOCITY 0x40

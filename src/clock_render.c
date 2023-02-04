@@ -221,11 +221,15 @@ uint8_t clock_render(
     const struct ClockSettings* settings) {
   maybe_clock_init(frame_index, time_hhmm, settings);
   check_for_sleep_and_wake(time_hhmm, settings);
-  check_for_auto_mode_change(time_hhmm, settings, frame_index);
   display_modes[display_mode].render(
       led,
       frame_index - frame_index_delta,
       time_hhmm,
       settings);
+  // Note: anything that might call increment_display_mode() (including
+  // the two calls below) must be called after dislay_modes[i].render
+  // Otherwise the passed frame index will not be zero which can
+  // lead to initilization problems.
+  check_for_auto_mode_change(time_hhmm, settings, frame_index);
   return check_buttons(button_pressed, frame_index);
 }

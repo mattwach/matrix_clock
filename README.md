@@ -4,14 +4,20 @@
 ![matrix clock](images/matrix_clock.jpg)
 
 Shown above is a clock that presents the current time on an 64x32 RGB LED
-matrix.  The clock has other selectable modes, including these:
+matrix.  The clock has other selectable modes, including a view that omits the numbers:
 
-![matrix clock](images/matrix_clock2.jpg)
-![matrix clock](images/matrix_clock3.jpg)
+![matrix clock](images/matrix_only.jpg)
 
-The firware also support different hardware configurations (different LED and
-clock hardware), included with the project is a 8x8 "dotstar" model which I
-used originally:
+and some other selectable views:
+
+![matrix clock](images/other_matrix_modes.jpg)
+
+Although the images above give you a basic idea, they can't show you the
+dynamic range of the LED or the graphical effect of the 200 FPS animations,
+I guess you'll just have to build one to see it yourself.
+
+In terms of hardware the project's firmware is setup to support other hardware
+configurations.  Included is a 8x8 dotstar matrix version that was my "V1":
 
 ![matrix clock](images/ds8x8/matrix_clock.jpg)
 
@@ -37,7 +43,7 @@ different ones.  Prices are "at time of writing":
      * One 8x2 2.54 pitch male pin header to interface the Pico PCB with the
        matrix (using the usually-included interface cable)
      * A couple of angled male pin headers to connect to buttons and power.
-   * 1 220uF capacitor to reduce 5V noise.  Somewhat larger or smaller values
+   * 1 100uF capacitor to reduce 5V noise.  Somewhat larger or smaller values
      values should also work fine.
    * PCB for assembly.
      * Many options.  Below is what I went with.
@@ -73,7 +79,7 @@ preference.
 
 Numbers are represented by colors.  At the time of writing, they are as follows:
 
-![numbers](images/numbers.jpg)
+![numbers](images/clock_set.jpg)
 
 > Colors are defined in [src/colors.c](src/colors.c) if you would like to edit them.
 
@@ -109,15 +115,13 @@ This is a quick tour of the built in-features
 When you plug in the clock via any USB power source you will get a matrix clock
 display that indicates the current time as-reported by the RTC clock hardware.
 
-![matrix clock 2](images/matrix_clock4.jpg)
+![matrix clock 2](images/matrix_with_numbers.jpg)
 
 ## Setting the Time
 
 The clock has two buttons on it's side: "set" and "increment". Pressing "set"
 goes into time change mode where you can use "set" and "increment" to change
 each time digit.
-
-![numbers](images/numbers.jpg)
 
 > You can also set the clock via the USB connection.
 
@@ -190,9 +194,9 @@ Here is a description on major components and their purpose:
     as the PI Pico, Raspberry PI, ARM, or ESP series.  If you have an LED matrix
     that ignores 3.3V, the problem can be solved by adding "level shifter" ICs or
     an equivilent circuit.
-  - 220u capacitor.  The actual value is not important other that "big".  The
+  - 100u capacitor.  The actual value is not important other that "big".  The
     purpose of the capacitor is to support the power requirements of the LED, which
-    can be a "noisy" load, needing near zero current one moment and sevelral hundred
+    can be a "noisy" load, needing near zero current one moment and several hundred
     mA the next.
   - Support for buttons.  Select, increment and reset as described earlier.
   - NCP380 current limiting chip (optional).  This chip provides insurance for
@@ -201,11 +205,13 @@ Here is a description on major components and their purpose:
     current draw, you'll need to rework the power design so that the LED panel
     can be directly powered from a capable (3A+) source instead of VDD on the
     Pico.
+    
+> VDD on the Pico is a direct passthrough to the USB power so it's the
+> USB regulator (wall adapter, computer) and the PCB traces of the Pico that are
+> the main power bottlenecks.
 
 > If you don't us use the NCP380, simply connect the 5V directly to the LED.
-> Keep the 220u capacitor for noise purposes.
-
-![opened clock](images/back_of_clock.jpg)
+> Keep the 100u capacitor for noise purposes.
 
 ## Firmware
 
@@ -272,7 +278,18 @@ If you don't want to mess around with OpenSCAD, I also have the models available
 direct download at [case/led_matrix_64x32/export](case/led_matrix_64x32/export).  These
 are .3mf files (an improved .stl) that most modern slicer programs can directly load.
 
-To assemble, you ..... I AM HERE
+![openscad_bottom](images/openscad_bottom.png)
+![openscad_top](images/openscad_top.png)
+![openscad_model](images/openscad_model.png)
+
+To assemble, you use M2 bolts to attach the buttons to the bottom, I think I used 6mm but something in that area should be fine.  Use M3 bolts (around 12-16mm) to attach the 3D printed parts to the led matrix.  The PCB fits into a custom slot in
+the bottom 3d part (see the grooves in the red image above) and is held in place with no bolts required, just make sure it's
+in position before tightening the bolts.
+
+The hex matrixes on the back hold the power and led interface cables within the unit so that it will mount flush on
+the wall.  A guide and socket is provided for wall hanging the unit.
+
+![opened clock](images/matrix_back.jpg)
 
 # Cusomization Guide
 
@@ -282,11 +299,12 @@ This part of the documentation points you in the right direction if you want to 
 
 The file [src/led_matrix.h](src/led_matrix.h), contains the interface your
 hardware driver will be called with.
-[src/led_matrix_dotstar.c](src/led_matrix_dotstar.c) implements it for the 8x8
-dotstar case.  To use your own, create a new `.c` file (such as
-`src/led_matrix_neopixel.c` and change `CMakeLists.txt` to point to your new
-file instead of `led_matrix_dotstar.c`.  The main function you'll be
-implementing is:
+[src/led_matrix_62x32.c](src/led_matrix_64x32.c) implements it for the 8x8 64x32
+led case.  There is also a [src/led_matrix_dotstar.c](src/led_matrix_dotstar.c) file
+which is used *instead* when building the dotstar version.
+To use your own, create a new `.c` file (such as `src/led_matrix_neopixel.c` and
+change `CMakeLists.txt` to point to your new file instead of
+`led_matrix_dotstar.c`.  The main function you'll be implementing is:
 
 ```c
 #define LED_MATRIX_WIDTH 8
@@ -305,11 +323,13 @@ implementing is:
 void led_matrix_render(uint32_t* data);
 ```
 
-again, look at [src/led_matrix_dotstar.c](src/led_matrix_dotstar.c) for a concrete exmaple of an implementation of `led_matrix_render`.  It's really not much code for the dotstar case.
+Again, look at [src/led_matrix_dotstar.c](src/led_matrix_dotstar.c) for a straight-forward implementation of `led_matrix_render`.
 
 ## Using Different Clock Hardware
 
-Instead of an RTC, you might want to go with a radio-based clock, a GPS clock, or [keeping the time with the Pi Pico](https://raspberrypi.github.io/pico-sdk-doxygen/group__hardware__rtc.html) (requiring the user to set the time whenever the power is removed).
+Instead of an RTC, you might want to go with a radio-based clock, a GPS clock, or [keeping the time with the Pi Pico](https://raspberrypi.github.io/pico-sdk-doxygen/group__hardware__rtc.html).
+
+> The PICO SDK provides time functions but you'll lose battery backup and accuracy is not as good as a real RTC.
 
 [src/clock.h](src/clock.h) gives the interface:
 
@@ -325,30 +345,34 @@ uint16_t clock_get_time();
 void clock_set_time(uint16_t time_hhmm);
 ```
 
-and [src/clock.c](src/clock.c) gives a concrete implementation for the RTC module.
+and [src/clock_ds3231.c](src/clock_d23231.c) gives a concrete implementation for
+the RTC module.  The file [src/clock_pico_internal.c](src/clock_pico_internal.c)
+provides an implementation that does not need RTC hardware.  It can be selected
+in [src/CMakeLists.txt](src/CMakeLists.txt).
 
 ## Changing The Display Rendering
 
 There are two files and one directory to consider.  The first file is [src/clock_render.c](src/clock_render.c).  Specifically, this section:
 
 ```c
-struct DisplayMode display_modes[] = {
-  {"normal", matrix_render},  // This entry will be the default power-on mode
-  {"number_cascade", number_cascade_render},
-  {"number_fade", fade_render},
-  {"binary_grid", binary_grid_render},
-  {"off", blank_render},  // always put this entry at the end of the list
-};
+  struct DisplayMode display_modes[] = {
+    {"matrix_with_numbers", matrix_with_numbers_render},  // This entry will be the default power-on mode
+    {"matrix", matrix_render},
+    {"bounce", bounce_render},
+    {"number_cascade", number_cascade_hires_render},
+    {"waveform", waveform_render},
+    {"drops", drops_render},
+    {"off", blank_render},  // always put this entry at the end of the list
+  };
 ```
 
 This section lists the display modes, names them and provides a function pointer to each one.  If you were to remove a line from this array, or reorder the lines, you would see the corresponding change when you build/load new firmware.  In order for the function pointers to have any meaning, you'll need to include the corresponding files:
 
 ```c
-#include "render/blank.h"
-#include "render/fade.h"
+#include "render/matrix_with_numbers.h"
 #include "render/matrix.h"
-#include "render/number_cascade.h"
-#include "render/number_grid.h"
+#include "render/bounce.h"
+...
 ```
 
 Note that, by convention, all rendering functions are defined in the [src/render](src/render) directory.  Here is an example [src/render/blank.c](src/render/blank.c):
@@ -368,9 +392,10 @@ void blank_render(
 
 This simple function simply clears the `led` array to zero which effectively turns off the display.
 
-Showing actual patterns will generally require use of the other parameters, such as `time_hhmm`.
+The `time_hhmm` provides the time as an integer.  For example, 1:45 AM would be
+represented as `0145` and 1:45 PM would be represented as `1345`.
 
-The `frame_index` parameter can be useful for initilization.  It is always set to `0` when the display mode is made active.
+The `frame_index` parameter can be useful for initialization.  It is always set to `0` when the display mode is made active.
 
 The `settings` structure has several potentially-useful fields but especially useful is getting the user preference for LED brightness:
 
@@ -386,13 +411,3 @@ The file `src/clock_settings.c` contains all of the commands available to the
 USB shell.  Adding your own is straight-forward but I suggest skimming through
 https://github.com/mattwach/pico_uart_console to get up-to-speed on how the
 console works first.
-
-## Using a Different Microcontroller
-
-The hardware requirements for the microcontroller are not demanding for this project (as implemented anyway).  Going with AVR, ESP, STM, PIC or something else would all work perfectly fine.  The main difficulty will be adapting the firmware, specifically:
-
-* The CMake build system
-* Access to the PI Pico SDK
-
-To work around these, I would suggest copying the source files to a new project folder, use the "default" build system for your microcontroller and addressing the compiler errors one by one.  Remember that since PI Picos are only $4 and are readily available (at the time I write this) the motivation for going through this effort might not be immediately obivous to others.
-

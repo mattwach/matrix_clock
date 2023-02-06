@@ -4,6 +4,10 @@
 #include <inttypes.h>
 #include "clock_settings.h"
 
+#if defined(led_matrix_64x32)
+  #define MATRIX_ONLY_MODE_INDEX 1
+#endif
+
 // provides a common interface for rendering a clock
 uint8_t clock_render(
   uint32_t* led,

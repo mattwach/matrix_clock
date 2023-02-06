@@ -152,6 +152,9 @@ Type `help` or `?` for help.  Basic options include:
    * Changing the poweron display mode
    * Simulating hardware button presses
    * Setting a sleep/wake time where the clock LEDs will automatically turn off.
+   * Setting up automatic display mode changes.
+     You can also turn enable/disable modes that will be autoselected so that modes
+     you do not like will never be selected.
 
 # Build Instructions
 

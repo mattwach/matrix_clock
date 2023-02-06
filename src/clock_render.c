@@ -46,7 +46,7 @@ struct DisplayMode {
 #elif defined(led_matrix_64x32)
   struct DisplayMode display_modes[] = {
     {"matrix_with_numbers", matrix_with_numbers_render},  // This entry will be the default power-on mode
-    {"matrix", matrix_render},
+    {"matrix", matrix_render},  // Note: MATRIX_ONLY_MODE_INDEX in clock_render.h points to this index
     {"bounce", bounce_render},
     {"number_cascade", number_cascade_hires_render},
     {"waveform", waveform_render},

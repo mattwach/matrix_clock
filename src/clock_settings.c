@@ -19,6 +19,9 @@
 #error Unknown LED_MATRIX_SOURCE
 #endif
 
+// Set to zero to disable by default
+#define DEFAULT_AUTOMODE_MINUTES 11
+
 // brightness is 0-255
 #define MIN_BRIGHTNESS 40   // 0-255
 #define BRIGHTNESS_STEP_SIZE 20   // 0-255
@@ -336,10 +339,16 @@ static uint8_t validate_settings(const struct ClockSettings* cs) {
 static void init_default_settings(void) {
   memset(&settings, 0, sizeof(struct ClockSettings));
   settings.brightness_step = DEFAULT_BRIGHTNESS_STEP;
+  settings.mode_change_minutes = DEFAULT_AUTOMODE_MINUTES;
   const uint8_t max_mode = clock_render_num_display_modes() - 1;  // dont include the off mode
   for (uint8_t i=0; i<max_mode; ++i) {
     settings.enabled_modes |= (1 << i);
   }
+#if defined(led_matrix_64x32)
+  // by default, don't include the matrix-only mode in the
+  // auto mode selection.
+  settings.enabled_modes &= ~(1 << MATRIX_ONLY_MODE_INDEX);
+#endif
 }
 
 void clock_settings_init() {

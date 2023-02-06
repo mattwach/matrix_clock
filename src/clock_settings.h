@@ -8,7 +8,7 @@
 #include <inttypes.h>
 
 //Change this when adding fields.  It will cause all settings to reset
-#define CLOCK_SETTINGS_VERSION 3
+#define CLOCK_SETTINGS_VERSION 4
 
 // Here are the settings.  The checksum, eyecatcher and version fields
 // are there to detect the cases where setting have not ever been written

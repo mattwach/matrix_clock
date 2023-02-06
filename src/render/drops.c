@@ -1,4 +1,4 @@
-#include "waveform.h"
+#include "drops.h"
 
 #include "../led_matrix.h"
 #include "../number_draw.h"
@@ -191,7 +191,7 @@ static void init(const uint8_t brightness) {
   init_particles();
 }
 
-void glow_render(
+void drops_render(
     uint32_t* led,
     uint32_t frame_index,
     uint16_t time_hhmm,

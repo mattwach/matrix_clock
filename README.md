@@ -140,7 +140,7 @@ minicom -b 115200 -P /dev/ttyUSB0
 
 Once started, you will see something like this:
 
-![minicom](images/minicom.jpg)
+![console](images/console.png)
 
 > By default, `minicom` turns on local echo, making my typed characters appear
 > twice.  `minicom` allows this to be turned off with `ctrl-a e`.

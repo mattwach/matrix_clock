@@ -1,27 +1,28 @@
 # matrix_clock
 > "I DON’T EVEN SEE THE CODE ANYMORE" - The Matrix.  
 
-![matrix clock](images/matrix_clock.jpg)
+![matrix clock](images/matrix_only.jpg)
 
 Shown above is a clock that presents the current time on an 64x32 RGB LED
-matrix.  The clock has other selectable modes, including a view that omits the numbers:
+matrix.  The clock has other selectable modes, including a view that includes
+the numbers:
 
-![matrix clock](images/matrix_only.jpg)
+![matrix clock](images/matrix_clock.jpg)
 
 and some other selectable views:
 
 ![matrix clock](images/other_matrix_modes.jpg)
 
 Although the images above give you a basic idea, they can't show you the
-dynamic range of the LED or the graphical effect of the 200 FPS animations,
-I guess you'll just have to build one to see it yourself.
+dynamic range of the LED or the visual impression of 200 FPS animations,
 
-In terms of hardware the project's firmware is setup to support other hardware
-configurations.  Included is a 8x8 dotstar matrix version that was my "V1":
+The project's firmware is designed to easily incorporate support for other
+hardware configurations.  Included is a 8x8 "Dotstar" matrix version that was my
+first version:
 
 ![matrix clock](images/ds8x8/matrix_clock.jpg)
 
-This document focuses on the newer 62x32-based model, which I prefer.  If you
+*This document* focuses on the newer 62x32-based model, which I prefer.  If you
 want to learn more details on the 8x8 build, I have a separate document
 for it [here](README_dotstar_8x8.md).
 
@@ -37,7 +38,7 @@ different ones.  Prices are "at time of writing":
    * [LED Matrix 62x32: ($30)](https://www.amazon.com/waveshare-Displaying-Animation-Adjustable-Brightness/dp/B0B3W1PFY6)
      Note there are many variants available.
    * Clock: [DS3231-based RTC module ($4)](https://www.amazon.com/HiLetgo-AT24C32-Arduino-Without-Battery/dp/B00LX3V7F0).
-     Thi is optional-but-recommended - the firmware can be built to use the
+     This part is optional-but-recommended. The firmware can be built to use the
      Pi Pico clock libraries but you will lose battery backup and the time
      will drift more. 
    * Buttons: I used [2 6mm pushbuttons for control (<$1)](https://www.amazon.com/WOWOONE-12x12x7-3-Tactile-Momentary-Assortment/dp/B08JLWTQ3C)
@@ -46,11 +47,11 @@ different ones.  Prices are "at time of writing":
      * I used one 8x2 2.54 pitch male pin header to interface the Pico PCB with the
        matrix (using the usually-included interface cable)
      * I used a 2x1 angled 2.54 pitch pin header for connecting the LED to the PCB.
-     * I used a 3x1 angled 2.54 picth pin header for connectinf the buttons to the PCB
+     * I used a 3x1 angled 2.54 pitch pin header for connecting the buttons to the PCB
    * I used a 220uF capacitor to reduce 5V noise.  Somewhat larger or smaller values
      values should also work fine.
-   * PCB for assembly.
-     * There are many build options.  I ended up ordering a PCB from
+   * Circuit board for assembling components.
+     * There are many options.  I ended up ordering a PCB from
        http://oshpark.com for the main board because my PCB layout needs a two-layer board.  I could have wired it up on perf board, but the large number of
        pin connections would have make it difficult to get a clean result.
      * There is a separate PCB for the buttons.  This board is very simple so
@@ -60,36 +61,30 @@ different ones.  Prices are "at time of writing":
 
 Optional:
 
-The LED display can pull over 3A if all LEDs are set to white.  The firmware
-I wrote never does this and need about 100-300 mA for most of the modes as-measured.
-Thus I'm using the Pi Picos VDD pin, which is directly connected to USB power.
-This connection should be limited to 500 mA or less, thus I added the following to
-enforce the current limit:
+The LED display can pull over 3A if all LEDs are set to white.  The firmware I
+wrote never does this and needs about 100-300 mA for most of the modes
+(as-measured with a multimeter).  Thus I'm using the Pi Pico's VDD pin, which is
+directly connected to USB power.  This connection should be limited to 500 mA or
+less, thus I added the following electronic components to enforce the current
+limit:
 
-   * NCP380
+   * NCP380 current limiting IC
    * Two additional 1uf capacitors for stability.  I am using SMD but ceramic
      through-hole are also an option.
 
 My hardware has this current protection but it has never activated outside of
-testing thus one might argue that it's not needed, but again, it's definitely
-*possible* to change the firmware to pull > 500 mA.
+testing thus one might argue that it's not needed.  If you plan to make your own
+display modes, I suggest including the protection.
 
 # Reading the clock
 
-Here is my scheme for showing the time, which you can easily modify to your
-preference.
-
-Numbers are represented by colors.  At the time of writing, they are as follows:
+How can the clock be read when no numbers are shown?  By noting the colors and
+speed of the particles.  Here is my color mapping for each number, as shown in
+the time setting interface:
 
 ![numbers](images/clock_set.jpg)
 
 > Colors are defined in [src/colors.c](src/colors.c) if you would like to edit them.
-
-Different display modes use these colors in different ways.  For example, the
-"matrix" display modes, moves points for hours and minutes as different speeds
-and chooses colors based on the current time.  Thus it's possible to read the
-clock with no numbers displayed at all if you spend enough time to learn what
-the colors and speeds are telling you.
 
 # Feature Overview
 
@@ -140,21 +135,12 @@ minicom -b 115200 -P /dev/ttyUSB0
 
 Once started, you will see something like this:
 
-![minicom](images/minicom.jpg)
+![console](images/console.png)
 
 > By default, `minicom` turns on local echo, making my typed characters appear
 > twice.  `minicom` allows this to be turned off with `ctrl-a e`.
 
-Type `help` or `?` for help.  Basic options include:
-
-   * Changing LED brightness
-   * Changing the time
-   * Changing the poweron display mode
-   * Simulating hardware button presses
-   * Setting a sleep/wake time where the clock LEDs will automatically turn off.
-   * Setting up automatic display mode changes.
-     You can also turn enable/disable modes that will be autoselected so that modes
-     you do not like will never be selected.
+Type `help` or `?` for help.
 
 # Build Instructions
 
@@ -197,6 +183,23 @@ Here is a description on major components and their purpose:
 
 > If you don't us use the NCP380, simply connect the 5V directly to the LED.
 > Keep the 100u capacitor for noise purposes.
+
+In terms of layout, here is the kicad layout for the schematic above (with ground plane hidden):
+
+![kicad layout](images/kicad_layout.png)
+
+and here is a photo of the completed PCB.  Note that the capacitor can't be seen
+because it is on the backside of the board:
+
+![completed pcb](images/completed_pcb.jpg)
+
+As for the buttons, here is the simple kicad layout:
+
+![kicad button layout](images/kicad_button_layout.png)
+
+and the finished board that I cut out with my CNC machine (just using a perf board would also work fine):
+
+![button hardware](images/button_hardware.jpg)
 
 ## Firmware
 
@@ -242,7 +245,7 @@ cmake ..
 > contained within `bootstrap.sh` manually.  The good news is that there
 > are only a few commands to run.
 
-The two major things done here are getting some dependencies (submodules) and
+The two major things done here are getting some dependencies (git submodules) and
 setting up a new build environment under `build/`
 
 If all went well above, you will have a `src/build/matrix_clock.uf2` file available
@@ -287,7 +290,7 @@ wall hanging the unit.
 
 # Cusomization Guide
 
-This part of the documentation points you in the right direction if you want to modify the project.
+This part of the documentation points you in the right direction if you want to modify the project.  This entire section should be consider optional and more advanced than others.
 
 ## Using Different LED Hardware
 

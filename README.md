@@ -277,10 +277,11 @@ to attach the 3D printed parts to the led matrix.
 
 The PCB settles into a custom slot in the bottom 3d part (see the grooves in the
 red image above) and is held in place with no bolts required, just make sure
-it's in the proper position before tightening the bolts.
+it's in the proper position before tightening the frame bolts.
 
-The hex matrixes on the back hold the power and led interface cables within the unit so that it will mount flush on
-the wall.  A guide and slot is provided for wall hanging the unit.
+The hex matrixes on the back hold the power and led interface cables within the
+unit so that it will mount flush on the wall.  A guide and slot is provided for
+wall hanging the unit.
 
 ![opened clock](images/matrix_back.jpg)
 
@@ -292,13 +293,12 @@ This part of the documentation points you in the right direction if you want to 
 
 The file [src/led_matrix.h](src/led_matrix.h), contains the interface your
 hardware driver will be called with.
-[src/led_matrix_62x32.c](src/led_matrix_64x32.c) implements it for the 8x8 64x32
-led case.  There is also a [src/led_matrix_dotstar.c](src/led_matrix_dotstar.c)
-file which is used *instead* when building the dotstar version.  To add additional
-hardware support, create a new `.c` file (such as
-`src/led_matrix_neopixel.c` and change `CMakeLists.txt` to point to your new
-file instead of `led_matrix_dotstar.c`.  The main function you'll be
-implementing is:
+[src/led_matrix_62x32.c](src/led_matrix_64x32.c) implements it for the 64x32 LED
+hardware.  There is also a [src/led_matrix_dotstar.c](src/led_matrix_dotstar.c)
+file which is used *instead* when building the dotstar version.  To add
+additional hardware support, create a new `.c` file (for example
+`src/led_matrix_neopixel.c`) and change [src/CMakeLists.txt](src/CMakeLists.txt)
+to point to your new file.c`.  The main function you'll be implementing is:
 
 ```c
 #define LED_MATRIX_WIDTH 8

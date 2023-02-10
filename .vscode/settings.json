@@ -1,3 +1,10 @@
 {
-  "cmake.sourceDirectory": "${workspaceFolder}/src"
+  "cmake.sourceDirectory": "${workspaceFolder}/src",
+  "cSpell.words": [
+    "Dotstar",
+    "Microcontroller",
+    "Pico",
+    "pullup",
+    "TLDR"
+  ]
 }

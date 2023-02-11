@@ -184,7 +184,7 @@ Here is a description on major components and their purpose:
     the LED, which can be a "noisy" load, needing near zero current one moment
     and several hundred mA the next.
   - **Buttons**.  Select, increment and reset as described earlier.
-  - NCP380 current limiting chip (optional).  This chip provides insurance for
+  - **NCP380 current limiting chip (optional)**.  This chip provides insurance for
     the case where you one day decide to change the firmware to light up many
     LEDs and draw too much current.  If you really want to do support high
     current draw, you'll need to rework the power design so that the LED panel

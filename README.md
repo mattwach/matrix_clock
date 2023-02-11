@@ -31,12 +31,13 @@ explain how to modify the design in different ways.
 
 # Parts List
 
-Here are the parts I used.  You can of course modify the design to use
-different ones.  Prices are "at time of writing":
+You can of course modify the design to use different ones.  Prices are "at time
+of writing":
 
    * Microcontroller: [Raspberry PI Pico ($4)](https://www.adafruit.com/product/4864)
    * [LED Matrix 62x32: ($30)](https://www.amazon.com/waveshare-Displaying-Animation-Adjustable-Brightness/dp/B0B3W1PFY6)
-     Note there are many variants available.
+     Note there are many vendors of this display - I assume they have similar
+     interfaces.
    * Clock: [DS3231-based RTC module ($4)](https://www.amazon.com/HiLetgo-AT24C32-Arduino-Without-Battery/dp/B00LX3V7F0).
      This part is optional-but-recommended. The firmware can be built to use the
      Pi Pico clock libraries but you will lose battery backup and the time
@@ -146,31 +147,32 @@ Type `help` or `?` for help.
 
 ## Electronics
 
-Here is the schematic for the 64x32 (rotated) version:
+Here is the schematic for the 64x32 version:
 
 ![schematic](images/schematic.png)
 
 Here is a description on major components and their purpose:
 
-  - Pi Pico: This is the main controller
-  - RTC Clock (Optional): This provides time to the Pico via an I2C connection.  You
+  - **Pi Pico**: This is the main controller
+  - **RTC (Real Time Clock, Optional)**: This provides time to the Pico via an 
+    I2C connection (4 wires, including power and ground).  You
     could use alternate clock hardware as described in a later section.  In terms of the I2C connection, note that the
     RTC clock is powered by 3.3V instead of the specified 5V.  This is the
-    easiest way to make the clock compatible with the 3.3V maximum voltage of
+    easiest way to make the RTC compatible with the 3.3V maximum voltage of
     the PI Pico.  If your RTC really does need 5V, there are solutions but the
     details are not the focus of this document.  Thus I suggest doing a Google
     search for "3.3 to 5V I2C" to learn more.
-  - 64x32 matrix: This is also a 5V part and is connected to the 5V VDD of the Pico,
+  - **64x32 matrix**: This is also a 5V part and is connected to the 5V VDD of the Pico,
     allowing ~500mA to be safely consumed by the panel.  The Pico is directly connected
     and will deliver 0-3.3V *signals* to the panel.  Unlike I2C for the RTC clock, the LED pins are high impedance inputs with no pullup thus there is no hardware risk in connecting them directly to the Pico.  The main risk is that the LED panel will not accept 3.3V as a legitimate "high" signal and thus it wont work.  For my panel
     3.3V was accepted without a problem thus no level converters were needed.
     I suspect this is the common scenerio with these panels.
-  - 100 uF-470 uF capacitor.  The actual value is not important other that "big".  The
+  - **100 uF-470 uF capacitor**.  The actual value is not important other that "big".  The
     purpose of the capacitor is to support the power requirements of the LED, which
     can be a "noisy" load, needing near zero current one moment and several hundred
     mA the next.
-  - Support for buttons.  Select, increment and reset as described earlier.
-  - NCP380 current limiting chip (optional).  This chip provides insurance for
+  - **Buttons**.  Select, increment and reset as described earlier.
+  - **NCP380 current limiting chip (optional)**.  This chip provides insurance for
     the case where you one day decide to change the firmware to light up many
     LEDs and draw too much current.  If you really want to do support high
     current draw, you'll need to rework the power design so that the LED panel
@@ -178,10 +180,10 @@ Here is a description on major components and their purpose:
     Pico.
     
 > VDD on the Pico is a direct passthrough to the USB power so it's the
-> USB regulator (wall adapter, computer) and the PCB traces of the Pico that are
+> USB regulator (wall adapter or computer) and the PCB traces of the Pico that are
 > the main power bottlenecks.
 
-> If you don't us use the NCP380, simply connect the 5V directly to the LED.
+> If you don't us use the NCP380, simply connect the Pico VDD pin directly to the LED.
 > Keep the 100u capacitor for noise purposes.
 
 In terms of layout, here is the kicad layout for the schematic above (with ground plane hidden):
@@ -264,7 +266,7 @@ I solved all of these problem by creating a couple of 3D models and printing the
 I used OpenSCAD for the modeling.
 
 This model is located at [case/led_matrix_64x32/led_matrix_64x32.scad](case/led_matrix_64x32/led_matrix_64x32.scad).
-If can be changed with any text editor and viewed in the free [OpenSCAD](http://openscad.org) software.
+It can be modified with any text editor and viewed in the free [OpenSCAD](http://openscad.org) software.
 
 If you don't want to mess around with OpenSCAD, I also have the models available for
 direct download at [case/led_matrix_64x32/export](case/led_matrix_64x32/export).  These

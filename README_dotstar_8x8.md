@@ -1,7 +1,7 @@
 # matrix_clock
 > "I DON’T EVEN SEE THE CODE ANYMORE" - The Matrix.  
 
-![matrix clock](images/ds8x8/matrix_clock.jpg)
+![matrix clock](images/ds8x8/ds_matrix_clock.jpg)
 
 Shown above is a clock that presents the current time on an 8x8 RGB LED matrix.  It's not readable to a passer-by but one can learn to read it with practice.
 

@@ -20,7 +20,7 @@ The project's firmware is designed to easily incorporate support for other
 hardware configurations.  Included is a 8x8 "Dotstar" matrix version that was my
 first version:
 
-![matrix clock](images/ds8x8/matrix_clock.jpg)
+![matrix clock](images/ds8x8/ds_matrix_clock.jpg)
 
 *This document* focuses on the newer 62x32-based model, which I prefer.  If you
 want to learn more details on the 8x8 build, I have a separate document

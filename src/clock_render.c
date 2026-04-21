@@ -8,6 +8,7 @@
 #include "render/matrix_with_numbers.h"
 #include "render/number_cascade.h"
 #include "render/number_cascade_hires.h"
+#include "render/simple.h"
 #include "render/waveform.h"
 
 // This is the "render multiplexer" file.  It registers a table
@@ -45,6 +46,7 @@ struct DisplayMode {
   };
 #elif defined(led_matrix_64x32)
   struct DisplayMode display_modes[] = {
+    {"simple", simple_render},
     {"matrix_with_numbers", matrix_with_numbers_render},  // This entry will be the default power-on mode
     {"matrix", matrix_render},  // Note: MATRIX_ONLY_MODE_INDEX in clock_render.h points to this index
     {"bounce", bounce_render},

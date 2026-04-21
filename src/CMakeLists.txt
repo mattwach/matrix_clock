@@ -53,6 +53,7 @@ add_executable(matrix_clock
         render/matrix_with_numbers.c
         render/number_cascade.c
         render/number_cascade_hires.c
+        render/simple.c
         render/waveform.c
         )
 

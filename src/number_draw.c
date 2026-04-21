@@ -1,7 +1,7 @@
 #include "number_draw.h"
 #include "colors.h"
 #include "led_matrix.h"
-#include <pico/platform.h>
+#include <pico.h>
 
 // numbers are made of lines
 // Each line is on a coordinate system from 0x00 to 0x10

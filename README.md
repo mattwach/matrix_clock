@@ -116,6 +116,9 @@ each time digit.
 If you press the "increment" button while the matrix is showing, the clock will
 cycle through display modes.  Currently defined modes include:
 
+* **Simple** Shows the time with no animations.  The color of the time
+  changes throughout the day to approximate a sunrise/daytime/sunset color
+  temperature.
 * **Matrix With Numbers** The default
 * **Matrix Only** For those who want a challenge
 * **Bounce** Particles bounce around the numbers. 
